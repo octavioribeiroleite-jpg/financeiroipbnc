@@ -1,16 +1,32 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
-  return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
-  );
-};
+export default function Index() {
+  const { loading, user, papeis, papelPrincipal, perfil } = useAuth();
 
-const Index = PlaceholderIndex;
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-export default Index;
+  if (!user) return <Navigate to="/login" replace />;
+  if (perfil && !perfil.ativo) return <Navigate to="/login" replace />;
+  if (papeis.length === 0) return <Navigate to="/acesso-pendente" replace />;
+
+  switch (papelPrincipal) {
+    case "administrador":
+      return <Navigate to="/painel/administrador" replace />;
+    case "tesoureiro_igreja":
+      return <Navigate to="/painel/igreja" replace />;
+    case "tesoureiro_central":
+      return <Navigate to="/painel/central" replace />;
+    case "tesoureiro_sociedade":
+      return <Navigate to="/painel/sociedade" replace />;
+    default:
+      return <Navigate to="/acesso-pendente" replace />;
+  }
+}
