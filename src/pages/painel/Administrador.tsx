@@ -91,7 +91,7 @@ export default function PainelAdministrador() {
       <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Atalho
           titulo="Saldo consolidado"
-          descricao="Posição financeira total das sociedades."
+          descricao="Posição financeira total para acompanhar o caixa geral."
           icone={BarChart3}
           para="/igreja/relatorios"
           contagem={Number(resumo?.saldoConsolidado ?? 0)}
@@ -105,7 +105,7 @@ export default function PainelAdministrador() {
         />
         <Atalho
           titulo="Pagamentos em aberto"
-          descricao="Solicitações aguardando decisão ou pagamento."
+          descricao="Pagamentos aguardando decisão, quitação ou revisão."
           icone={FileText}
           para="/central/solicitacoes"
           contagem={pendentesPagamento}
@@ -124,7 +124,7 @@ export default function PainelAdministrador() {
           <Link to="/sociedade/contribuicoes">Lançar contribuição</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link to="/sociedade/solicitacoes">Registrar pagamento</Link>
+          <Link to="/central/solicitacoes">Registrar pagamento</Link>
         </Button>
         <Button asChild variant="outline">
           <Link to="/sociedade/fechamentos">Fechar mês</Link>

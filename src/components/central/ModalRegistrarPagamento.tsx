@@ -78,6 +78,10 @@ export function ModalRegistrarPagamento({ solicitacao, open, onClose }: Props) {
         </DialogHeader>
 
         <div className="space-y-3">
+          <AvisoMesConsolidado
+            visivel={!!travado}
+            mensagem="A data informada cai em um mês já consolidado. Escolha outra data para registrar o pagamento."
+          />
           <div className="space-y-1">
             <Label htmlFor="data" className="text-xs">
               Data do pagamento <span className="text-destructive">*</span>

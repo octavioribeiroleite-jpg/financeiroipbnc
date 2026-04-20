@@ -8,6 +8,7 @@ import { FormContribuicao } from "@/components/sociedade/FormContribuicao";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, Paperclip } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 import { formatarData, formatarMesAno, formatarMoeda } from "@/lib/format";
 import {
   Contribuicao,
@@ -16,9 +17,10 @@ import {
 } from "@/hooks/sociedade/useContribuicoesSociedade";
 
 export default function Contribuicoes() {
-  const { user, sociedadeId } = useAuth();
-  const { data, isLoading } = useContribuicoesSociedade(sociedadeId);
-  const excluir = useExcluirContribuicao(sociedadeId);
+  const { user } = useAuth();
+  const { sociedadeSelecionada, sociedadeSelecionadaId } = useSociedadeOperacional();
+  const { data, isLoading } = useContribuicoesSociedade(sociedadeSelecionadaId);
+  const excluir = useExcluirContribuicao(sociedadeSelecionadaId);
 
   const [aberto, setAberto] = useState(false);
   const [editando, setEditando] = useState<Contribuicao | null>(null);
@@ -85,11 +87,11 @@ export default function Contribuicoes() {
     },
   ];
 
-  if (!sociedadeId || !user) {
+  if (!sociedadeSelecionadaId || !user) {
     return (
-      <ShellPainel titulo="Contribuições" descricao="Sua conta não está vinculada a uma sociedade.">
+      <ShellPainel titulo="Contribuições" descricao="Selecione uma sociedade ativa para começar os lançamentos.">
         <p className="text-sm text-muted-foreground">
-          Solicite ao administrador o vínculo da sua conta a uma sociedade para registrar contribuições.
+          Assim que escolher a sociedade no topo, você poderá registrar, editar e revisar as contribuições dela.
         </p>
       </ShellPainel>
     );
@@ -98,7 +100,7 @@ export default function Contribuicoes() {
   return (
     <ShellPainel
       titulo="Contribuições"
-      descricao="Registre e acompanhe as contribuições recebidas pela sociedade."
+      descricao={`Registre e acompanhe as contribuições de ${sociedadeSelecionada?.nome ?? "uma sociedade"}.`}
     >
       <DataTable
         dados={data ?? []}
@@ -123,7 +125,7 @@ export default function Contribuicoes() {
         descricao={editando ? "Edição permitida apenas enquanto pendente de conferência." : undefined}
       >
         <FormContribuicao
-          sociedadeId={sociedadeId}
+          sociedadeId={sociedadeSelecionadaId}
           usuarioId={user.id}
           registro={editando}
           onConcluido={() => setAberto(false)}

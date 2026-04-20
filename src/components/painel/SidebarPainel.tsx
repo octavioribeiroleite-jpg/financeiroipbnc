@@ -44,13 +44,12 @@ const PAINEIS: ItemMenu[] = [
 const SOCIEDADE: ItemMenu[] = [
   { titulo: "Extrato por sociedade", url: "/sociedade/extrato", icone: Receipt, papeis: ["administrador"] },
   { titulo: "Contribuições", url: "/sociedade/contribuicoes", icone: HandCoins, papeis: ["administrador"] },
-  { titulo: "Pagamentos", url: "/sociedade/solicitacoes", icone: FileText, papeis: ["administrador"] },
+  { titulo: "Pagamentos", url: "/central/solicitacoes", icone: FileText, papeis: ["administrador"] },
   { titulo: "Fechamentos", url: "/sociedade/fechamentos", icone: BookCheck, papeis: ["administrador"] },
 ];
 
 const CENTRAL: ItemMenu[] = [
   { titulo: "Conferir contribuições", url: "/central/contribuicoes", icone: CheckCheck, papeis: ["administrador"] },
-  { titulo: "Processar pagamentos", url: "/central/solicitacoes", icone: ClipboardCheck, papeis: ["administrador"] },
   { titulo: "Conferir fechamentos", url: "/central/fechamentos", icone: BookCheck, papeis: ["administrador"] },
 ];
 

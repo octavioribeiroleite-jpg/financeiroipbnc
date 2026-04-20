@@ -56,7 +56,7 @@ export function useCriarSolicitacao(sociedadeId: string | null, criadoPor: strin
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
       qc.invalidateQueries({ queryKey: ["resumo-sociedade", sociedadeId] });
-      toast.success("Solicitação salva");
+      toast.success("Pagamento salvo");
     },
     onError: (e: Error) => toast.error("Falha ao salvar", { description: e.message }),
   });
@@ -87,7 +87,7 @@ export function useAtualizarSolicitacao(sociedadeId: string | null) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
       qc.invalidateQueries({ queryKey: ["resumo-sociedade", sociedadeId] });
-      toast.success("Solicitação atualizada");
+      toast.success("Pagamento atualizado");
     },
     onError: (e: Error) => toast.error("Falha ao atualizar", { description: e.message }),
   });
@@ -105,7 +105,7 @@ export function useEnviarSolicitacao(sociedadeId: string | null) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
-      toast.success("Solicitação enviada para análise");
+      toast.success("Pagamento liberado para processamento");
     },
     onError: (e: Error) => toast.error("Falha ao enviar", { description: e.message }),
   });
@@ -120,7 +120,7 @@ export function useExcluirSolicitacao(sociedadeId: string | null) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
-      toast.success("Solicitação removida");
+      toast.success("Pagamento removido");
     },
     onError: (e: Error) => toast.error("Falha ao remover", { description: e.message }),
   });

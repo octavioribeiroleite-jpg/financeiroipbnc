@@ -67,7 +67,7 @@ export function ModalAnalisarSolicitacao({ solicitacao, open, onClose }: Props) 
     <Dialog open={open} onOpenChange={(v) => !v && fechar()}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Análise da solicitação</DialogTitle>
+          <DialogTitle>Processar pagamento</DialogTitle>
           <DialogDescription>
             {sociedade?.nome ?? "—"} · {solicitacao.descricao}
           </DialogDescription>
@@ -92,7 +92,7 @@ export function ModalAnalisarSolicitacao({ solicitacao, open, onClose }: Props) 
             {podeIniciar && (
               <>
                 <Separator />
-                <Button
+              <Button
                   className="w-full"
                   onClick={() =>
                     iniciar.mutate(
@@ -103,7 +103,7 @@ export function ModalAnalisarSolicitacao({ solicitacao, open, onClose }: Props) 
                   disabled={iniciar.isPending}
                 >
                   <Search className="h-4 w-4" />
-                  Iniciar análise
+                  Assumir processamento
                 </Button>
               </>
             )}
@@ -168,9 +168,9 @@ export function ModalAnalisarSolicitacao({ solicitacao, open, onClose }: Props) 
           </TabsContent>
 
           <TabsContent value="devolver" className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              A solicitação volta para "rascunho" e a sociedade poderá editá-la.
-            </p>
+              <p className="text-sm text-muted-foreground">
+                O pagamento volta para edição para você ajustar dados e reenviar quando estiver pronto.
+              </p>
             <Label htmlFor="ajuste" className="text-sm">
               O que precisa ser ajustado <span className="text-destructive">*</span>
             </Label>

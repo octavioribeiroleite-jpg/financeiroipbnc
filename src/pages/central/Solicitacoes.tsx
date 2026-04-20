@@ -19,11 +19,12 @@ import { ModalRegistrarPagamento } from "@/components/central/ModalRegistrarPaga
 import { formatarData, formatarMoeda } from "@/lib/format";
 import { Banknote, Eye, Search } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 
 type StatusSol = Database["public"]["Enums"]["status_solicitacao"];
 
 const ABAS: { valor: string; rotulo: string; filtros?: StatusSol[] }[] = [
-  { valor: "pendentes", rotulo: "Pendentes", filtros: ["enviada"] },
+  { valor: "pendentes", rotulo: "Pendentes", filtros: ["enviada", "em_analise"] },
   { valor: "em_analise", rotulo: "Em análise", filtros: ["em_analise"] },
   { valor: "aprovadas", rotulo: "Aprovadas", filtros: ["aprovada"] },
   { valor: "pagas", rotulo: "Pagas", filtros: ["paga"] },
@@ -34,9 +35,9 @@ export default function CentralSolicitacoes() {
   const { data: solicitacoes = [], isLoading } = useSolicitacoesCentral();
   const { data: sociedades = [] } = useSociedades();
   const { data: fornecedores = [] } = useFornecedores();
+  const { sociedadeSelecionada, sociedadeSelecionadaId, setSociedadeSelecionadaId } = useSociedadeOperacional();
 
   const [aba, setAba] = useState("pendentes");
-  const [filtroSociedade, setFiltroSociedade] = useState<string>("todas");
   const [selecionada, setSelecionada] = useState<Solicitacao | null>(null);
   const [modalAnalise, setModalAnalise] = useState(false);
   const [modalPagamento, setModalPagamento] = useState(false);
@@ -48,20 +49,31 @@ export default function CentralSolicitacoes() {
     const abaConf = ABAS.find((a) => a.valor === aba);
     return solicitacoes.filter((s) => {
       if (abaConf?.filtros && !abaConf.filtros.includes(s.status)) return false;
-      if (filtroSociedade !== "todas" && s.sociedade_id !== filtroSociedade) return false;
+      if (sociedadeSelecionadaId && s.sociedade_id !== sociedadeSelecionadaId) return false;
       return true;
     });
-  }, [solicitacoes, aba, filtroSociedade]);
+  }, [solicitacoes, aba, sociedadeSelecionadaId]);
 
   const totais = useMemo(() => {
-    const pendentes = solicitacoes.filter((s) => s.status === "enviada");
-    const aprovadas = solicitacoes.filter((s) => s.status === "aprovada");
+    const base = sociedadeSelecionadaId
+      ? solicitacoes.filter((s) => s.sociedade_id === sociedadeSelecionadaId)
+      : solicitacoes;
+    const pendentes = base.filter((s) => ["enviada", "em_analise"].includes(s.status));
+    const aprovadas = base.filter((s) => s.status === "aprovada");
     return {
       qtdPendentes: pendentes.length,
       valorAprovadas: aprovadas.reduce((sum, s) => sum + Number(s.valor), 0),
       qtdAprovadas: aprovadas.length,
+      vencendoSemana: base.filter((s) => {
+        if (!["enviada", "em_analise", "aprovada"].includes(s.status)) return false;
+        const hoje = new Date();
+        const fim = new Date();
+        fim.setDate(hoje.getDate() + 7);
+        const venc = new Date(s.vencimento);
+        return venc >= hoje && venc <= fim;
+      }).length,
     };
-  }, [solicitacoes]);
+  }, [sociedadeSelecionadaId, solicitacoes]);
 
   const abrirAnalise = (s: Solicitacao) => {
     setSelecionada(s);
@@ -124,9 +136,9 @@ export default function CentralSolicitacoes() {
             variant="ghost"
             size="icon"
             onClick={() => abrirAnalise(s)}
-            title={s.status === "enviada" ? "Analisar" : "Visualizar"}
+            title={s.status === "enviada" || s.status === "em_analise" ? "Processar" : "Visualizar"}
           >
-            {s.status === "enviada" ? <Search className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {s.status === "enviada" || s.status === "em_analise" ? <Search className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>
         </div>
       ),
@@ -135,12 +147,12 @@ export default function CentralSolicitacoes() {
 
   return (
     <ShellPainel
-      titulo="Analisar solicitações"
-      descricao="Acompanhe, aprove e registre pagamentos das sociedades."
+      titulo="Pagamentos"
+      descricao={`Acompanhe, aprove e quite pagamentos de ${sociedadeSelecionada?.nome ?? "uma sociedade"}.`}
     >
       <div className="mb-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-md border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Aguardando análise</p>
+          <p className="text-xs text-muted-foreground">Aguardando decisão</p>
           <p className="text-2xl font-semibold">{totais.qtdPendentes}</p>
         </div>
         <div className="rounded-md border bg-card p-4">
@@ -149,8 +161,8 @@ export default function CentralSolicitacoes() {
           <p className="text-xs text-muted-foreground">{formatarMoeda(totais.valorAprovadas)}</p>
         </div>
         <div className="rounded-md border bg-card p-4">
-          <p className="text-xs text-muted-foreground">Total de solicitações</p>
-          <p className="text-2xl font-semibold">{solicitacoes.length}</p>
+          <p className="text-xs text-muted-foreground">Vencendo nesta semana</p>
+          <p className="text-2xl font-semibold">{totais.vencendoSemana}</p>
         </div>
       </div>
 
@@ -174,14 +186,13 @@ export default function CentralSolicitacoes() {
           nomeFornecedor(s.fornecedor_id).toLowerCase().includes(t) ||
           nomeSociedade(s.sociedade_id).toLowerCase().includes(t)
         }
-        vazioMensagem="Nenhuma solicitação encontrada."
+        vazioMensagem="Nenhum pagamento encontrado."
         acoes={
-          <Select value={filtroSociedade} onValueChange={setFiltroSociedade}>
+          <Select value={sociedadeSelecionadaId ?? undefined} onValueChange={setSociedadeSelecionadaId}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Sociedade" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="todas">Todas as sociedades</SelectItem>
               {sociedades.map((s) => (
                 <SelectItem key={s.id} value={s.id}>
                   {s.nome}
