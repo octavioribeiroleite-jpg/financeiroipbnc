@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Download, Unlock } from "lucide-react";
+import { Download, FileDown, Unlock } from "lucide-react";
 import { formatarData, formatarMoeda } from "@/lib/format";
 import {
   useMovimentacoesMes,
@@ -24,6 +24,8 @@ import { StatusFechamentoBadge } from "./StatusFechamentoBadge";
 import { ModalReabrirFechamento } from "./ModalReabrirFechamento";
 import { exportarCsv } from "@/lib/exportCsv";
 import { useAuth } from "@/contexts/AuthContext";
+import { useConfigIgreja } from "@/hooks/igreja/useConfigIgreja";
+import { gerarPdfFechamento, nomeArquivoFechamento } from "@/lib/pdf/fechamentoPdf";
 import { useState } from "react";
 
 interface Props {
@@ -39,7 +41,8 @@ const MESES = [
 ];
 
 export function DetalheFechamento({ open, onOpenChange, fechamento, nomeSociedade }: Props) {
-  const { isAdmin } = useAuth();
+  const { isAdmin, perfil } = useAuth();
+  const { config } = useConfigIgreja();
   const [reabrirAberto, setReabrirAberto] = useState(false);
   const { data: movs = [], isLoading } = useMovimentacoesMes(
     fechamento?.sociedade_id ?? null,
@@ -60,6 +63,27 @@ export function DetalheFechamento({ open, onOpenChange, fechamento, nomeSociedad
         { cabecalho: "Observação", valor: (m) => m.observacao ?? "" },
       ],
       movs,
+    );
+  };
+
+  const podeGerarPdf =
+    fechamento.status === "conferido" || fechamento.status === "consolidado";
+
+  const handlePdf = () => {
+    const doc = gerarPdfFechamento({
+      fechamento,
+      nomeSociedade: nomeSociedade ?? "Sociedade",
+      movimentacoes: movs,
+      config,
+      geradoPor: perfil?.nome ?? null,
+    });
+    doc.save(
+      nomeArquivoFechamento({
+        fechamento,
+        nomeSociedade: nomeSociedade ?? "Sociedade",
+        movimentacoes: movs,
+        config,
+      }),
     );
   };
 
@@ -120,6 +144,12 @@ export function DetalheFechamento({ open, onOpenChange, fechamento, nomeSociedad
               >
                 <Unlock className="h-4 w-4" />
                 Reabrir mês
+              </Button>
+            )}
+            {podeGerarPdf && (
+              <Button variant="outline" size="sm" onClick={handlePdf}>
+                <FileDown className="h-4 w-4" />
+                PDF
               </Button>
             )}
             <Button variant="outline" size="sm" onClick={handleExportar} disabled={movs.length === 0}>

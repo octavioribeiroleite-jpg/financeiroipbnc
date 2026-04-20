@@ -27,6 +27,7 @@ import {
   BarChart3,
   ShieldCheck,
   BookCheck,
+  Settings,
 } from "lucide-react";
 
 interface ItemMenu {
@@ -66,6 +67,7 @@ const CADASTROS: ItemMenu[] = [
   { titulo: "Usuários", url: "/cadastros/usuarios", icone: Users, papeis: ["administrador"] },
   { titulo: "Categorias", url: "/cadastros/categorias", icone: Tags, papeis: ["administrador"] },
   { titulo: "Fornecedores", url: "/cadastros/fornecedores", icone: Briefcase, papeis: ["administrador", "tesoureiro_central"] },
+  { titulo: "Configurações da Igreja", url: "/cadastros/igreja", icone: Settings, papeis: ["administrador", "tesoureiro_igreja"] },
 ];
 
 function podeVer(item: ItemMenu, papeis: AppRole[]) {

@@ -12,10 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Lock } from "lucide-react";
+import { Eye, FileDown, Lock } from "lucide-react";
 import {
   useFechamentosIgreja,
   useConsolidarMes,
+  useMovimentacoesMes,
   type Fechamento,
 } from "@/hooks/fechamentos/useFechamentos";
 import { useSociedades } from "@/hooks/cadastros/useSociedades";
@@ -23,6 +24,11 @@ import { StatusFechamentoBadge } from "@/components/fechamentos/StatusFechamento
 import { DetalheFechamento } from "@/components/fechamentos/DetalheFechamento";
 import { Badge } from "@/components/ui/badge";
 import { formatarMoeda, primeiroDiaMesAtual } from "@/lib/format";
+import { useConfigIgreja } from "@/hooks/igreja/useConfigIgreja";
+import { gerarPdfFechamento, nomeArquivoFechamento } from "@/lib/pdf/fechamentoPdf";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const MESES = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -39,8 +45,48 @@ export default function FechamentosIgreja() {
   const { data: fechamentos = [], isLoading } = useFechamentosIgreja(ano, mes);
   const { data: sociedades = [] } = useSociedades();
   const consolidar = useConsolidarMes();
+  const { config } = useConfigIgreja();
+  const { perfil } = useAuth();
 
   const [detalhe, setDetalhe] = useState<Fechamento | null>(null);
+  const [pdfLoadingId, setPdfLoadingId] = useState<string | null>(null);
+
+  const handleBaixarPdf = async (f: Fechamento) => {
+    setPdfLoadingId(f.id);
+    try {
+      const inicio = `${f.ano}-${String(f.mes).padStart(2, "0")}-01`;
+      const fim = new Date(f.ano, f.mes, 0);
+      const fimIso = `${fim.getFullYear()}-${String(fim.getMonth() + 1).padStart(2, "0")}-${String(fim.getDate()).padStart(2, "0")}`;
+      const { data, error } = await supabase
+        .from("movimentacoes_sociedade")
+        .select("id, tipo, origem, valor, data_movimento, observacao")
+        .eq("sociedade_id", f.sociedade_id)
+        .gte("data_movimento", inicio)
+        .lte("data_movimento", fimIso)
+        .order("data_movimento", { ascending: true });
+      if (error) throw error;
+      const nomeSoc = sociedades.find((s) => s.id === f.sociedade_id)?.nome ?? "Sociedade";
+      const doc = gerarPdfFechamento({
+        fechamento: f,
+        nomeSociedade: nomeSoc,
+        movimentacoes: data ?? [],
+        config,
+        geradoPor: perfil?.nome ?? null,
+      });
+      doc.save(
+        nomeArquivoFechamento({
+          fechamento: f,
+          nomeSociedade: nomeSoc,
+          movimentacoes: data ?? [],
+          config,
+        }),
+      );
+    } catch (e) {
+      toast.error((e as { message?: string })?.message ?? "Erro ao gerar PDF.");
+    } finally {
+      setPdfLoadingId(null);
+    }
+  };
 
   const sociedadesAtivas = useMemo(
     () => sociedades.filter((s) => s.status === "ativa"),
@@ -201,9 +247,22 @@ export default function FechamentosIgreja() {
                     </TableCell>
                     <TableCell className="text-right">
                       {f && (
-                        <Button variant="ghost" size="sm" onClick={() => setDetalhe(f)}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <div className="inline-flex gap-1">
+                          {(f.status === "conferido" || f.status === "consolidado") && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleBaixarPdf(f)}
+                              disabled={pdfLoadingId === f.id}
+                              title="Baixar PDF"
+                            >
+                              <FileDown className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="sm" onClick={() => setDetalhe(f)} title="Detalhes">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>
