@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { LayoutAutenticado } from "@/components/LayoutAutenticado";
+import { ShellPainel } from "@/components/painel/ShellPainel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -53,7 +53,10 @@ export default function IgrejaRelatorios() {
   );
 
   return (
-    <LayoutAutenticado>
+    <ShellPainel
+      titulo="Relatórios"
+      descricao="Consultas consolidadas com filtro por período e exportação para CSV."
+    >
       <div className="mb-6">
         <h2 className="text-2xl font-semibold">Relatórios</h2>
         <p className="text-muted-foreground">
@@ -150,7 +153,7 @@ export default function IgrejaRelatorios() {
           />
         </TabsContent>
       </Tabs>
-    </LayoutAutenticado>
+    </ShellPainel>
   );
 }
 

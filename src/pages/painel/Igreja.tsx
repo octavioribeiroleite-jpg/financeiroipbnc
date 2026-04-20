@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutAutenticado } from "@/components/LayoutAutenticado";
+import { ShellPainel } from "@/components/painel/ShellPainel";
 import { CardsResumoIgreja } from "@/components/igreja/CardsResumoIgreja";
 import { FiltroPeriodo } from "@/components/igreja/FiltroPeriodo";
 import { GraficoEntradasSaidas } from "@/components/igreja/GraficoEntradasSaidas";
@@ -18,7 +18,10 @@ export default function PainelIgreja() {
   const { data: evolucao, isLoading: le } = useEvolucaoMensal(6);
 
   return (
-    <LayoutAutenticado>
+    <ShellPainel
+      titulo="Painel da Tesouraria da Igreja"
+      descricao="Visão consolidada de todas as sociedades."
+    >
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-2xl font-semibold">Painel da Tesouraria da Igreja</h2>
@@ -37,6 +40,6 @@ export default function PainelIgreja() {
         </div>
         <TabelaSaldoSociedades dados={saldos} loading={ls} />
       </div>
-    </LayoutAutenticado>
+    </ShellPainel>
   );
 }
