@@ -32,6 +32,8 @@ import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
+const PAPEL_ADMIN = ["administrador"] as const;
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -69,7 +71,7 @@ const App = () => (
             <Route
               path="/painel/igreja"
               element={
-                <RotaProtegida papeis={["administrador", "tesoureiro_igreja"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <PainelIgreja />
                 </RotaProtegida>
               }
@@ -77,7 +79,7 @@ const App = () => (
             <Route
               path="/painel/central"
               element={
-                <RotaProtegida papeis={["administrador", "tesoureiro_central"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <PainelCentral />
                 </RotaProtegida>
               }
@@ -85,7 +87,7 @@ const App = () => (
             <Route
               path="/painel/sociedade"
               element={
-                <RotaProtegida papeis={["tesoureiro_sociedade"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <PainelSociedade />
                 </RotaProtegida>
               }
@@ -117,7 +119,7 @@ const App = () => (
             <Route
               path="/cadastros/fornecedores"
               element={
-                <RotaProtegida papeis={["administrador", "tesoureiro_central"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <CadastroFornecedores />
                 </RotaProtegida>
               }
@@ -125,7 +127,7 @@ const App = () => (
             <Route
               path="/cadastros/igreja"
               element={
-                <RotaProtegida papeis={["administrador", "tesoureiro_igreja"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <ConfiguracoesIgreja />
                 </RotaProtegida>
               }
@@ -133,7 +135,7 @@ const App = () => (
             <Route
               path="/sociedade/extrato"
               element={
-                <RotaProtegida papeis={["tesoureiro_sociedade"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <SociedadeExtrato />
                 </RotaProtegida>
               }
@@ -141,7 +143,7 @@ const App = () => (
             <Route
               path="/sociedade/contribuicoes"
               element={
-                <RotaProtegida papeis={["tesoureiro_sociedade"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <SociedadeContribuicoes />
                 </RotaProtegida>
               }
@@ -149,7 +151,7 @@ const App = () => (
             <Route
               path="/sociedade/solicitacoes"
               element={
-                <RotaProtegida papeis={["tesoureiro_sociedade"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <SociedadeSolicitacoes />
                 </RotaProtegida>
               }
@@ -157,7 +159,7 @@ const App = () => (
             <Route
               path="/central/contribuicoes"
               element={
-                <RotaProtegida papeis={["administrador", "tesoureiro_central"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <CentralContribuicoes />
                 </RotaProtegida>
               }
@@ -165,7 +167,7 @@ const App = () => (
             <Route
               path="/central/solicitacoes"
               element={
-                <RotaProtegida papeis={["administrador", "tesoureiro_central"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <CentralSolicitacoes />
                 </RotaProtegida>
               }
@@ -173,7 +175,7 @@ const App = () => (
             <Route
               path="/igreja/relatorios"
               element={
-                <RotaProtegida papeis={["administrador", "tesoureiro_igreja"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <IgrejaRelatorios />
                 </RotaProtegida>
               }
@@ -181,7 +183,7 @@ const App = () => (
             <Route
               path="/igreja/auditoria"
               element={
-                <RotaProtegida papeis={["administrador", "tesoureiro_igreja"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <IgrejaAuditoria />
                 </RotaProtegida>
               }
@@ -189,7 +191,7 @@ const App = () => (
             <Route
               path="/sociedade/fechamentos"
               element={
-                <RotaProtegida papeis={["tesoureiro_sociedade"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <SociedadeFechamentos />
                 </RotaProtegida>
               }
@@ -197,7 +199,7 @@ const App = () => (
             <Route
               path="/central/fechamentos"
               element={
-                <RotaProtegida papeis={["administrador", "tesoureiro_central"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <CentralFechamentos />
                 </RotaProtegida>
               }
@@ -205,7 +207,7 @@ const App = () => (
             <Route
               path="/igreja/fechamentos"
               element={
-                <RotaProtegida papeis={["administrador", "tesoureiro_igreja"]}>
+                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
                   <IgrejaFechamentos />
                 </RotaProtegida>
               }
