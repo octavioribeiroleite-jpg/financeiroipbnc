@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { LayoutAutenticado } from "@/components/LayoutAutenticado";
+import { ShellPainel } from "@/components/painel/ShellPainel";
 import { DataTable, type Coluna } from "@/components/painel/DataTable";
 import { Button } from "@/components/ui/button";
 import {
@@ -112,7 +112,10 @@ export default function CentralContribuicoes() {
   ];
 
   return (
-    <LayoutAutenticado>
+    <ShellPainel
+      titulo="Conferir contribuições"
+      descricao="Acompanhe e confira os lançamentos enviados pelas sociedades."
+    >
       <div className="mb-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-md border bg-card p-4">
           <p className="text-xs text-muted-foreground">Pendentes de conferência</p>
@@ -181,6 +184,6 @@ export default function CentralContribuicoes() {
           setSelecionada(null);
         }}
       />
-    </LayoutAutenticado>
+    </ShellPainel>
   );
 }

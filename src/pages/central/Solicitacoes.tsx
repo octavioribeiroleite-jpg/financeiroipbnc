@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { LayoutAutenticado } from "@/components/LayoutAutenticado";
+import { ShellPainel } from "@/components/painel/ShellPainel";
 import { DataTable, type Coluna } from "@/components/painel/DataTable";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -134,7 +134,10 @@ export default function CentralSolicitacoes() {
   ];
 
   return (
-    <LayoutAutenticado>
+    <ShellPainel
+      titulo="Analisar solicitações"
+      descricao="Acompanhe, aprove e registre pagamentos das sociedades."
+    >
       <div className="mb-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-md border bg-card p-4">
           <p className="text-xs text-muted-foreground">Aguardando análise</p>
@@ -205,6 +208,6 @@ export default function CentralSolicitacoes() {
           setSelecionada(null);
         }}
       />
-    </LayoutAutenticado>
+    </ShellPainel>
   );
 }
