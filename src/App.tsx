@@ -21,6 +21,8 @@ import SociedadeContribuicoes from "./pages/sociedade/Contribuicoes.tsx";
 import SociedadeSolicitacoes from "./pages/sociedade/Solicitacoes.tsx";
 import CentralContribuicoes from "./pages/central/Contribuicoes.tsx";
 import CentralSolicitacoes from "./pages/central/Solicitacoes.tsx";
+import IgrejaRelatorios from "./pages/igreja/Relatorios.tsx";
+import IgrejaAuditoria from "./pages/igreja/Auditoria.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -144,6 +146,22 @@ const App = () => (
               element={
                 <RotaProtegida papeis={["administrador", "tesoureiro_central"]}>
                   <CentralSolicitacoes />
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/igreja/relatorios"
+              element={
+                <RotaProtegida papeis={["administrador", "tesoureiro_igreja"]}>
+                  <IgrejaRelatorios />
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/igreja/auditoria"
+              element={
+                <RotaProtegida papeis={["administrador", "tesoureiro_igreja"]}>
+                  <IgrejaAuditoria />
                 </RotaProtegida>
               }
             />
