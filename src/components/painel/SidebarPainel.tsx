@@ -20,6 +20,8 @@ import {
   Building2,
   Tags,
   Briefcase,
+  HandCoins,
+  FileText,
 } from "lucide-react";
 
 interface ItemMenu {
@@ -34,6 +36,11 @@ const PAINEIS: ItemMenu[] = [
   { titulo: "Painel", url: "/painel/igreja", icone: LayoutDashboard, papeis: ["tesoureiro_igreja"] },
   { titulo: "Painel", url: "/painel/central", icone: LayoutDashboard, papeis: ["tesoureiro_central"] },
   { titulo: "Painel", url: "/painel/sociedade", icone: LayoutDashboard, papeis: ["tesoureiro_sociedade"] },
+];
+
+const SOCIEDADE: ItemMenu[] = [
+  { titulo: "Contribuições", url: "/sociedade/contribuicoes", icone: HandCoins, papeis: ["tesoureiro_sociedade"] },
+  { titulo: "Solicitações", url: "/sociedade/solicitacoes", icone: FileText, papeis: ["tesoureiro_sociedade"] },
 ];
 
 const CADASTROS: ItemMenu[] = [
@@ -54,6 +61,7 @@ export function SidebarPainel() {
   const location = useLocation();
 
   const paineisVisiveis = PAINEIS.filter((i) => podeVer(i, papeis));
+  const sociedadeVisiveis = SOCIEDADE.filter((i) => podeVer(i, papeis));
   const cadastrosVisiveis = CADASTROS.filter((i) => podeVer(i, papeis));
 
   const isActive = (url: string) => location.pathname === url;
@@ -96,6 +104,15 @@ export function SidebarPainel() {
             <SidebarGroupLabel>Visão geral</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>{paineisVisiveis.map(renderItem)}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {sociedadeVisiveis.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Sociedade</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{sociedadeVisiveis.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
