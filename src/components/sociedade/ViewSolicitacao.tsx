@@ -88,10 +88,10 @@ export function ViewSolicitacao({ registro }: Props) {
         )}
         {registro.anexo_comprovante_url && (
           <div>
-            <p className="mb-1 text-xs text-muted-foreground">Comprovante</p>
+            <p className="mb-1 text-xs text-muted-foreground">Comprovante de pagamento</p>
             <UploadAnexo
               sociedadeId={registro.sociedade_id}
-              pasta="solicitacoes-comprovante"
+              pasta="pagamentos"
               caminho={registro.anexo_comprovante_url}
               onChange={() => {}}
               disabled

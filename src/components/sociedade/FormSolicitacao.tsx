@@ -240,14 +240,14 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
         {podeEditar && (
           <>
             <Button type="submit" variant="outline" disabled={submetendo || !!travado}>
-              Salvar rascunho
+              Salvar
             </Button>
             <Button
               type="button"
               disabled={submetendo || !!travado}
               onClick={form.handleSubmit((v) => salvar(v, "enviada"))}
             >
-              Enviar para análise
+              Liberar para processamento
             </Button>
           </>
         )}
