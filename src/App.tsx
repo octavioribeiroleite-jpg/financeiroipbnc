@@ -19,6 +19,8 @@ import CadastroCategorias from "./pages/cadastros/Categorias.tsx";
 import CadastroFornecedores from "./pages/cadastros/Fornecedores.tsx";
 import SociedadeContribuicoes from "./pages/sociedade/Contribuicoes.tsx";
 import SociedadeSolicitacoes from "./pages/sociedade/Solicitacoes.tsx";
+import CentralContribuicoes from "./pages/central/Contribuicoes.tsx";
+import CentralSolicitacoes from "./pages/central/Solicitacoes.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -126,6 +128,22 @@ const App = () => (
               element={
                 <RotaProtegida papeis={["tesoureiro_sociedade"]}>
                   <SociedadeSolicitacoes />
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/central/contribuicoes"
+              element={
+                <RotaProtegida papeis={["administrador", "tesoureiro_central"]}>
+                  <CentralContribuicoes />
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/central/solicitacoes"
+              element={
+                <RotaProtegida papeis={["administrador", "tesoureiro_central"]}>
+                  <CentralSolicitacoes />
                 </RotaProtegida>
               }
             />

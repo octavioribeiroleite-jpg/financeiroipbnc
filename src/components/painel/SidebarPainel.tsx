@@ -22,6 +22,8 @@ import {
   Briefcase,
   HandCoins,
   FileText,
+  CheckCheck,
+  ClipboardCheck,
 } from "lucide-react";
 
 interface ItemMenu {
@@ -43,6 +45,11 @@ const SOCIEDADE: ItemMenu[] = [
   { titulo: "Solicitações", url: "/sociedade/solicitacoes", icone: FileText, papeis: ["tesoureiro_sociedade"] },
 ];
 
+const CENTRAL: ItemMenu[] = [
+  { titulo: "Conferir contribuições", url: "/central/contribuicoes", icone: CheckCheck, papeis: ["administrador", "tesoureiro_central"] },
+  { titulo: "Analisar solicitações", url: "/central/solicitacoes", icone: ClipboardCheck, papeis: ["administrador", "tesoureiro_central"] },
+];
+
 const CADASTROS: ItemMenu[] = [
   { titulo: "Sociedades", url: "/cadastros/sociedades", icone: Building2, papeis: ["administrador"] },
   { titulo: "Usuários", url: "/cadastros/usuarios", icone: Users, papeis: ["administrador"] },
@@ -62,6 +69,7 @@ export function SidebarPainel() {
 
   const paineisVisiveis = PAINEIS.filter((i) => podeVer(i, papeis));
   const sociedadeVisiveis = SOCIEDADE.filter((i) => podeVer(i, papeis));
+  const centralVisiveis = CENTRAL.filter((i) => podeVer(i, papeis));
   const cadastrosVisiveis = CADASTROS.filter((i) => podeVer(i, papeis));
 
   const isActive = (url: string) => location.pathname === url;
@@ -113,6 +121,15 @@ export function SidebarPainel() {
             <SidebarGroupLabel>Sociedade</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>{sociedadeVisiveis.map(renderItem)}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {centralVisiveis.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Tesouraria Central</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{centralVisiveis.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
