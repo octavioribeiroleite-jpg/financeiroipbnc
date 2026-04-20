@@ -14,14 +14,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, Unlock } from "lucide-react";
 import { formatarData, formatarMoeda } from "@/lib/format";
 import {
   useMovimentacoesMes,
   type Fechamento,
 } from "@/hooks/fechamentos/useFechamentos";
 import { StatusFechamentoBadge } from "./StatusFechamentoBadge";
+import { ModalReabrirFechamento } from "./ModalReabrirFechamento";
 import { exportarCsv } from "@/lib/exportCsv";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 
 interface Props {
   open: boolean;
@@ -36,6 +39,8 @@ const MESES = [
 ];
 
 export function DetalheFechamento({ open, onOpenChange, fechamento, nomeSociedade }: Props) {
+  const { isAdmin } = useAuth();
+  const [reabrirAberto, setReabrirAberto] = useState(false);
   const { data: movs = [], isLoading } = useMovimentacoesMes(
     fechamento?.sociedade_id ?? null,
     fechamento?.ano ?? null,
@@ -103,12 +108,25 @@ export function DetalheFechamento({ open, onOpenChange, fechamento, nomeSociedad
           </div>
         )}
 
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold">Movimentações do mês</h3>
-          <Button variant="outline" size="sm" onClick={handleExportar} disabled={movs.length === 0}>
-            <Download className="h-4 w-4" />
-            CSV
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {isAdmin && fechamento.status === "consolidado" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setReabrirAberto(true)}
+                className="border-warning/40 text-warning hover:bg-warning/10 hover:text-warning"
+              >
+                <Unlock className="h-4 w-4" />
+                Reabrir mês
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={handleExportar} disabled={movs.length === 0}>
+              <Download className="h-4 w-4" />
+              CSV
+            </Button>
+          </div>
         </div>
 
         <div className="mt-2 overflow-x-auto rounded-md border">
@@ -154,6 +172,12 @@ export function DetalheFechamento({ open, onOpenChange, fechamento, nomeSociedad
           </Table>
         </div>
       </SheetContent>
+
+      <ModalReabrirFechamento
+        open={reabrirAberto}
+        onOpenChange={setReabrirAberto}
+        fechamentoId={fechamento.id}
+      />
     </Sheet>
   );
 }
