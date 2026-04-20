@@ -20,6 +20,7 @@ import {
   Clock,
   FileText,
   HandCoins,
+  Receipt,
   Wallet,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -111,6 +112,12 @@ export default function PainelSociedade() {
           <Link to="/sociedade/solicitacoes">
             <FileText className="h-4 w-4" />
             Nova solicitação
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/sociedade/extrato">
+            <Receipt className="h-4 w-4" />
+            Ver extrato
           </Link>
         </Button>
       </div>
