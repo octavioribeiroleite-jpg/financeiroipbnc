@@ -28,6 +28,7 @@ import { useContribuicoesSociedade } from "@/hooks/sociedade/useContribuicoesSoc
 import { useSolicitacoesSociedade } from "@/hooks/sociedade/useSolicitacoesSociedade";
 import { formatarData, formatarMoeda } from "@/lib/format";
 import { useSociedades } from "@/hooks/cadastros/useSociedades";
+import { CardFechamentoMesSociedade } from "@/components/fechamentos/CardFechamentoMesSociedade";
 
 export default function PainelSociedade() {
   const { perfil, sociedadeId } = useAuth();
@@ -112,6 +113,10 @@ export default function PainelSociedade() {
             Nova solicitação
           </Link>
         </Button>
+      </div>
+
+      <div className="mt-6">
+        <CardFechamentoMesSociedade sociedadeId={sociedadeId} />
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">

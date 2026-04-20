@@ -9,6 +9,7 @@ import { useResumoIgreja } from "@/hooks/igreja/useResumoIgreja";
 import { useSaldoPorSociedade } from "@/hooks/igreja/useSaldoPorSociedade";
 import { useEvolucaoMensal } from "@/hooks/igreja/useEvolucaoMensal";
 import { primeiroDiaMesAtual } from "@/lib/format";
+import { CardConsolidacaoIgreja } from "@/components/fechamentos/CardConsolidacaoIgreja";
 
 export default function PainelIgreja() {
   const [periodo, setPeriodo] = useState<string>(primeiroDiaMesAtual());
@@ -34,6 +35,7 @@ export default function PainelIgreja() {
 
       <div className="space-y-4">
         <CardsResumoIgreja resumo={resumo} loading={lr} />
+        <CardConsolidacaoIgreja />
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <GraficoEntradasSaidas dados={saldos} loading={ls} />
           <GraficoEvolucao dados={evolucao} loading={le} />
