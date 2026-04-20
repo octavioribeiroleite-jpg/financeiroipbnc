@@ -24,6 +24,8 @@ import {
   FileText,
   CheckCheck,
   ClipboardCheck,
+  BarChart3,
+  ShieldCheck,
 } from "lucide-react";
 
 interface ItemMenu {
@@ -50,6 +52,11 @@ const CENTRAL: ItemMenu[] = [
   { titulo: "Analisar solicitações", url: "/central/solicitacoes", icone: ClipboardCheck, papeis: ["administrador", "tesoureiro_central"] },
 ];
 
+const IGREJA: ItemMenu[] = [
+  { titulo: "Relatórios", url: "/igreja/relatorios", icone: BarChart3, papeis: ["administrador", "tesoureiro_igreja"] },
+  { titulo: "Auditoria", url: "/igreja/auditoria", icone: ShieldCheck, papeis: ["administrador", "tesoureiro_igreja"] },
+];
+
 const CADASTROS: ItemMenu[] = [
   { titulo: "Sociedades", url: "/cadastros/sociedades", icone: Building2, papeis: ["administrador"] },
   { titulo: "Usuários", url: "/cadastros/usuarios", icone: Users, papeis: ["administrador"] },
@@ -70,6 +77,7 @@ export function SidebarPainel() {
   const paineisVisiveis = PAINEIS.filter((i) => podeVer(i, papeis));
   const sociedadeVisiveis = SOCIEDADE.filter((i) => podeVer(i, papeis));
   const centralVisiveis = CENTRAL.filter((i) => podeVer(i, papeis));
+  const igrejaVisiveis = IGREJA.filter((i) => podeVer(i, papeis));
   const cadastrosVisiveis = CADASTROS.filter((i) => podeVer(i, papeis));
 
   const isActive = (url: string) => location.pathname === url;
@@ -130,6 +138,15 @@ export function SidebarPainel() {
             <SidebarGroupLabel>Tesouraria Central</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>{centralVisiveis.map(renderItem)}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {igrejaVisiveis.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Tesouraria da Igreja</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{igrejaVisiveis.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}

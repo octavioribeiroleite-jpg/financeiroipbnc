@@ -1,21 +1,42 @@
+import { useState } from "react";
 import { LayoutAutenticado } from "@/components/LayoutAutenticado";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardsResumoIgreja } from "@/components/igreja/CardsResumoIgreja";
+import { FiltroPeriodo } from "@/components/igreja/FiltroPeriodo";
+import { GraficoEntradasSaidas } from "@/components/igreja/GraficoEntradasSaidas";
+import { GraficoEvolucao } from "@/components/igreja/GraficoEvolucao";
+import { TabelaSaldoSociedades } from "@/components/igreja/TabelaSaldoSociedades";
+import { useResumoIgreja } from "@/hooks/igreja/useResumoIgreja";
+import { useSaldoPorSociedade } from "@/hooks/igreja/useSaldoPorSociedade";
+import { useEvolucaoMensal } from "@/hooks/igreja/useEvolucaoMensal";
+import { primeiroDiaMesAtual } from "@/lib/format";
 
 export default function PainelIgreja() {
+  const [periodo, setPeriodo] = useState<string>(primeiroDiaMesAtual());
+
+  const { data: resumo, isLoading: lr } = useResumoIgreja(periodo);
+  const { data: saldos, isLoading: ls } = useSaldoPorSociedade(periodo);
+  const { data: evolucao, isLoading: le } = useEvolucaoMensal(6);
+
   return (
     <LayoutAutenticado>
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold">Painel da Tesouraria da Igreja</h2>
-        <p className="text-muted-foreground">Visão consolidada de todas as sociedades.</p>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold">Painel da Tesouraria da Igreja</h2>
+          <p className="text-muted-foreground">
+            Visão consolidada de todas as sociedades.
+          </p>
+        </div>
+        <FiltroPeriodo value={periodo} onChange={setPeriodo} />
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Em construção</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Esta área será implementada nas próximas etapas (relatórios e consolidação).
-        </CardContent>
-      </Card>
+
+      <div className="space-y-4">
+        <CardsResumoIgreja resumo={resumo} loading={lr} />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <GraficoEntradasSaidas dados={saldos} loading={ls} />
+          <GraficoEvolucao dados={evolucao} loading={le} />
+        </div>
+        <TabelaSaldoSociedades dados={saldos} loading={ls} />
+      </div>
     </LayoutAutenticado>
   );
 }
