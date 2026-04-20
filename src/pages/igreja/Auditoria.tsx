@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { LayoutAutenticado } from "@/components/LayoutAutenticado";
+import { ShellPainel } from "@/components/painel/ShellPainel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -82,7 +82,10 @@ export default function IgrejaAuditoria() {
   const totalPaginas = data ? Math.max(1, Math.ceil(data.total / POR_PAGINA)) : 1;
 
   return (
-    <LayoutAutenticado>
+    <ShellPainel
+      titulo="Auditoria"
+      descricao="Histórico de criações, edições e exclusões realizadas no sistema."
+    >
       <div className="mb-6">
         <h2 className="text-2xl font-semibold">Auditoria</h2>
         <p className="text-muted-foreground">
@@ -225,6 +228,6 @@ export default function IgrejaAuditoria() {
       </Card>
 
       <ModalDetalhesAuditoria registro={detalhe} onClose={() => setDetalhe(null)} />
-    </LayoutAutenticado>
+    </ShellPainel>
   );
 }
