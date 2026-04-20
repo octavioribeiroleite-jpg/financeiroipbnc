@@ -74,14 +74,20 @@ export default function Login() {
         data: { nome: nomeCad },
       },
     });
-    setEnviando(false);
     if (error) {
+      setEnviando(false);
       toast({ title: "Falha ao cadastrar", description: error.message, variant: "destructive" });
       return;
     }
+    // Faz signOut para evitar redirecionamento automático antes do usuário ver a confirmação.
+    await supabase.auth.signOut();
+    setEnviando(false);
+    setNomeCad("");
+    setEmailCad("");
+    setSenhaCad("");
     toast({
-      title: "Cadastro realizado",
-      description: "Aguarde o administrador atribuir seu perfil de acesso.",
+      title: "Cadastro realizado com sucesso",
+      description: "Aguarde o administrador atribuir seu perfil de acesso para entrar.",
     });
   };
 
