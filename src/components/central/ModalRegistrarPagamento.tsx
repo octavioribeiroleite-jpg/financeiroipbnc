@@ -15,6 +15,8 @@ import { UploadAnexo } from "@/components/shared/UploadAnexo";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRegistrarPagamento, type Solicitacao } from "@/hooks/central/useSolicitacoesCentral";
 import { hojeISO, formatarMoeda } from "@/lib/format";
+import { useMesConsolidado } from "@/hooks/fechamentos/useMesConsolidado";
+import { AvisoMesConsolidado } from "@/components/fechamentos/AvisoMesConsolidado";
 import { Banknote } from "lucide-react";
 
 interface Props {
@@ -30,6 +32,11 @@ export function ModalRegistrarPagamento({ solicitacao, open, onClose }: Props) {
   const [dataPagamento, setDataPagamento] = useState(hojeISO());
   const [comprovanteUrl, setComprovanteUrl] = useState<string | null>(null);
   const [observacoes, setObservacoes] = useState("");
+
+  const { data: travado } = useMesConsolidado(
+    solicitacao?.sociedade_id ?? null,
+    dataPagamento,
+  );
 
   if (!solicitacao || !user) return null;
 
@@ -115,7 +122,7 @@ export function ModalRegistrarPagamento({ solicitacao, open, onClose }: Props) {
           </Button>
           <Button
             onClick={handleConfirmar}
-            disabled={!comprovanteUrl || !dataPagamento || registrar.isPending}
+            disabled={!comprovanteUrl || !dataPagamento || registrar.isPending || !!travado}
           >
             <Banknote className="h-4 w-4" />
             Confirmar pagamento

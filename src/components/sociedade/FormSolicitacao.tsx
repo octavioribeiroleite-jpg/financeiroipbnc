@@ -24,6 +24,8 @@ import {
   useAtualizarSolicitacao,
   useCriarSolicitacao,
 } from "@/hooks/sociedade/useSolicitacoesSociedade";
+import { useMesConsolidado } from "@/hooks/fechamentos/useMesConsolidado";
+import { AvisoMesConsolidado } from "@/components/fechamentos/AvisoMesConsolidado";
 
 const SEM_CATEGORIA = "__sem__";
 
@@ -111,9 +113,15 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
 
   const submetendo = criar.isPending || atualizar.isPending;
   const podeEditar = !registro || registro.status === "rascunho" || registro.status === "enviada";
+  const vencimento = form.watch("vencimento");
+  const { data: travado } = useMesConsolidado(sociedadeId, vencimento);
 
   return (
     <form onSubmit={form.handleSubmit((v) => salvar(v, "rascunho"))} className="space-y-4">
+      <AvisoMesConsolidado
+        visivel={!!travado}
+        mensagem="O vencimento escolhido cai em um mês já consolidado. Escolha outra data."
+      />
       <div className="space-y-2">
         <Label htmlFor="fornecedor_id">Fornecedor</Label>
         <Controller
@@ -231,12 +239,12 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
         </Button>
         {podeEditar && (
           <>
-            <Button type="submit" variant="outline" disabled={submetendo}>
+            <Button type="submit" variant="outline" disabled={submetendo || !!travado}>
               Salvar rascunho
             </Button>
             <Button
               type="button"
-              disabled={submetendo}
+              disabled={submetendo || !!travado}
               onClick={form.handleSubmit((v) => salvar(v, "enviada"))}
             >
               Enviar para análise

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { formatarData, formatarMoeda } from "@/lib/format";
 import { CheckCheck, ClipboardCheck, Banknote, AlertTriangle } from "lucide-react";
+import { CardFechamentoMesCentral } from "@/components/fechamentos/CardFechamentoMesCentral";
 
 export default function PainelCentral() {
   const { data: contribuicoes = [] } = useContribuicoesCentral();
@@ -100,6 +101,10 @@ export default function PainelCentral() {
             Analisar solicitações
           </Link>
         </Button>
+      </div>
+
+      <div className="mb-6">
+        <CardFechamentoMesCentral />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">

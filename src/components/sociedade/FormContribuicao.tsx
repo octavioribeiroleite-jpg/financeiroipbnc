@@ -23,6 +23,8 @@ import {
   useAtualizarContribuicao,
   useCriarContribuicao,
 } from "@/hooks/sociedade/useContribuicoesSociedade";
+import { useMesConsolidado } from "@/hooks/fechamentos/useMesConsolidado";
+import { AvisoMesConsolidado } from "@/components/fechamentos/AvisoMesConsolidado";
 
 const FORMAS = ["Dinheiro", "PIX", "Transferência", "Cartão", "Outro"] as const;
 
@@ -97,9 +99,15 @@ export function FormContribuicao({ sociedadeId, usuarioId, registro, onConcluido
   };
 
   const submetendo = criar.isPending || atualizar.isPending;
+  const dataPagamento = form.watch("data_pagamento");
+  const { data: travado } = useMesConsolidado(sociedadeId, dataPagamento);
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <AvisoMesConsolidado
+        visivel={!!travado}
+        mensagem="A data de pagamento informada cai em um mês já consolidado. Escolha outra data."
+      />
       <div className="space-y-2">
         <Label htmlFor="membro_nome">Membro</Label>
         <Input id="membro_nome" {...form.register("membro_nome")} />
@@ -192,7 +200,7 @@ export function FormContribuicao({ sociedadeId, usuarioId, registro, onConcluido
         <Button type="button" variant="outline" onClick={onCancelar}>
           Cancelar
         </Button>
-        <Button type="submit" disabled={submetendo}>
+        <Button type="submit" disabled={submetendo || !!travado}>
           {registro ? "Salvar alterações" : "Registrar"}
         </Button>
       </div>
