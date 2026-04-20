@@ -1,158 +1,142 @@
 
 ## Objetivo
-Reorganizar o sistema para uso de um único operador, mantendo o controle por sociedade e os fechamentos mensais, mas removendo a complexidade de múltiplos papéis e fluxos separados.
+Melhorar o sistema para o seu uso individual, deixando a operação mais rápida, com menos troca de tela, menos etapas manuais e mais visão por sociedade.
 
-## Direção proposta
-Você será o único usuário ativo do sistema, entrando apenas como administrador. O sistema continuará separando tudo por sociedade, mas a operação diária ficará centralizada numa experiência única:
-- você lança contribuições de qualquer sociedade
-- você cria e paga solicitações de qualquer sociedade
-- você gera e confere fechamentos sem troca de perfil
-- relatórios e auditoria continuam disponíveis
-- usuários, papéis e telas de “acesso pendente/negado” deixam de fazer parte do fluxo principal
+## Melhorias mais valiosas para o seu cenário
+### 1. Seletor global de sociedade
+Adicionar um seletor fixo de sociedade no topo das telas operacionais para você trocar rapidamente o contexto sem precisar navegar entre módulos separados.
 
-## Como organizar o sistema
-### 1. Estrutura funcional
-Organizar em 5 blocos principais no menu:
+### 2. Unificar contribuições
+Transformar a tela de contribuições em uma visão única:
+- filtro por sociedade
+- botão de novo lançamento
+- edição rápida
+- status simplificado para operador único
+
+### 3. Unificar pagamentos
+Juntar criação, análise, aprovação e quitação na mesma tela de pagamentos:
+- você cria o pedido
+- já pode marcar como aprovado
+- já pode registrar como pago
+- sem depender do fluxo antigo de “central”
+
+### 4. Fechamento mensal mais direto
+Simplificar o fechamento por sociedade:
+- criar fechamento
+- recalcular
+- conferir
+- consolidar
+Tudo em uma única experiência, com menos separação entre “sociedade”, “central” e “igreja”.
+
+### 5. Painel realmente útil no dia a dia
+Trocar o foco do painel atual por indicadores acionáveis:
+- saldo por sociedade
+- pagamentos vencendo hoje/semana
+- solicitações em aberto
+- contribuições ainda não conferidas
+- sociedades sem fechamento no mês
+- atalhos para “lançar agora”
+
+### 6. Extrato com navegação melhor
+Melhorar o extrato para uso operacional:
+- troca rápida de sociedade
+- resumo por período
+- filtros salvos
+- destaque para saldo negativo
+- exportação mais prática
+
+### 7. Menos linguagem de múltiplos usuários
+Remover do app os termos que sobraram do modelo antigo:
+- “enviar para análise”
+- “tesouraria central”
+- “sua conta não está vinculada”
+- “sociedade vê suas solicitações”
+Substituir por textos diretos, pensados para um operador único.
+
+## Organização recomendada do sistema
+### Menu ideal
 1. Painel Geral
 2. Sociedades
-3. Lançamentos
-4. Fechamentos
-5. Configurações
+3. Contribuições
+4. Pagamentos
+5. Fechamentos
+6. Relatórios
+7. Configurações
 
-### 2. Módulos resultantes
-#### Painel Geral
-Uma visão única com:
-- saldo consolidado
-- contribuições do mês
-- pagamentos do mês
-- solicitações em aberto
-- fechamentos pendentes por sociedade
-- atalhos para lançar contribuição, lançar pagamento e fechar mês
+### Lógica de uso
+```text
+Sociedade escolhida
+   ↓
+Registrar contribuição / pagamento
+   ↓
+Extrato atualizado
+   ↓
+Fechamento do mês
+   ↓
+Relatório consolidado
+```
 
-#### Sociedades
-Manter o cadastro de sociedades e usar cada sociedade como filtro principal da operação.
+## Ordem recomendada de implementação
+### Etapa 1 — Ganho rápido de usabilidade
+- adicionar seletor global de sociedade
+- ajustar painel inicial para métricas acionáveis
+- simplificar textos e títulos da interface
 
-#### Lançamentos
-Substituir a divisão “sociedade / central / igreja” por telas operacionais únicas:
-- Contribuições: lista única com filtro por sociedade e ação “nova contribuição”
-- Pagamentos/Solicitações: lista única com criação, aprovação e pagamento no mesmo fluxo
-- Extrato por sociedade: continua existindo, mas acessado a partir do filtro da sociedade
+### Etapa 2 — Operação centralizada
+- unificar tela de contribuições
+- unificar tela de pagamentos
+- reduzir dependência visual das rotas “sociedade/central/igreja”
 
-#### Fechamentos
-Unificar:
-- fechamento mensal por sociedade
-- conferência do fechamento
-- consolidação mensal geral
-Tudo operado na mesma área, sem depender de papel.
+### Etapa 3 — Fechamentos simplificados
+- transformar fechamento em fluxo único
+- manter consolidação mensal, mas com linguagem simples
+- destacar pendências por sociedade
 
-#### Configurações
-Concentrar:
-- dados da igreja
-- fornecedores
-- categorias
-- opção de resetar tours
-- opção futura de ocultar módulos avançados
+### Etapa 4 — Relatórios para gestão pessoal
+- presets de período
+- exportação mais rápida
+- resumo mensal por sociedade
+- visão consolidada do mês
 
-## O que será simplificado
-### Autenticação e acesso
-- manter login por e-mail e senha
-- considerar apenas o papel de administrador na interface
-- remover redirecionamentos por papel em `/`
-- remover dependência prática de `tesoureiro_sociedade`, `tesoureiro_central` e `tesoureiro_igreja`
-- ocultar/retirar telas de acesso pendente e acesso negado do fluxo principal
-- revisar tela de login para remover “solicitar cadastro”, já que não haverá outros usuários usando o sistema
+## O que eu recomendo fazer primeiro
+### Prioridade alta
+1. Seletor global de sociedade
+2. Unificação de pagamentos
+3. Painel com alertas e pendências
 
-### Navegação
-- refatorar `App.tsx` para uma árvore de rotas única
-- refatorar `SidebarPainel.tsx` para menu por módulo, não por papel
-- ajustar `Index.tsx` para sempre mandar o administrador ao painel geral único
+Essas três mudanças já deixam o sistema muito mais confortável para uso individual.
 
-### Dashboard
-- transformar os painéis separados em um único painel inicial
-- reaproveitar cards e tabelas existentes, mas em layout consolidado
+## Ajustes específicos percebidos no código atual
+### Contribuições
+Hoje a tela ainda depende de `sociedadeId` do usuário autenticado. Para o seu novo cenário, ela deve aceitar qualquer sociedade selecionada por você.
 
-### Tours e ajuda
-- manter o tour guiado, mas reescrever textos para o contexto de operador único
-- remover menções a “tesoureiro central”, “tesoureiro da igreja” e “tesoureiro da sociedade”
-- trocar por textos como “nesta tela você registra...”, “aqui você fecha o mês da sociedade...”
+### Pagamentos
+Hoje a criação está numa tela e o processamento em outra. Para uso solo, o ideal é fundir esses dois passos.
 
-## Estratégia de implementação
-### Etapa 1 — Simplificação de acesso e navegação
-- ajustar `AuthContext` para priorizar uso como administrador único
-- simplificar `RotaProtegida`
-- refatorar login e rota inicial
-- reescrever sidebar
+### Fechamentos
+Hoje o fluxo ainda está dividido em camadas antigas. O ideal é manter a segurança dos dados, mas unificar a interface.
 
-### Etapa 2 — Unificação da experiência
-- criar painel geral único
-- consolidar telas operacionais mantendo os hooks atuais onde possível
-- reutilizar páginas existentes como base, priorizando filtros por sociedade
-
-### Etapa 3 — Limpeza de fluxo legado
-- remover mensagens e textos institucionais voltados a múltiplos usuários
-- esconder ou descontinuar telas que não farão mais sentido
-- revisar nomenclaturas em botões, títulos e descrições
-
-### Etapa 4 — Ajustes de tours e onboarding
-- atualizar todos os tours
-- manter reset pelo menu
-- alinhar ajuda contextual ao novo fluxo simplificado
-
-## Impacto no banco de dados
-Não é necessário remodelar o banco para começar.
-A base atual já suporta esse uso individual porque:
-- sociedades continuam sendo importantes
-- fechamentos continuam por sociedade
-- auditoria continua útil
-- você pode operar tudo como administrador
-
-### Banco: o que manter agora
-- tabelas atuais
-- sociedades
-- contribuições
-- solicitações_pagamento
-- movimentacoes_sociedade
-- fechamentos_mensais
-- auditoria
-
-### Banco: o que pode ficar “legado”
-- `papeis_usuario`
-- vínculo de usuários adicionais
-- fluxos de múltiplos operadores
-
-### Banco: decisão recomendada
-Primeiro simplificar a interface e o fluxo sem mexer na estrutura. Depois, se quiser, fazer uma segunda rodada para enxugar regras e dados legados.
-
-## Arquivos mais afetados
-- `src/App.tsx`
-- `src/pages/Index.tsx`
-- `src/components/RotaProtegida.tsx`
-- `src/contexts/AuthContext.tsx`
-- `src/components/painel/SidebarPainel.tsx`
-- `src/pages/Login.tsx`
-- `src/pages/painel/Administrador.tsx`
-- `src/lib/tour/tours.ts`
-
-Também haverá reaproveitamento/refino em:
-- telas de contribuições
-- solicitações/pagamentos
-- fechamentos
-- relatórios
+### Tours
+O texto dos tours ainda pode ser simplificado mais, focando em “você opera tudo daqui”.
 
 ## Resultado esperado
-Ao final, o sistema ficará com uma experiência muito mais direta:
-- um único login
-- um único painel principal
-- operação centralizada por filtros de sociedade
-- menos cliques e menos mudança de contexto
-- mesma segurança e mesma rastreabilidade
-- mesma separação financeira por sociedade
+Depois dessa rodada, o sistema vai ficar:
+- mais rápido para lançar movimentações
+- mais simples de navegar
+- mais natural para controlar várias sociedades sozinho
+- menos preso à lógica antiga de múltiplos usuários
+- mais próximo de um “painel de tesouraria pessoal”, sem perder organização por sociedade
 
-## Observação técnica
-Como o projeto hoje está fortemente organizado por papéis, a melhor abordagem não é “desligar” tudo de uma vez, e sim:
-1. manter a base atual
-2. simplificar a interface
-3. centralizar os fluxos
-4. só depois decidir se vale limpar regras legadas do banco
+## Detalhes técnicos
+- Reaproveitar as rotas e hooks atuais, mas permitir seleção explícita de sociedade nas telas principais.
+- Unificar componentes de listagem usando a base já existente de `DataTable`.
+- Adaptar telas de contribuições, solicitações e fechamentos para um modo “operador único”.
+- Preservar banco e regras atuais nesta fase, mexendo primeiro na experiência.
+- Deixar limpeza mais profunda de fluxo legado para uma segunda etapa, se fizer sentido.
 
-Isso reduz risco e preserva seus dados já lançados.
+## Entrega sugerida nesta próxima implementação
+Uma primeira entrega enxuta e de alto impacto:
+- seletor global de sociedade
+- tela única de pagamentos
+- painel geral com pendências reais
+- textos revisados para uso individual
