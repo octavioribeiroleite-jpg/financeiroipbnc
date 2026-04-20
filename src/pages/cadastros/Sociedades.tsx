@@ -56,10 +56,11 @@ export default function Sociedades() {
   };
 
   const onSubmit = async (values: FormData) => {
+    const payload = { nome: values.nome, tipo: values.tipo };
     if (editando) {
-      await atualizar.mutateAsync({ id: editando.id, ...values });
+      await atualizar.mutateAsync({ id: editando.id, ...payload });
     } else {
-      await criar.mutateAsync(values);
+      await criar.mutateAsync(payload);
     }
     setAberto(false);
   };

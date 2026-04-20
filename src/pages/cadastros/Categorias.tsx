@@ -52,8 +52,9 @@ export default function Categorias() {
     setAberto(true);
   };
   const onSubmit = async (v: FormData) => {
-    if (editando) await atualizar.mutateAsync({ id: editando.id, ...v });
-    else await criar.mutateAsync(v);
+    const payload = { nome: v.nome, tipo: v.tipo };
+    if (editando) await atualizar.mutateAsync({ id: editando.id, ...payload });
+    else await criar.mutateAsync(payload);
     setAberto(false);
   };
 
