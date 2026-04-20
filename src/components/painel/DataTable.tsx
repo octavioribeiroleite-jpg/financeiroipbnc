@@ -67,7 +67,7 @@ export function DataTable<T>({
             className="pl-8"
           />
         </div>
-        {acoes && <div className="flex flex-wrap gap-2">{acoes}</div>}
+        {acoes && <div data-tour="acoes-pagina" className="flex flex-wrap gap-2">{acoes}</div>}
       </div>
 
       <div className="rounded-md border bg-card">
