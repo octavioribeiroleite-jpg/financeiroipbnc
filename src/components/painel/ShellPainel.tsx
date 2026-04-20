@@ -10,7 +10,7 @@ import { iniciarTour, reexibirTodosTours, temTourPara } from "@/lib/tour/tours";
 import { toast } from "sonner";
 
 const ROTULO_PAPEL: Record<AppRole, string> = {
-  administrador: "Administrador",
+  administrador: "Operador principal",
   tesoureiro_igreja: "Tesoureiro da Igreja",
   tesoureiro_central: "Tesoureiro Central",
   tesoureiro_sociedade: "Tesoureiro da Sociedade",

@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Clock, Loader2 } from "lucide-react";
 
 export default function AcessoPendente() {
-  const { user, perfil, papeis, papelPrincipal, loading, signOut } = useAuth();
+  const { user, perfil, papeis, loading, signOut, isAdmin } = useAuth();
 
   if (loading) {
     return (
@@ -16,20 +16,8 @@ export default function AcessoPendente() {
 
   if (!user) return <Navigate to="/login" replace />;
 
-  if (papeis.length > 0) {
-    switch (papelPrincipal) {
-      case "administrador":
-        return <Navigate to="/painel/administrador" replace />;
-      case "tesoureiro_igreja":
-        return <Navigate to="/painel/igreja" replace />;
-      case "tesoureiro_central":
-        return <Navigate to="/painel/central" replace />;
-      case "tesoureiro_sociedade":
-        return <Navigate to="/painel/sociedade" replace />;
-      default:
-        return <Navigate to="/" replace />;
-    }
-  }
+  if (isAdmin) return <Navigate to="/painel/administrador" replace />;
+  if (papeis.length > 0) return <Navigate to="/" replace />;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -39,11 +27,10 @@ export default function AcessoPendente() {
         </div>
         <h1 className="mb-2 text-2xl font-semibold text-foreground">Cadastro em análise</h1>
         <p className="mb-2 text-muted-foreground">
-          Olá{perfil?.nome ? `, ${perfil.nome}` : ""}. Seu cadastro foi recebido e aguarda a atribuição de um perfil de
-          acesso pelo administrador da tesouraria.
+          Olá{perfil?.nome ? `, ${perfil.nome}` : ""}. Esta conta não faz parte do fluxo principal atual.
         </p>
         <p className="mb-6 text-sm text-muted-foreground">
-          Você será notificado assim que seu acesso for liberado.
+          Use apenas a conta administradora para operar o sistema.
         </p>
         <Button variant="outline" onClick={signOut}>
           Sair
