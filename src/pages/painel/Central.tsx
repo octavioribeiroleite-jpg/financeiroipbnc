@@ -53,8 +53,8 @@ export default function PainelCentral() {
   return (
     <LayoutAutenticado>
       <div className="mb-6">
-        <h2 className="text-2xl font-semibold">Painel da Tesouraria Central</h2>
-        <p className="text-muted-foreground">Conferência, análise e pagamentos.</p>
+        <h2 className="text-2xl font-semibold">Processamento financeiro</h2>
+        <p className="text-muted-foreground">Conferência de contribuições, pagamentos e fechamentos por sociedade.</p>
       </div>
 
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
