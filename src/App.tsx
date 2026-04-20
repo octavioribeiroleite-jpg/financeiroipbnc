@@ -13,6 +13,10 @@ import PainelAdministrador from "./pages/painel/Administrador.tsx";
 import PainelIgreja from "./pages/painel/Igreja.tsx";
 import PainelCentral from "./pages/painel/Central.tsx";
 import PainelSociedade from "./pages/painel/Sociedade.tsx";
+import CadastroSociedades from "./pages/cadastros/Sociedades.tsx";
+import CadastroUsuarios from "./pages/cadastros/Usuarios.tsx";
+import CadastroCategorias from "./pages/cadastros/Categorias.tsx";
+import CadastroFornecedores from "./pages/cadastros/Fornecedores.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -72,6 +76,38 @@ const App = () => (
               element={
                 <RotaProtegida papeis={["tesoureiro_sociedade"]}>
                   <PainelSociedade />
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/cadastros/sociedades"
+              element={
+                <RotaProtegida papeis={["administrador"]}>
+                  <CadastroSociedades />
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/cadastros/usuarios"
+              element={
+                <RotaProtegida papeis={["administrador"]}>
+                  <CadastroUsuarios />
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/cadastros/categorias"
+              element={
+                <RotaProtegida papeis={["administrador"]}>
+                  <CadastroCategorias />
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/cadastros/fornecedores"
+              element={
+                <RotaProtegida papeis={["administrador", "tesoureiro_central"]}>
+                  <CadastroFornecedores />
                 </RotaProtegida>
               }
             />
