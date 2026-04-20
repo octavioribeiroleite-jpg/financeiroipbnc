@@ -110,7 +110,7 @@ export default function ExtratoSociedade() {
       {/* Filtros */}
       <Card>
         <CardContent className="flex flex-wrap items-end gap-3 pt-6">
-          <div className="grid gap-1.5">
+          <div className="grid gap-1.5" data-tour="extrato-mes">
             <Label htmlFor="mes">Mês</Label>
             <MonthPicker id="mes" value={mes} onChange={setMes} />
           </div>

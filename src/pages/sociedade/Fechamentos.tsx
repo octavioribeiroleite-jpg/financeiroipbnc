@@ -67,7 +67,7 @@ export default function FechamentosSociedade() {
             Resumo do mês a partir das movimentações confirmadas.
           </p>
         </div>
-        <Button onClick={() => setNovoOpen(true)} disabled={!sociedadeId}>
+        <Button onClick={() => setNovoOpen(true)} disabled={!sociedadeId} data-tour="novo-fechamento">
           <Plus className="h-4 w-4" />
           Novo fechamento
         </Button>
