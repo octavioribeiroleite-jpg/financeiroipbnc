@@ -104,7 +104,7 @@ export default function Solicitacoes() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setConfirmandoEnvio(s)}
-                title="Enviar para análise"
+                title="Liberar para processamento"
               >
                 <Send className="h-4 w-4" />
               </Button>
@@ -179,7 +179,7 @@ export default function Solicitacoes() {
             </Select>
             <Button onClick={abrirNova}>
               <Plus className="h-4 w-4" />
-              Nova solicitação
+              Novo pagamento
             </Button>
           </div>
         }
@@ -188,10 +188,10 @@ export default function Solicitacoes() {
       <FormDialog
         open={aberto}
         onOpenChange={setAberto}
-        titulo={editando ? "Editar solicitação" : "Nova solicitação"}
+        titulo={editando ? "Editar pagamento" : "Novo pagamento"}
       >
         <FormSolicitacao
-          sociedadeId={sociedadeId}
+          sociedadeId={sociedadeSelecionadaId}
           usuarioId={user.id}
           registro={editando}
           onConcluido={() => setAberto(false)}
@@ -210,9 +210,9 @@ export default function Solicitacoes() {
       <ConfirmDialog
         open={!!confirmandoEnvio}
         onOpenChange={(o) => !o && setConfirmandoEnvio(null)}
-        titulo="Enviar solicitação para análise?"
-        descricao="Após o envio, a tesouraria central poderá analisar e aprovar/recusar este pedido."
-        textoConfirmar="Enviar"
+        titulo="Liberar pagamento para processamento?"
+        descricao="Ele ficará pronto para aprovação e quitação na fila operacional única."
+        textoConfirmar="Liberar"
         onConfirmar={() => {
           if (confirmandoEnvio) {
             enviar.mutate(confirmandoEnvio.id);
