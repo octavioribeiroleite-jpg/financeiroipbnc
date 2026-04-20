@@ -28,6 +28,7 @@ import {
   ShieldCheck,
   BookCheck,
   Settings,
+  Receipt,
 } from "lucide-react";
 
 interface ItemMenu {
@@ -45,6 +46,7 @@ const PAINEIS: ItemMenu[] = [
 ];
 
 const SOCIEDADE: ItemMenu[] = [
+  { titulo: "Extrato", url: "/sociedade/extrato", icone: Receipt, papeis: ["tesoureiro_sociedade"] },
   { titulo: "Contribuições", url: "/sociedade/contribuicoes", icone: HandCoins, papeis: ["tesoureiro_sociedade"] },
   { titulo: "Solicitações", url: "/sociedade/solicitacoes", icone: FileText, papeis: ["tesoureiro_sociedade"] },
   { titulo: "Fechamentos", url: "/sociedade/fechamentos", icone: BookCheck, papeis: ["tesoureiro_sociedade"] },

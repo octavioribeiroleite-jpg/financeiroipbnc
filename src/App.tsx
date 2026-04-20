@@ -20,6 +20,7 @@ import CadastroFornecedores from "./pages/cadastros/Fornecedores.tsx";
 import ConfiguracoesIgreja from "./pages/cadastros/Igreja.tsx";
 import SociedadeContribuicoes from "./pages/sociedade/Contribuicoes.tsx";
 import SociedadeSolicitacoes from "./pages/sociedade/Solicitacoes.tsx";
+import SociedadeExtrato from "./pages/sociedade/Extrato.tsx";
 import CentralContribuicoes from "./pages/central/Contribuicoes.tsx";
 import CentralSolicitacoes from "./pages/central/Solicitacoes.tsx";
 import IgrejaRelatorios from "./pages/igreja/Relatorios.tsx";
@@ -126,6 +127,14 @@ const App = () => (
               element={
                 <RotaProtegida papeis={["administrador", "tesoureiro_igreja"]}>
                   <ConfiguracoesIgreja />
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/sociedade/extrato"
+              element={
+                <RotaProtegida papeis={["tesoureiro_sociedade"]}>
+                  <SociedadeExtrato />
                 </RotaProtegida>
               }
             />
