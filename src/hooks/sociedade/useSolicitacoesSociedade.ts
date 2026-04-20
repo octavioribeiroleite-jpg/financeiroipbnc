@@ -69,17 +69,19 @@ export function useAtualizarSolicitacao(sociedadeId: string | null) {
       id,
       ...input
     }: SolicitacaoInput & { id: string; status?: "rascunho" | "enviada" }) => {
-      const update: Record<string, unknown> = {
-        fornecedor_id: input.fornecedor_id,
-        categoria_id: input.categoria_id || null,
-        descricao: input.descricao,
-        valor: input.valor,
-        vencimento: input.vencimento,
-        observacoes: input.observacoes || null,
-        anexo_nota_url: input.anexo_nota_url || null,
-      };
-      if (input.status) update.status = input.status;
-      const { error } = await supabase.from("solicitacoes_pagamento").update(update).eq("id", id);
+      const { error } = await supabase
+        .from("solicitacoes_pagamento")
+        .update({
+          fornecedor_id: input.fornecedor_id,
+          categoria_id: input.categoria_id || null,
+          descricao: input.descricao,
+          valor: input.valor,
+          vencimento: input.vencimento,
+          observacoes: input.observacoes || null,
+          anexo_nota_url: input.anexo_nota_url || null,
+          ...(input.status ? { status: input.status } : {}),
+        })
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
