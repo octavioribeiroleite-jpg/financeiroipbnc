@@ -9,7 +9,7 @@ interface RotaProtegidaProps {
 }
 
 export function RotaProtegida({ children, papeis }: RotaProtegidaProps) {
-  const { user, perfil, papeis: papeisUsuario, loading } = useAuth();
+  const { user, perfil, papeis: papeisUsuario, loading, isAdmin } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -30,6 +30,10 @@ export function RotaProtegida({ children, papeis }: RotaProtegidaProps) {
 
   if (papeisUsuario.length === 0) {
     return <Navigate to="/acesso-pendente" replace />;
+  }
+
+  if (isAdmin) {
+    return <>{children}</>;
   }
 
   if (papeis && papeis.length > 0) {

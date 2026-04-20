@@ -20,6 +20,7 @@ interface AuthContextValue {
   papeis: AppRole[];
   papelPrincipal: AppRole | null;
   sociedadeId: string | null;
+  sociedadesIds: string[];
   isAdmin: boolean;
   isIgreja: boolean;
   isCentral: boolean;
@@ -39,6 +40,7 @@ const HIERARQUIA: AppRole[] = [
 ];
 
 function escolherPapelPrincipal(papeis: AppRole[]): AppRole | null {
+  if (papeis.includes("administrador")) return "administrador";
   for (const p of HIERARQUIA) {
     if (papeis.includes(p)) return p;
   }
@@ -128,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     papeis,
     papelPrincipal,
     sociedadeId: perfil?.sociedade_id ?? null,
+    sociedadesIds: [],
     isAdmin: papeis.includes("administrador"),
     isIgreja: papeis.includes("tesoureiro_igreja"),
     isCentral: papeis.includes("tesoureiro_central"),
