@@ -20,6 +20,13 @@ const COMUM_HEADER: DriveStep[] = [
     },
   },
   {
+    element: '[data-tour="seletor-sociedade-global"]',
+    popover: {
+      title: "Sociedade ativa",
+      description: "Troque a sociedade aqui para lançar, consultar e fechar o mês sem sair da tela atual.",
+    },
+  },
+  {
     element: '[data-tour="ajuda-tour"]',
     popover: {
       title: "Reexibir dicas",
@@ -49,7 +56,7 @@ const TOURS: Record<string, TourConfig> = {
         popover: {
           title: "Contribuições recebidas",
           description:
-            "Registre cada contribuição de membro: valor, data, forma de pagamento e o comprovante (opcional).",
+            "Registre contribuições da sociedade ativa, ajuste quando necessário e confira tudo na mesma operação.",
         },
       },
       {
@@ -68,7 +75,7 @@ const TOURS: Record<string, TourConfig> = {
         popover: {
           title: "Solicitações de pagamento",
           description:
-            "Crie pedidos de pagamento por sociedade, acompanhe o status e registre a quitação no fluxo centralizado.",
+            "Crie, aprove e quite pagamentos da sociedade ativa sem depender de outro perfil ou troca de contexto.",
         },
       },
       {
@@ -156,7 +163,7 @@ const TOURS: Record<string, TourConfig> = {
         popover: {
           title: "Analisar solicitações",
           description:
-            "Aprove, recuse e quite pedidos de pagamento. Quando pagos, a saída entra automaticamente no extrato da sociedade.",
+            "Use esta fila única para aprovar, devolver e quitar pagamentos de qualquer sociedade com o seletor global.",
         },
       },
     ],

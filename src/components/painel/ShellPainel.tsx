@@ -4,10 +4,18 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarPainel } from "./SidebarPainel";
 import { useAuth, AppRole } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { LogOut, HelpCircle } from "lucide-react";
 import { TourLauncher } from "@/components/tour/TourLauncher";
 import { iniciarTour, reexibirTodosTours, temTourPara } from "@/lib/tour/tours";
 import { toast } from "sonner";
+import { SociedadeOperacionalProvider, useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 
 const ROTULO_PAPEL: Record<AppRole, string> = {
   administrador: "Operador principal",
@@ -22,8 +30,9 @@ interface ShellPainelProps {
   descricao?: string;
 }
 
-export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
+function ShellPainelConteudo({ children, titulo, descricao }: ShellPainelProps) {
   const { perfil, papelPrincipal, signOut, user } = useAuth();
+  const { sociedades, sociedadeSelecionadaId, setSociedadeSelecionadaId } = useSociedadeOperacional();
   const location = useLocation();
 
   const handleAjuda = () => {
@@ -54,6 +63,22 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {sociedades.length > 0 && (
+                <div className="hidden min-w-[220px] lg:block" data-tour="seletor-sociedade-global">
+                  <Select value={sociedadeSelecionadaId ?? undefined} onValueChange={setSociedadeSelecionadaId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar sociedade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sociedades.map((sociedade) => (
+                        <SelectItem key={sociedade.id} value={sociedade.id}>
+                          {sociedade.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="hidden text-right md:block">
                 <p className="text-sm font-medium leading-tight text-foreground">{perfil?.nome ?? "—"}</p>
                 <p className="text-xs text-muted-foreground">
@@ -82,11 +107,37 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
                 <h1 className="text-xl font-semibold text-foreground">{titulo}</h1>
                 {descricao && <p className="text-sm text-muted-foreground">{descricao}</p>}
               </div>
+              {sociedades.length > 0 && (
+                <div className="mb-4 lg:hidden" data-tour="seletor-sociedade-global">
+                  <Select value={sociedadeSelecionadaId ?? undefined} onValueChange={setSociedadeSelecionadaId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar sociedade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sociedades.map((sociedade) => (
+                        <SelectItem key={sociedade.id} value={sociedade.id}>
+                          {sociedade.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               {children}
             </div>
           </main>
         </div>
       </div>
     </SidebarProvider>
+  );
+}
+
+export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
+  return (
+    <SociedadeOperacionalProvider>
+      <ShellPainelConteudo titulo={titulo} descricao={descricao}>
+        {children}
+      </ShellPainelConteudo>
+    </SociedadeOperacionalProvider>
   );
 }
