@@ -172,6 +172,12 @@ export function DetalheFechamento({ open, onOpenChange, fechamento, nomeSociedad
           </Table>
         </div>
       </SheetContent>
+
+      <ModalReabrirFechamento
+        open={reabrirAberto}
+        onOpenChange={setReabrirAberto}
+        fechamentoId={fechamento.id}
+      />
     </Sheet>
   );
 }
