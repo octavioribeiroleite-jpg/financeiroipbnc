@@ -26,6 +26,7 @@ import {
   ClipboardCheck,
   BarChart3,
   ShieldCheck,
+  BookCheck,
 } from "lucide-react";
 
 interface ItemMenu {
@@ -45,14 +46,17 @@ const PAINEIS: ItemMenu[] = [
 const SOCIEDADE: ItemMenu[] = [
   { titulo: "Contribuições", url: "/sociedade/contribuicoes", icone: HandCoins, papeis: ["tesoureiro_sociedade"] },
   { titulo: "Solicitações", url: "/sociedade/solicitacoes", icone: FileText, papeis: ["tesoureiro_sociedade"] },
+  { titulo: "Fechamentos", url: "/sociedade/fechamentos", icone: BookCheck, papeis: ["tesoureiro_sociedade"] },
 ];
 
 const CENTRAL: ItemMenu[] = [
   { titulo: "Conferir contribuições", url: "/central/contribuicoes", icone: CheckCheck, papeis: ["administrador", "tesoureiro_central"] },
   { titulo: "Analisar solicitações", url: "/central/solicitacoes", icone: ClipboardCheck, papeis: ["administrador", "tesoureiro_central"] },
+  { titulo: "Conferir fechamentos", url: "/central/fechamentos", icone: BookCheck, papeis: ["administrador", "tesoureiro_central"] },
 ];
 
 const IGREJA: ItemMenu[] = [
+  { titulo: "Consolidação mensal", url: "/igreja/fechamentos", icone: BookCheck, papeis: ["administrador", "tesoureiro_igreja"] },
   { titulo: "Relatórios", url: "/igreja/relatorios", icone: BarChart3, papeis: ["administrador", "tesoureiro_igreja"] },
   { titulo: "Auditoria", url: "/igreja/auditoria", icone: ShieldCheck, papeis: ["administrador", "tesoureiro_igreja"] },
 ];
