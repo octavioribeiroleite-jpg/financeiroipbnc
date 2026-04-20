@@ -537,6 +537,10 @@ export type Database = {
         Returns: boolean
       }
       is_gestao: { Args: { _user_id: string }; Returns: boolean }
+      mes_consolidado: {
+        Args: { _data: string; _sociedade_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:
