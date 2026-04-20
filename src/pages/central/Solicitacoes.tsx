@@ -24,7 +24,7 @@ import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext"
 type StatusSol = Database["public"]["Enums"]["status_solicitacao"];
 
 const ABAS: { valor: string; rotulo: string; filtros?: StatusSol[] }[] = [
-  { valor: "pendentes", rotulo: "Pendentes", filtros: ["enviada"] },
+  { valor: "pendentes", rotulo: "Pendentes", filtros: ["enviada", "em_analise"] },
   { valor: "em_analise", rotulo: "Em análise", filtros: ["em_analise"] },
   { valor: "aprovadas", rotulo: "Aprovadas", filtros: ["aprovada"] },
   { valor: "pagas", rotulo: "Pagas", filtros: ["paga"] },
@@ -55,7 +55,7 @@ export default function CentralSolicitacoes() {
   }, [solicitacoes, aba, sociedadeSelecionadaId]);
 
   const totais = useMemo(() => {
-    const pendentes = solicitacoes.filter((s) => s.status === "enviada");
+    const pendentes = solicitacoes.filter((s) => ["enviada", "em_analise"].includes(s.status));
     const aprovadas = solicitacoes.filter((s) => s.status === "aprovada");
     return {
       qtdPendentes: pendentes.length,
@@ -134,9 +134,9 @@ export default function CentralSolicitacoes() {
             variant="ghost"
             size="icon"
             onClick={() => abrirAnalise(s)}
-            title={s.status === "enviada" ? "Analisar" : "Visualizar"}
+            title={s.status === "enviada" || s.status === "em_analise" ? "Processar" : "Visualizar"}
           >
-            {s.status === "enviada" ? <Search className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {s.status === "enviada" || s.status === "em_analise" ? <Search className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>
         </div>
       ),
