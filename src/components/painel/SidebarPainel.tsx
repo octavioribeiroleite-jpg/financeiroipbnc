@@ -69,6 +69,7 @@ export function SidebarPainel() {
 
   const paineisVisiveis = PAINEIS.filter((i) => podeVer(i, papeis));
   const sociedadeVisiveis = SOCIEDADE.filter((i) => podeVer(i, papeis));
+  const centralVisiveis = CENTRAL.filter((i) => podeVer(i, papeis));
   const cadastrosVisiveis = CADASTROS.filter((i) => podeVer(i, papeis));
 
   const isActive = (url: string) => location.pathname === url;
@@ -120,6 +121,15 @@ export function SidebarPainel() {
             <SidebarGroupLabel>Sociedade</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>{sociedadeVisiveis.map(renderItem)}</SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {centralVisiveis.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Tesouraria Central</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>{centralVisiveis.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
