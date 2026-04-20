@@ -123,3 +123,35 @@
     @apply tracking-tight;
   }
 }
+
+/* Driver.js — popover de tour usando tokens semânticos */
+@layer components {
+  .driver-popover {
+    @apply rounded-lg border bg-card text-card-foreground shadow-lg;
+  }
+  .driver-popover-title {
+    @apply text-base font-semibold text-foreground;
+  }
+  .driver-popover-description {
+    @apply text-sm text-muted-foreground;
+  }
+  .driver-popover-progress-text {
+    @apply text-xs text-muted-foreground;
+  }
+  .driver-popover-footer button {
+    @apply rounded-md border bg-background px-3 py-1.5 text-sm font-medium text-foreground transition-colors;
+    text-shadow: none;
+  }
+  .driver-popover-footer button:hover {
+    @apply bg-accent text-accent-foreground;
+  }
+  .driver-popover-next-btn {
+    @apply !bg-primary !text-primary-foreground !border-primary;
+  }
+  .driver-popover-next-btn:hover {
+    @apply !bg-primary/90;
+  }
+  .driver-popover-close-btn {
+    @apply text-muted-foreground hover:text-foreground;
+  }
+}
