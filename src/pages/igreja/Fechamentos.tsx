@@ -255,6 +255,7 @@ export default function FechamentosIgreja() {
                               onClick={() => handleBaixarPdf(f)}
                               disabled={pdfLoadingId === f.id}
                               title="Baixar PDF"
+                              data-tour="igreja-baixar-pdf"
                             >
                               <FileDown className="h-4 w-4" />
                             </Button>
