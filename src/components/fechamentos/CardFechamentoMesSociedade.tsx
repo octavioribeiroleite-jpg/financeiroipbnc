@@ -32,7 +32,7 @@ export function CardFechamentoMesSociedade({ sociedadeId }: Props) {
   const enviar = useEnviarFechamento();
 
   const [criando, setCriando] = useState(false);
-  const [verId, setVerId] = useState<string | null>(null);
+  const [verAberto, setVerAberto] = useState(false);
 
   const fechamentoMes = useMemo(
     () => fechamentos.find((f) => f.ano === ano && f.mes === mes) ?? null,
@@ -86,7 +86,7 @@ export function CardFechamentoMesSociedade({ sociedadeId }: Props) {
               </div>
 
               <div className="flex flex-wrap gap-2 pt-1">
-                <Button size="sm" variant="outline" onClick={() => setVerId(fechamentoMes.id)}>
+                <Button size="sm" variant="outline" onClick={() => setVerAberto(true)}>
                   <Eye className="h-4 w-4" />
                   Ver detalhes
                 </Button>
@@ -118,7 +118,11 @@ export function CardFechamentoMesSociedade({ sociedadeId }: Props) {
       </Card>
 
       <ModalNovoFechamento open={criando} onOpenChange={setCriando} sociedadeId={sociedadeId} />
-      <DetalheFechamento id={verId} onClose={() => setVerId(null)} podeConferir={false} />
+      <DetalheFechamento
+        open={verAberto}
+        onOpenChange={setVerAberto}
+        fechamento={fechamentoMes}
+      />
     </>
   );
 }
