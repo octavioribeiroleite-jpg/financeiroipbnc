@@ -20,15 +20,13 @@ export default function PainelIgreja() {
 
   return (
     <ShellPainel
-      titulo="Painel da Tesouraria da Igreja"
-      descricao="Visão consolidada de todas as sociedades."
+      titulo="Painel consolidado"
+      descricao="Relatórios e visão mensal de todas as sociedades."
     >
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Painel da Tesouraria da Igreja</h2>
-          <p className="text-muted-foreground">
-            Visão consolidada de todas as sociedades.
-          </p>
+          <h2 className="text-2xl font-semibold">Consolidação por sociedade</h2>
+          <p className="text-muted-foreground">Acompanhe saldos, evolução e fechamento mensal em um só lugar.</p>
         </div>
         <FiltroPeriodo value={periodo} onChange={setPeriodo} />
       </div>

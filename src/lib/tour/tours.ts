@@ -1,13 +1,10 @@
 import { driver, type DriveStep } from "driver.js";
 import "driver.js/dist/driver.css";
-import type { AppRole } from "@/contexts/AuthContext";
-
 /**
  * Mapa rota → passos do tour. Chaves devem bater com `useLocation().pathname`.
  * Use `data-tour="<id>"` nos elementos para servir de âncora.
  */
 type TourConfig = {
-  papel: AppRole | "qualquer";
   steps: DriveStep[];
 };
 
@@ -35,7 +32,6 @@ const COMUM_HEADER: DriveStep[] = [
 const TOURS: Record<string, TourConfig> = {
   // ===================== SOCIEDADE =====================
   "/painel/sociedade": {
-    papel: "tesoureiro_sociedade",
     steps: [
       {
         popover: {
@@ -48,7 +44,6 @@ const TOURS: Record<string, TourConfig> = {
     ],
   },
   "/sociedade/contribuicoes": {
-    papel: "tesoureiro_sociedade",
     steps: [
       {
         popover: {
@@ -62,19 +57,18 @@ const TOURS: Record<string, TourConfig> = {
         popover: {
           title: "Nova contribuição",
           description:
-            "Use este botão para lançar uma nova contribuição. Após a Tesouraria Central conferir, ela fica bloqueada para edição.",
+            "Use este botão para lançar uma nova contribuição e depois conferi-la no módulo de processamento.",
         },
       },
     ],
   },
   "/sociedade/solicitacoes": {
-    papel: "tesoureiro_sociedade",
     steps: [
       {
         popover: {
           title: "Solicitações de pagamento",
           description:
-            "Crie pedidos de pagamento (fornecedor, valor, vencimento, nota anexa). Salve como rascunho e envie quando estiver pronto.",
+            "Crie pedidos de pagamento por sociedade, acompanhe o status e registre a quitação no fluxo centralizado.",
         },
       },
       {
@@ -82,19 +76,18 @@ const TOURS: Record<string, TourConfig> = {
         popover: {
           title: "Filtrar e criar",
           description:
-            "Use o filtro de status para encontrar rapidamente. O botão verde cria uma nova solicitação.",
+            "Use o filtro de status para localizar rapidamente cada pagamento. O botão principal abre um novo lançamento.",
         },
       },
     ],
   },
   "/sociedade/extrato": {
-    papel: "tesoureiro_sociedade",
     steps: [
       {
         popover: {
           title: "Seu extrato mensal",
           description:
-            "Veja todas as movimentações do mês como um extrato bancário, com saldo acumulado linha a linha.",
+            "Veja todas as movimentações da sociedade escolhida, com saldo acumulado linha a linha.",
         },
       },
       {
@@ -107,13 +100,12 @@ const TOURS: Record<string, TourConfig> = {
     ],
   },
   "/sociedade/fechamentos": {
-    papel: "tesoureiro_sociedade",
     steps: [
       {
         popover: {
           title: "Fechamento mensal",
           description:
-            "No fim do mês, gere o fechamento, confira os totais e envie para a Tesouraria Central conferir.",
+            "No fim do mês, gere o fechamento da sociedade, confira os totais e avance para conferência e consolidação.",
         },
       },
       {
@@ -129,20 +121,18 @@ const TOURS: Record<string, TourConfig> = {
 
   // ===================== CENTRAL =====================
   "/painel/central": {
-    papel: "tesoureiro_central",
     steps: [
       {
         popover: {
           title: "Painel da Tesouraria Central 👋",
           description:
-            "Você acompanha tudo o que as sociedades lançam: confere contribuições, aprova pagamentos e revisa fechamentos.",
+            "Aqui você processa tudo o que foi lançado nas sociedades: confere contribuições, aprova pagamentos e revisa fechamentos.",
         },
       },
       ...COMUM_HEADER,
     ],
   },
   "/central/contribuicoes": {
-    papel: "tesoureiro_central",
     steps: [
       {
         popover: {
@@ -161,19 +151,17 @@ const TOURS: Record<string, TourConfig> = {
     ],
   },
   "/central/solicitacoes": {
-    papel: "tesoureiro_central",
     steps: [
       {
         popover: {
           title: "Analisar solicitações",
           description:
-            "Aprove ou recuse pedidos de pagamento. Quando aprovados e pagos, registre o pagamento — a saída entra automaticamente no extrato da sociedade.",
+            "Aprove, recuse e quite pedidos de pagamento. Quando pagos, a saída entra automaticamente no extrato da sociedade.",
         },
       },
     ],
   },
   "/central/fechamentos": {
-    papel: "tesoureiro_central",
     steps: [
       {
         popover: {
@@ -187,7 +175,6 @@ const TOURS: Record<string, TourConfig> = {
 
   // ===================== IGREJA =====================
   "/painel/igreja": {
-    papel: "tesoureiro_igreja",
     steps: [
       {
         popover: {
@@ -200,7 +187,6 @@ const TOURS: Record<string, TourConfig> = {
     ],
   },
   "/igreja/fechamentos": {
-    papel: "tesoureiro_igreja",
     steps: [
       {
         popover: {
@@ -220,7 +206,6 @@ const TOURS: Record<string, TourConfig> = {
     ],
   },
   "/igreja/relatorios": {
-    papel: "tesoureiro_igreja",
     steps: [
       {
         popover: {
@@ -232,7 +217,6 @@ const TOURS: Record<string, TourConfig> = {
     ],
   },
   "/igreja/auditoria": {
-    papel: "tesoureiro_igreja",
     steps: [
       {
         popover: {

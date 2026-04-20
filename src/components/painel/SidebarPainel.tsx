@@ -16,7 +16,6 @@ import {
 import {
   Church,
   LayoutDashboard,
-  Users,
   Building2,
   Tags,
   Briefcase,
@@ -40,36 +39,32 @@ interface ItemMenu {
 
 const PAINEIS: ItemMenu[] = [
   { titulo: "Painel", url: "/painel/administrador", icone: LayoutDashboard, papeis: ["administrador"] },
-  { titulo: "Painel", url: "/painel/igreja", icone: LayoutDashboard, papeis: ["tesoureiro_igreja"] },
-  { titulo: "Painel", url: "/painel/central", icone: LayoutDashboard, papeis: ["tesoureiro_central"] },
-  { titulo: "Painel", url: "/painel/sociedade", icone: LayoutDashboard, papeis: ["tesoureiro_sociedade"] },
 ];
 
 const SOCIEDADE: ItemMenu[] = [
-  { titulo: "Extrato", url: "/sociedade/extrato", icone: Receipt, papeis: ["tesoureiro_sociedade"] },
-  { titulo: "Contribuições", url: "/sociedade/contribuicoes", icone: HandCoins, papeis: ["tesoureiro_sociedade"] },
-  { titulo: "Solicitações", url: "/sociedade/solicitacoes", icone: FileText, papeis: ["tesoureiro_sociedade"] },
-  { titulo: "Fechamentos", url: "/sociedade/fechamentos", icone: BookCheck, papeis: ["tesoureiro_sociedade"] },
+  { titulo: "Extrato por sociedade", url: "/sociedade/extrato", icone: Receipt, papeis: ["administrador"] },
+  { titulo: "Contribuições", url: "/sociedade/contribuicoes", icone: HandCoins, papeis: ["administrador"] },
+  { titulo: "Pagamentos", url: "/sociedade/solicitacoes", icone: FileText, papeis: ["administrador"] },
+  { titulo: "Fechamentos", url: "/sociedade/fechamentos", icone: BookCheck, papeis: ["administrador"] },
 ];
 
 const CENTRAL: ItemMenu[] = [
-  { titulo: "Conferir contribuições", url: "/central/contribuicoes", icone: CheckCheck, papeis: ["administrador", "tesoureiro_central"] },
-  { titulo: "Analisar solicitações", url: "/central/solicitacoes", icone: ClipboardCheck, papeis: ["administrador", "tesoureiro_central"] },
-  { titulo: "Conferir fechamentos", url: "/central/fechamentos", icone: BookCheck, papeis: ["administrador", "tesoureiro_central"] },
+  { titulo: "Conferir contribuições", url: "/central/contribuicoes", icone: CheckCheck, papeis: ["administrador"] },
+  { titulo: "Processar pagamentos", url: "/central/solicitacoes", icone: ClipboardCheck, papeis: ["administrador"] },
+  { titulo: "Conferir fechamentos", url: "/central/fechamentos", icone: BookCheck, papeis: ["administrador"] },
 ];
 
 const IGREJA: ItemMenu[] = [
-  { titulo: "Consolidação mensal", url: "/igreja/fechamentos", icone: BookCheck, papeis: ["administrador", "tesoureiro_igreja"] },
-  { titulo: "Relatórios", url: "/igreja/relatorios", icone: BarChart3, papeis: ["administrador", "tesoureiro_igreja"] },
-  { titulo: "Auditoria", url: "/igreja/auditoria", icone: ShieldCheck, papeis: ["administrador", "tesoureiro_igreja"] },
+  { titulo: "Consolidação mensal", url: "/igreja/fechamentos", icone: BookCheck, papeis: ["administrador"] },
+  { titulo: "Relatórios", url: "/igreja/relatorios", icone: BarChart3, papeis: ["administrador"] },
+  { titulo: "Auditoria", url: "/igreja/auditoria", icone: ShieldCheck, papeis: ["administrador"] },
 ];
 
 const CADASTROS: ItemMenu[] = [
   { titulo: "Sociedades", url: "/cadastros/sociedades", icone: Building2, papeis: ["administrador"] },
-  { titulo: "Usuários", url: "/cadastros/usuarios", icone: Users, papeis: ["administrador"] },
   { titulo: "Categorias", url: "/cadastros/categorias", icone: Tags, papeis: ["administrador"] },
-  { titulo: "Fornecedores", url: "/cadastros/fornecedores", icone: Briefcase, papeis: ["administrador", "tesoureiro_central"] },
-  { titulo: "Configurações da Igreja", url: "/cadastros/igreja", icone: Settings, papeis: ["administrador", "tesoureiro_igreja"] },
+  { titulo: "Fornecedores", url: "/cadastros/fornecedores", icone: Briefcase, papeis: ["administrador"] },
+  { titulo: "Configurações", url: "/cadastros/igreja", icone: Settings, papeis: ["administrador"] },
 ];
 
 function podeVer(item: ItemMenu, papeis: AppRole[]) {
@@ -134,7 +129,7 @@ export function SidebarPainel() {
 
         {sociedadeVisiveis.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel>Sociedade</SidebarGroupLabel>
+            <SidebarGroupLabel>Lançamentos</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>{sociedadeVisiveis.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
@@ -143,7 +138,7 @@ export function SidebarPainel() {
 
         {centralVisiveis.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel>Tesouraria Central</SidebarGroupLabel>
+            <SidebarGroupLabel>Processamento</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>{centralVisiveis.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
@@ -152,7 +147,7 @@ export function SidebarPainel() {
 
         {igrejaVisiveis.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel>Tesouraria da Igreja</SidebarGroupLabel>
+            <SidebarGroupLabel>Fechamentos e relatórios</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>{igrejaVisiveis.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
