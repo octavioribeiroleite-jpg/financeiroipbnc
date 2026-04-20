@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Pencil, Eye, Trash2, Send } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 import { formatarData, formatarMoeda } from "@/lib/format";
 import {
   Solicitacao,
@@ -40,11 +41,12 @@ const FILTROS_STATUS: { valor: StatusSolicitacao | "todas"; rotulo: string }[] =
 ];
 
 export default function Solicitacoes() {
-  const { user, sociedadeId } = useAuth();
-  const { data, isLoading } = useSolicitacoesSociedade(sociedadeId);
+  const { user } = useAuth();
+  const { sociedadeSelecionada, sociedadeSelecionadaId } = useSociedadeOperacional();
+  const { data, isLoading } = useSolicitacoesSociedade(sociedadeSelecionadaId);
   const { data: fornecedores } = useFornecedores();
-  const excluir = useExcluirSolicitacao(sociedadeId);
-  const enviar = useEnviarSolicitacao(sociedadeId);
+  const excluir = useExcluirSolicitacao(sociedadeSelecionadaId);
+  const enviar = useEnviarSolicitacao(sociedadeSelecionadaId);
 
   const [filtroStatus, setFiltroStatus] = useState<StatusSolicitacao | "todas">("todas");
   const [aberto, setAberto] = useState(false);
@@ -134,14 +136,14 @@ export default function Solicitacoes() {
     },
   ];
 
-  if (!sociedadeId || !user) {
+  if (!sociedadeSelecionadaId || !user) {
     return (
       <ShellPainel
         titulo="Solicitações de pagamento"
-        descricao="Sua conta não está vinculada a uma sociedade."
+        descricao="Selecione uma sociedade para centralizar os pagamentos."
       >
         <p className="text-sm text-muted-foreground">
-          Solicite ao administrador o vínculo da sua conta a uma sociedade para criar solicitações.
+          Com a sociedade ativa definida, você consegue lançar, aprovar e quitar pagamentos em sequência.
         </p>
       </ShellPainel>
     );
@@ -150,7 +152,7 @@ export default function Solicitacoes() {
   return (
     <ShellPainel
       titulo="Solicitações de pagamento"
-      descricao="Registre pedidos de pagamento e acompanhe o fluxo de aprovação."
+      descricao={`Crie e acompanhe os pagamentos de ${sociedadeSelecionada?.nome ?? "uma sociedade"}.`}
     >
       <DataTable
         dados={filtradas}
