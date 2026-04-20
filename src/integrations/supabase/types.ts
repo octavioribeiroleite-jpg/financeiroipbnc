@@ -541,6 +541,32 @@ export type Database = {
         Args: { _data: string; _sociedade_id: string }
         Returns: boolean
       }
+      reabrir_fechamento_consolidado: {
+        Args: { _fechamento_id: string; _motivo: string }
+        Returns: {
+          ano: number
+          conferido_por: string | null
+          data_conferencia: string | null
+          data_criacao: string
+          data_envio: string | null
+          enviado_por: string | null
+          id: string
+          mes: number
+          observacao: string | null
+          saldo_final: number
+          saldo_inicial: number
+          sociedade_id: string
+          status: Database["public"]["Enums"]["status_fechamento"]
+          total_entradas: number
+          total_saidas: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "fechamentos_mensais"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       app_role:
