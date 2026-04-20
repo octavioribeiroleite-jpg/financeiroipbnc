@@ -16,7 +16,6 @@ import {
 import {
   Church,
   LayoutDashboard,
-  Users,
   Building2,
   Tags,
   Briefcase,
