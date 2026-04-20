@@ -55,14 +55,16 @@ export default function CentralSolicitacoes() {
   }, [solicitacoes, aba, sociedadeSelecionadaId]);
 
   const totais = useMemo(() => {
-    const pendentes = solicitacoes.filter((s) => ["enviada", "em_analise"].includes(s.status));
-    const aprovadas = solicitacoes.filter((s) => s.status === "aprovada");
+    const base = sociedadeSelecionadaId
+      ? solicitacoes.filter((s) => s.sociedade_id === sociedadeSelecionadaId)
+      : solicitacoes;
+    const pendentes = base.filter((s) => ["enviada", "em_analise"].includes(s.status));
+    const aprovadas = base.filter((s) => s.status === "aprovada");
     return {
       qtdPendentes: pendentes.length,
       valorAprovadas: aprovadas.reduce((sum, s) => sum + Number(s.valor), 0),
       qtdAprovadas: aprovadas.length,
-      vencendoSemana: solicitacoes.filter((s) => {
-        if (sociedadeSelecionadaId && s.sociedade_id !== sociedadeSelecionadaId) return false;
+      vencendoSemana: base.filter((s) => {
         if (!["enviada", "em_analise", "aprovada"].includes(s.status)) return false;
         const hoje = new Date();
         const fim = new Date();

@@ -92,7 +92,7 @@ export function ModalAnalisarSolicitacao({ solicitacao, open, onClose }: Props) 
             {podeIniciar && (
               <>
                 <Separator />
-                <Button
+              <Button
                   className="w-full"
                   onClick={() =>
                     iniciar.mutate(
@@ -103,7 +103,7 @@ export function ModalAnalisarSolicitacao({ solicitacao, open, onClose }: Props) 
                   disabled={iniciar.isPending}
                 >
                   <Search className="h-4 w-4" />
-                  Iniciar processamento
+                  Assumir processamento
                 </Button>
               </>
             )}
