@@ -335,3 +335,24 @@ export function useConsolidarMes() {
     onError: (e: unknown) => toast.error((e as { message?: string })?.message ?? "Erro."),
   });
 }
+
+export function useReabrirFechamento() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { id: string; motivo: string }) => {
+      const { data, error } = await supabase.rpc("reabrir_fechamento_consolidado", {
+        _fechamento_id: input.id,
+        _motivo: input.motivo,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["fechamentos"] });
+      qc.invalidateQueries({ queryKey: ["mes-consolidado"] });
+      toast.success("Fechamento reaberto. O mês voltou para 'conferido'.");
+    },
+    onError: (e: unknown) => toast.error((e as { message?: string })?.message ?? "Erro."),
+  });
+}
+
