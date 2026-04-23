@@ -15,7 +15,7 @@ import { LogOut, HelpCircle } from "lucide-react";
 import { TourLauncher } from "@/components/tour/TourLauncher";
 import { iniciarTour, reexibirTodosTours, temTourPara } from "@/lib/tour/tours";
 import { toast } from "sonner";
-import { SociedadeOperacionalProvider, useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
+import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 
 const ROTULO_PAPEL: Record<AppRole, string> = {
   administrador: "Operador principal",
@@ -30,7 +30,7 @@ interface ShellPainelProps {
   descricao?: string;
 }
 
-function ShellPainelConteudo({ children, titulo, descricao }: ShellPainelProps) {
+export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
   const { perfil, papelPrincipal, signOut, user } = useAuth();
   const { sociedades, sociedadeSelecionadaId, setSociedadeSelecionadaId } = useSociedadeOperacional();
   const location = useLocation();
@@ -132,12 +132,3 @@ function ShellPainelConteudo({ children, titulo, descricao }: ShellPainelProps) 
   );
 }
 
-export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
-  return (
-    <SociedadeOperacionalProvider>
-      <ShellPainelConteudo titulo={titulo} descricao={descricao}>
-        {children}
-      </ShellPainelConteudo>
-    </SociedadeOperacionalProvider>
-  );
-}
