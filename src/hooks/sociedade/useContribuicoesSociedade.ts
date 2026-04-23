@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
@@ -20,6 +20,7 @@ export function useContribuicoesSociedade(sociedadeId: string | null) {
   return useQuery({
     queryKey: KEY(sociedadeId),
     enabled: !!sociedadeId,
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("contribuicoes")
