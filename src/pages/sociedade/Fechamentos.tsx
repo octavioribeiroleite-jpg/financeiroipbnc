@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ShellPainel } from "@/components/painel/ShellPainel";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,7 +45,7 @@ const MESES = [
 ];
 
 export default function FechamentosSociedade() {
-  const { sociedadeId } = useAuth();
+  const { sociedadeSelecionadaId: sociedadeId, sociedadeSelecionada } = useSociedadeOperacional();
   const { data = [], isLoading } = useFechamentosSociedade(sociedadeId);
   const enviar = useEnviarFechamento();
   const recalcular = useRecalcularFechamento();
@@ -64,7 +64,9 @@ export default function FechamentosSociedade() {
         <div>
           <h2 className="text-2xl font-semibold">Fechamentos mensais</h2>
           <p className="text-sm text-muted-foreground">
-            Resumo do mês a partir das movimentações confirmadas.
+            {sociedadeSelecionada
+              ? `Sociedade ativa: ${sociedadeSelecionada.nome}`
+              : "Selecione uma sociedade no topo para começar."}
           </p>
         </div>
         <Button onClick={() => setNovoOpen(true)} disabled={!sociedadeId} data-tour="novo-fechamento">

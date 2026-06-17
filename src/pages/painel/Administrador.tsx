@@ -3,27 +3,30 @@ import { Link } from "react-router-dom";
 import { ShellPainel } from "@/components/painel/ShellPainel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Tags, Briefcase, ArrowRight, HandCoins, FileText, BookCheck, BarChart3 } from "lucide-react";
+import { Building2, Tags, Briefcase, ArrowRight, HandCoins, FileText, BookCheck, Wallet } from "lucide-react";
 import { useSociedades } from "@/hooks/cadastros/useSociedades";
 import { useCategorias } from "@/hooks/cadastros/useCategorias";
 import { useFornecedores } from "@/hooks/cadastros/useFornecedores";
-import { useResumoIgreja } from "@/hooks/igreja/useResumoIgreja";
 import { useSaldoPorSociedade } from "@/hooks/igreja/useSaldoPorSociedade";
-import { useContribuicoesCentral } from "@/hooks/central/useContribuicoesCentral";
-import { useSolicitacoesCentral } from "@/hooks/central/useSolicitacoesCentral";
-import { primeiroDiaMesAtual } from "@/lib/format";
+import { useContribuicoesSociedade } from "@/hooks/sociedade/useContribuicoesSociedade";
+import { useSolicitacoesSociedade } from "@/hooks/sociedade/useSolicitacoesSociedade";
+import { useFechamentosSociedade } from "@/hooks/fechamentos/useFechamentos";
+import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
+import { formatarMoeda, primeiroDiaMesAtual } from "@/lib/format";
 
 interface AtalhoProps {
   titulo: string;
   descricao: string;
   icone: typeof Building2;
   para: string;
-  contagem?: number;
+  valor?: string;
   carregando?: boolean;
+  legenda?: string;
 }
 
-function Atalho({ titulo, descricao, icone: Icone, para, contagem, carregando }: AtalhoProps) {
+function Atalho({ titulo, descricao, icone: Icone, para, valor, carregando, legenda }: AtalhoProps) {
   return (
     <Link to={para} className="group block">
       <Card className="h-full transition-shadow hover:shadow-[var(--shadow-elegant)]">
@@ -37,9 +40,9 @@ function Atalho({ titulo, descricao, icone: Icone, para, contagem, carregando }:
           <CardTitle className="text-base">{titulo}</CardTitle>
           <p className="mt-1 text-xs text-muted-foreground">{descricao}</p>
           <p className="mt-3 text-2xl font-semibold text-foreground">
-            {carregando ? "—" : (contagem ?? 0)}
+            {carregando ? "—" : (valor ?? "0")}
           </p>
-          <p className="text-xs text-muted-foreground">ativos</p>
+          {legenda && <p className="text-xs text-muted-foreground">{legenda}</p>}
         </CardContent>
       </Card>
     </Link>
@@ -51,20 +54,52 @@ export default function PainelAdministrador() {
   const sociedades = useSociedades();
   const categorias = useCategorias();
   const fornecedores = useFornecedores();
-  const { data: resumo } = useResumoIgreja(periodo);
-  const { data: saldos = [] } = useSaldoPorSociedade(periodo);
-  const { data: contribuicoes = [] } = useContribuicoesCentral();
-  const { data: solicitacoes = [] } = useSolicitacoesCentral();
+  const { sociedadeSelecionadaId, sociedadeSelecionada } = useSociedadeOperacional();
 
-  const fechamentoPendente = useMemo(
-    () => saldos.filter((s) => s.entradasMes > 0 || s.saidasMes > 0).length,
-    [saldos],
+  const { data: saldos = [] } = useSaldoPorSociedade(periodo);
+  const { data: contribuicoes = [] } = useContribuicoesSociedade(sociedadeSelecionadaId);
+  const { data: solicitacoes = [] } = useSolicitacoesSociedade(sociedadeSelecionadaId);
+  const { data: fechamentos = [] } = useFechamentosSociedade(sociedadeSelecionadaId);
+
+  const periodoDate = new Date(periodo + "T00:00:00");
+  const anoRef = periodoDate.getFullYear();
+  const mesRef = periodoDate.getMonth() + 1;
+
+  const saldoAtivo = useMemo(() => {
+    const s = saldos.find((x) => x.sociedadeId === sociedadeSelecionadaId);
+    return s?.saldoAtual ?? 0;
+  }, [saldos, sociedadeSelecionadaId]);
+
+  const contribuicoesMes = useMemo(
+    () =>
+      contribuicoes.filter((c) => {
+        const d = new Date(c.data_pagamento + "T00:00:00");
+        return d.getFullYear() === anoRef && d.getMonth() + 1 === mesRef;
+      }),
+    [contribuicoes, anoRef, mesRef],
   );
 
-  const pendentesPagamento = useMemo(
-    () => solicitacoes.filter((s) => ["enviada", "em_analise", "aprovada"].includes(s.status)).length,
+  const totalContribMes = contribuicoesMes.reduce((acc, c) => acc + Number(c.valor || 0), 0);
+
+  const pagamentosAbertos = useMemo(
+    () => solicitacoes.filter((s) => ["enviada", "em_analise", "aprovada"].includes(s.status)),
     [solicitacoes],
   );
+
+  const fechamentoMes = useMemo(
+    () => fechamentos.find((f) => f.ano === anoRef && f.mes === mesRef),
+    [fechamentos, anoRef, mesRef],
+  );
+
+  const statusFechamentoLabel = fechamentoMes
+    ? fechamentoMes.status === "consolidado"
+      ? "Consolidado"
+      : fechamentoMes.status === "conferido"
+        ? "Conferido"
+        : fechamentoMes.status === "enviado"
+          ? "Enviado"
+          : "Em aberto"
+    : "Sem fechamento";
 
   return (
     <ShellPainel
@@ -72,9 +107,18 @@ export default function PainelAdministrador() {
       descricao="Visão única da operação financeira por sociedade."
     >
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-foreground">Operação consolidada</h2>
-          <p className="text-sm text-muted-foreground">Acompanhe lançamentos, pagamentos e fechamentos sem trocar de perfil.</p>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-semibold text-foreground">Operação consolidada</h2>
+            {sociedadeSelecionada && (
+              <Badge variant="secondary" className="text-xs">
+                {sociedadeSelecionada.nome}
+              </Badge>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Indicadores filtrados pela sociedade ativa no seletor do topo.
+          </p>
         </div>
         <div className="w-full sm:w-[220px]">
           <Select value={periodo} onValueChange={setPeriodo}>
@@ -90,32 +134,35 @@ export default function PainelAdministrador() {
 
       <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Atalho
-          titulo="Saldo consolidado"
-          descricao="Posição financeira total para acompanhar o caixa geral."
-          icone={BarChart3}
-          para="/igreja/relatorios"
-          contagem={Number(resumo?.saldoConsolidado ?? 0)}
+          titulo="Saldo da sociedade"
+          descricao="Posição atual considerando movimentações confirmadas."
+          icone={Wallet}
+          para="/sociedade/extrato"
+          valor={formatarMoeda(saldoAtivo)}
+          legenda={sociedadeSelecionada?.nome ?? "—"}
         />
         <Atalho
-          titulo="Contribuições pendentes"
-          descricao="Lançamentos aguardando conferência."
+          titulo="Contribuições do mês"
+          descricao="Total já lançado no período selecionado."
           icone={HandCoins}
-          para="/central/contribuicoes"
-          contagem={contribuicoes.filter((item) => item.status_conferencia === "pendente").length}
+          para="/sociedade/contribuicoes"
+          valor={formatarMoeda(totalContribMes)}
+          legenda={`${contribuicoesMes.length} lançamento(s)`}
         />
         <Atalho
           titulo="Pagamentos em aberto"
-          descricao="Pagamentos aguardando decisão, quitação ou revisão."
+          descricao="Aguardando análise, aprovação ou quitação."
           icone={FileText}
           para="/central/solicitacoes"
-          contagem={pendentesPagamento}
+          valor={String(pagamentosAbertos.length)}
+          legenda="solicitações"
         />
         <Atalho
-          titulo="Fechamentos do mês"
-          descricao="Sociedades com movimento no período."
+          titulo="Fechamento do mês"
+          descricao="Situação do fechamento da sociedade ativa."
           icone={BookCheck}
-          para="/igreja/fechamentos"
-          contagem={fechamentoPendente}
+          para="/sociedade/fechamentos"
+          valor={statusFechamentoLabel}
         />
       </div>
 
@@ -138,7 +185,8 @@ export default function PainelAdministrador() {
           icone={Building2}
           para="/cadastros/sociedades"
           carregando={sociedades.isLoading}
-          contagem={(sociedades.data ?? []).filter((s) => s.status === "ativa").length}
+          valor={String((sociedades.data ?? []).filter((s) => s.status === "ativa").length)}
+          legenda="ativas"
         />
         <Atalho
           titulo="Categorias"
@@ -146,7 +194,8 @@ export default function PainelAdministrador() {
           icone={Tags}
           para="/cadastros/categorias"
           carregando={categorias.isLoading}
-          contagem={(categorias.data ?? []).filter((c) => c.ativo).length}
+          valor={String((categorias.data ?? []).filter((c) => c.ativo).length)}
+          legenda="ativas"
         />
         <Atalho
           titulo="Fornecedores"
@@ -154,7 +203,8 @@ export default function PainelAdministrador() {
           icone={Briefcase}
           para="/cadastros/fornecedores"
           carregando={fornecedores.isLoading}
-          contagem={(fornecedores.data ?? []).filter((f) => f.ativo).length}
+          valor={String((fornecedores.data ?? []).filter((f) => f.ativo).length)}
+          legenda="ativos"
         />
       </div>
     </ShellPainel>

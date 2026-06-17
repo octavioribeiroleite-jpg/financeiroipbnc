@@ -21,8 +21,6 @@ import {
   Briefcase,
   HandCoins,
   FileText,
-  CheckCheck,
-  ClipboardCheck,
   BarChart3,
   ShieldCheck,
   BookCheck,
@@ -37,24 +35,12 @@ interface ItemMenu {
   papeis: AppRole[];
 }
 
-const PAINEIS: ItemMenu[] = [
+const OPERACAO: ItemMenu[] = [
   { titulo: "Painel", url: "/painel/administrador", icone: LayoutDashboard, papeis: ["administrador"] },
-];
-
-const SOCIEDADE: ItemMenu[] = [
-  { titulo: "Extrato por sociedade", url: "/sociedade/extrato", icone: Receipt, papeis: ["administrador"] },
   { titulo: "Contribuições", url: "/sociedade/contribuicoes", icone: HandCoins, papeis: ["administrador"] },
   { titulo: "Pagamentos", url: "/central/solicitacoes", icone: FileText, papeis: ["administrador"] },
   { titulo: "Fechamentos", url: "/sociedade/fechamentos", icone: BookCheck, papeis: ["administrador"] },
-];
-
-const CENTRAL: ItemMenu[] = [
-  { titulo: "Conferir contribuições", url: "/central/contribuicoes", icone: CheckCheck, papeis: ["administrador"] },
-  { titulo: "Conferir fechamentos", url: "/central/fechamentos", icone: BookCheck, papeis: ["administrador"] },
-];
-
-const IGREJA: ItemMenu[] = [
-  { titulo: "Consolidação mensal", url: "/igreja/fechamentos", icone: BookCheck, papeis: ["administrador"] },
+  { titulo: "Extrato", url: "/sociedade/extrato", icone: Receipt, papeis: ["administrador"] },
   { titulo: "Relatórios", url: "/igreja/relatorios", icone: BarChart3, papeis: ["administrador"] },
   { titulo: "Auditoria", url: "/igreja/auditoria", icone: ShieldCheck, papeis: ["administrador"] },
 ];
@@ -76,10 +62,7 @@ export function SidebarPainel() {
   const { papeis } = useAuth();
   const location = useLocation();
 
-  const paineisVisiveis = PAINEIS.filter((i) => podeVer(i, papeis));
-  const sociedadeVisiveis = SOCIEDADE.filter((i) => podeVer(i, papeis));
-  const centralVisiveis = CENTRAL.filter((i) => podeVer(i, papeis));
-  const igrejaVisiveis = IGREJA.filter((i) => podeVer(i, papeis));
+  const operacaoVisiveis = OPERACAO.filter((i) => podeVer(i, papeis));
   const cadastrosVisiveis = CADASTROS.filter((i) => podeVer(i, papeis));
 
   const isActive = (url: string) => location.pathname === url;
@@ -117,38 +100,11 @@ export function SidebarPainel() {
       </SidebarHeader>
 
       <SidebarContent>
-        {paineisVisiveis.length > 0 && (
+        {operacaoVisiveis.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel>Visão geral</SidebarGroupLabel>
+            <SidebarGroupLabel>Operação</SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu>{paineisVisiveis.map(renderItem)}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {sociedadeVisiveis.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Lançamentos</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>{sociedadeVisiveis.map(renderItem)}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {centralVisiveis.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Processamento</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>{centralVisiveis.map(renderItem)}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {igrejaVisiveis.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Fechamentos e relatórios</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>{igrejaVisiveis.map(renderItem)}</SidebarMenu>
+              <SidebarMenu>{operacaoVisiveis.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
