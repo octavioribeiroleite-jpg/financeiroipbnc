@@ -62,10 +62,7 @@ export function SidebarPainel() {
   const { papeis } = useAuth();
   const location = useLocation();
 
-  const paineisVisiveis = PAINEIS.filter((i) => podeVer(i, papeis));
-  const sociedadeVisiveis = SOCIEDADE.filter((i) => podeVer(i, papeis));
-  const centralVisiveis = CENTRAL.filter((i) => podeVer(i, papeis));
-  const igrejaVisiveis = IGREJA.filter((i) => podeVer(i, papeis));
+  const operacaoVisiveis = OPERACAO.filter((i) => podeVer(i, papeis));
   const cadastrosVisiveis = CADASTROS.filter((i) => podeVer(i, papeis));
 
   const isActive = (url: string) => location.pathname === url;
@@ -103,38 +100,11 @@ export function SidebarPainel() {
       </SidebarHeader>
 
       <SidebarContent>
-        {paineisVisiveis.length > 0 && (
+        {operacaoVisiveis.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel>Visão geral</SidebarGroupLabel>
+            <SidebarGroupLabel>Operação</SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu>{paineisVisiveis.map(renderItem)}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {sociedadeVisiveis.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Lançamentos</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>{sociedadeVisiveis.map(renderItem)}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {centralVisiveis.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Processamento</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>{centralVisiveis.map(renderItem)}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {igrejaVisiveis.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Fechamentos e relatórios</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>{igrejaVisiveis.map(renderItem)}</SidebarMenu>
+              <SidebarMenu>{operacaoVisiveis.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
