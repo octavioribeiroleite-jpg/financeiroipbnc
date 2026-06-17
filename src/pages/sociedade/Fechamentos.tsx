@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ShellPainel } from "@/components/painel/ShellPainel";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
