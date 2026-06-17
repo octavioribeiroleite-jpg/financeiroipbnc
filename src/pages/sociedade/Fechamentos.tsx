@@ -64,7 +64,9 @@ export default function FechamentosSociedade() {
         <div>
           <h2 className="text-2xl font-semibold">Fechamentos mensais</h2>
           <p className="text-sm text-muted-foreground">
-            Resumo do mês a partir das movimentações confirmadas.
+            {sociedadeSelecionada
+              ? `Sociedade ativa: ${sociedadeSelecionada.nome}`
+              : "Selecione uma sociedade no topo para começar."}
           </p>
         </div>
         <Button onClick={() => setNovoOpen(true)} disabled={!sociedadeId} data-tour="novo-fechamento">
