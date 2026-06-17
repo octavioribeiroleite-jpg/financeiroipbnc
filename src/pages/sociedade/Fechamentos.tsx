@@ -45,7 +45,7 @@ const MESES = [
 ];
 
 export default function FechamentosSociedade() {
-  const { sociedadeId } = useAuth();
+  const { sociedadeSelecionadaId: sociedadeId, sociedadeSelecionada } = useSociedadeOperacional();
   const { data = [], isLoading } = useFechamentosSociedade(sociedadeId);
   const enviar = useEnviarFechamento();
   const recalcular = useRecalcularFechamento();
