@@ -240,12 +240,13 @@ export default function PainelAdministrador() {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-md border p-3" data-tour="seletor-sociedade-global">
                 <p className="mb-2 text-xs text-muted-foreground">
-                  {sociedadeSelecionada ? "Sociedade em foco" : "Visão em foco"}
+                  {sociedadeSelecionada ? "Sociedade" : "Visão"}
                 </p>
                 <SeletorSociedade
                   sociedades={sociedadesOperacionais}
                   sociedadeSelecionadaId={sociedadeSelecionadaId}
                   setSociedadeSelecionadaId={setSociedadeSelecionadaId}
+                  simples
                 />
               </div>
               <div className="rounded-md border p-3">
