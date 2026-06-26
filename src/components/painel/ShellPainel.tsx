@@ -38,7 +38,7 @@ type SociedadeOperacional = ReturnType<typeof useSociedadeOperacional>["sociedad
 interface SeletorSociedadeProps {
   sociedades: SociedadeOperacional[];
   sociedadeSelecionadaId: string | null;
-  setSociedadeSelecionadaId: (sociedadeId: string) => void;
+  setSociedadeSelecionadaId: (sociedadeId: string | null) => void;
   className?: string;
   compacto?: boolean;
 }
@@ -73,10 +73,10 @@ function SeletorSociedade({
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">
-                {selecionada?.nome ?? "Selecionar sociedade"}
+                {selecionada?.nome ?? "Geral da conta"}
               </span>
               <span className="block truncate text-xs text-muted-foreground">
-                {selecionada ? `${selecionada.tipo} em foco` : "Escolha o cofrinho ativo"}
+                {selecionada ? `${selecionada.tipo} em detalhes` : "Caixa consolidado"}
               </span>
             </span>
           </span>
@@ -88,7 +88,30 @@ function SeletorSociedade({
           <CommandInput placeholder="Buscar sociedade..." />
           <CommandList>
             <CommandEmpty>Nenhuma sociedade encontrada.</CommandEmpty>
-            <CommandGroup heading="Sociedade em foco">
+            <CommandGroup heading="Visão geral">
+              <CommandItem
+                value="geral conta consolidado todas sociedades"
+                onSelect={() => {
+                  setSociedadeSelecionadaId(null);
+                  setAberto(false);
+                }}
+                className="gap-3 py-3"
+              >
+                <Check
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    !sociedadeSelecionadaId ? "opacity-100" : "opacity-0",
+                  )}
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium">Geral da conta</span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    Saldo consolidado de todas as sociedades
+                  </span>
+                </span>
+              </CommandItem>
+            </CommandGroup>
+            <CommandGroup heading="Detalhar sociedade">
               {sociedades.map((sociedade) => (
                 <CommandItem
                   key={sociedade.id}
@@ -108,7 +131,7 @@ function SeletorSociedade({
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium">{sociedade.nome}</span>
                     <span className="block truncate text-xs text-muted-foreground">
-                      {sociedade.tipo}
+                      {sociedade.tipo} em detalhes
                     </span>
                   </span>
                 </CommandItem>
