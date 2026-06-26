@@ -5,7 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Tags, Briefcase, ArrowRight, HandCoins, FileText, BookCheck, Wallet, TrendingDown, TrendingUp } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  BookCheck,
+  Briefcase,
+  Building2,
+  FileText,
+  HandCoins,
+  Receipt,
+  Tags,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
+} from "lucide-react";
 import { useSociedades } from "@/hooks/cadastros/useSociedades";
 import { useCategorias } from "@/hooks/cadastros/useCategorias";
 import { useFornecedores } from "@/hooks/cadastros/useFornecedores";
@@ -50,6 +63,40 @@ function Atalho({ titulo, descricao, icone: Icone, para, valor, carregando, lege
   );
 }
 
+interface IndicadorProps {
+  titulo: string;
+  valor: string;
+  descricao: string;
+  icone: typeof Wallet;
+  tom?: "default" | "success" | "danger" | "warning";
+}
+
+function Indicador({ titulo, valor, descricao, icone: Icone, tom = "default" }: IndicadorProps) {
+  const corIcone = {
+    default: "text-primary",
+    success: "text-emerald-600",
+    danger: "text-rose-600",
+    warning: "text-amber-600",
+  }[tom];
+
+  return (
+    <Card className="h-full">
+      <CardContent className="flex h-full flex-col justify-between p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{titulo}</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{valor}</p>
+          </div>
+          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted">
+            <Icone className={`h-4 w-4 ${corIcone}`} />
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">{descricao}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function PainelAdministrador() {
   const [periodo, setPeriodo] = useState(primeiroDiaMesAtual());
   const sociedades = useSociedades();
@@ -66,16 +113,17 @@ export default function PainelAdministrador() {
   const anoRef = periodoDate.getFullYear();
   const mesRef = periodoDate.getMonth() + 1;
 
-  const saldoAtivo = useMemo(() => {
-    const s = saldos.find((x) => x.sociedadeId === sociedadeSelecionadaId);
-    return s?.saldoAtual ?? 0;
-  }, [saldos, sociedadeSelecionadaId]);
+  const saldoSociedadeAtiva = useMemo(
+    () => saldos.find((x) => x.sociedadeId === sociedadeSelecionadaId) ?? null,
+    [saldos, sociedadeSelecionadaId],
+  );
 
   const totaisConsolidados = useMemo(
     () => ({
       saldo: saldos.reduce((acc, s) => acc + s.saldoAtual, 0),
       entradas: saldos.reduce((acc, s) => acc + s.entradasMes, 0),
       saidas: saldos.reduce((acc, s) => acc + s.saidasMes, 0),
+      resultado: saldos.reduce((acc, s) => acc + s.entradasMes - s.saidasMes, 0),
     }),
     [saldos],
   );
@@ -116,18 +164,18 @@ export default function PainelAdministrador() {
       titulo="Painel geral"
       descricao="Visão única da operação financeira por sociedade."
     >
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-semibold text-foreground">Operação consolidada</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Caixa geral e cofrinhos</h2>
             {sociedadeSelecionada && (
               <Badge variant="secondary" className="text-xs">
-                {sociedadeSelecionada.nome}
+                foco: {sociedadeSelecionada.nome}
               </Badge>
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            Indicadores filtrados pela sociedade ativa no seletor do topo.
+            Acompanhe o saldo total da igreja e quanto pertence a cada sociedade.
           </p>
         </div>
         <div className="w-full sm:w-[220px]">
@@ -142,81 +190,145 @@ export default function PainelAdministrador() {
         </div>
       </div>
 
-      <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Atalho
+      <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <Indicador
           titulo="Saldo consolidado"
-          descricao="Soma dos saldos de todos os cofrinhos."
           icone={Wallet}
-          para="/igreja/relatorios"
           valor={formatarMoeda(totaisConsolidados.saldo)}
-          legenda={`${saldos.length} sociedade(s)`}
+          descricao={`Soma atual de ${saldos.length} cofrinho(s).`}
         />
-        <Atalho
-          titulo="Entradas consolidadas"
-          descricao="Total confirmado no mês selecionado."
+        <Indicador
+          titulo="Entradas do mês"
           icone={TrendingUp}
-          para="/igreja/relatorios"
           valor={formatarMoeda(totaisConsolidados.entradas)}
-          legenda="todas as sociedades"
+          descricao="Arrecadações confirmadas no período."
+          tom="success"
         />
-        <Atalho
-          titulo="Saídas consolidadas"
-          descricao="Total confirmado no mês selecionado."
+        <Indicador
+          titulo="Saídas do mês"
           icone={TrendingDown}
-          para="/igreja/relatorios"
           valor={formatarMoeda(totaisConsolidados.saidas)}
-          legenda="todas as sociedades"
+          descricao="Pagamentos confirmados no período."
+          tom="danger"
         />
-        <Atalho
-          titulo="Saldo da sociedade"
-          descricao="Posição atual considerando movimentações confirmadas."
-          icone={Wallet}
-          para="/sociedade/extrato"
-          valor={formatarMoeda(saldoAtivo)}
-          legenda={sociedadeSelecionada?.nome ?? "—"}
-        />
-        <Atalho
-          titulo="Contribuições do mês"
-          descricao="Total já lançado no período selecionado."
-          icone={HandCoins}
-          para="/sociedade/contribuicoes"
-          valor={formatarMoeda(totalContribMes)}
-          legenda={`${contribuicoesMes.length} lançamento(s)`}
-        />
-        <Atalho
-          titulo="Pagamentos em aberto"
-          descricao="Aguardando análise, aprovação ou quitação."
-          icone={FileText}
-          para="/central/solicitacoes"
-          valor={String(pagamentosAbertos.length)}
-          legenda="solicitações"
-        />
-        <Atalho
-          titulo="Fechamento do mês"
-          descricao="Situação do fechamento da sociedade ativa."
-          icone={BookCheck}
-          para="/sociedade/fechamentos"
-          valor={statusFechamentoLabel}
+        <Indicador
+          titulo="Resultado do mês"
+          icone={BarChart3}
+          valor={formatarMoeda(totaisConsolidados.resultado)}
+          descricao="Entradas menos saídas confirmadas."
+          tom={totaisConsolidados.resultado >= 0 ? "success" : "danger"}
         />
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        <Button asChild>
-          <Link to="/sociedade/contribuicoes">Lançar contribuição</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link to="/central/solicitacoes">Registrar pagamento</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link to="/sociedade/fechamentos">Fechar mês</Link>
-        </Button>
+      <div className="mb-4 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Sociedade em foco</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Use o seletor do topo para trocar o cofrinho que será movimentado.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Sociedade</p>
+                <p className="mt-1 truncate text-lg font-semibold">
+                  {sociedadeSelecionada?.nome ?? "Selecione"}
+                </p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Saldo atual</p>
+                <p className="mt-1 text-lg font-semibold">
+                  {formatarMoeda(saldoSociedadeAtiva?.saldoAtual ?? 0)}
+                </p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Entradas do mês</p>
+                <p className="mt-1 text-lg font-semibold text-emerald-600">
+                  {formatarMoeda(saldoSociedadeAtiva?.entradasMes ?? totalContribMes)}
+                </p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Saídas do mês</p>
+                <p className="mt-1 text-lg font-semibold text-rose-600">
+                  {formatarMoeda(saldoSociedadeAtiva?.saidasMes ?? 0)}
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button asChild>
+                <Link to="/sociedade/contribuicoes">
+                  <HandCoins className="h-4 w-4" />
+                  Lançar entrada
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/central/solicitacoes">
+                  <FileText className="h-4 w-4" />
+                  Registrar saída
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/sociedade/extrato">
+                  <Receipt className="h-4 w-4" />
+                  Ver extrato
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Fechamento mensal</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Atalhos para conferir e prestar contas do mês selecionado.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Pagamentos abertos</p>
+                <p className="mt-1 text-lg font-semibold">{pagamentosAbertos.length}</p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Status do mês</p>
+                <p className="mt-1 truncate text-lg font-semibold">{statusFechamentoLabel}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline">
+                <Link to="/igreja/relatorios">
+                  <BarChart3 className="h-4 w-4" />
+                  Relatório
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/sociedade/fechamentos">
+                  <BookCheck className="h-4 w-4" />
+                  Fechar mês
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="mb-4">
-        <TabelaSaldoSociedades dados={saldos} />
+        <TabelaSaldoSociedades
+          dados={saldos}
+          sociedadeSelecionadaId={sociedadeSelecionadaId}
+        />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-3">
+        <h3 className="text-base font-semibold text-foreground">Cadastros de apoio</h3>
+        <p className="text-sm text-muted-foreground">
+          Dados usados para organizar lançamentos, categorias e fornecedores.
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Atalho
           titulo="Sociedades"
           descricao="Cadastros e filtros operacionais."
