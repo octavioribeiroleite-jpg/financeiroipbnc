@@ -21,6 +21,7 @@ interface SeletorSociedadeProps {
   setSociedadeSelecionadaId: (sociedadeId: string | null) => void;
   className?: string;
   mostrarGeral?: boolean;
+  simples?: boolean;
 }
 
 export function SeletorSociedade({
@@ -29,6 +30,7 @@ export function SeletorSociedade({
   setSociedadeSelecionadaId,
   className,
   mostrarGeral = true,
+  simples = false,
 }: SeletorSociedadeProps) {
   const [aberto, setAberto] = useState(false);
   const selecionada = sociedades.find((s) => s.id === sociedadeSelecionadaId) ?? null;
@@ -44,16 +46,20 @@ export function SeletorSociedade({
           className={cn("h-auto w-full justify-between gap-3 px-3 py-2 text-left", className)}
         >
           <span className="flex min-w-0 items-center gap-2">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-              <Building2 className="h-4 w-4" />
-            </span>
+            {!simples && (
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <Building2 className="h-4 w-4" />
+              </span>
+            )}
             <span className="min-w-0">
-              <span className="block truncate text-sm font-medium">
+              <span className={cn("block truncate font-medium", simples ? "text-base" : "text-sm")}>
                 {selecionada?.nome ?? "Geral da conta"}
               </span>
-              <span className="block truncate text-xs text-muted-foreground">
-                {selecionada ? `${selecionada.tipo} em detalhes` : "Caixa consolidado"}
-              </span>
+              {!simples && (
+                <span className="block truncate text-xs text-muted-foreground">
+                  {selecionada ? `${selecionada.tipo} em detalhes` : "Caixa consolidado"}
+                </span>
+              )}
             </span>
           </span>
           <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
