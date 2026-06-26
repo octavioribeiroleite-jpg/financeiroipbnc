@@ -37,9 +37,9 @@ interface ItemMenu {
 
 const OPERACAO: ItemMenu[] = [
   { titulo: "Painel", url: "/painel/administrador", icone: LayoutDashboard, papeis: ["administrador"] },
-  { titulo: "Contribuições", url: "/sociedade/contribuicoes", icone: HandCoins, papeis: ["administrador"] },
-  { titulo: "Pagamentos", url: "/central/solicitacoes", icone: FileText, papeis: ["administrador"] },
-  { titulo: "Fechamentos", url: "/sociedade/fechamentos", icone: BookCheck, papeis: ["administrador"] },
+  { titulo: "Entradas", url: "/sociedade/contribuicoes", icone: HandCoins, papeis: ["administrador"] },
+  { titulo: "Saídas", url: "/central/solicitacoes", icone: FileText, papeis: ["administrador"] },
+  { titulo: "Fechamento mensal", url: "/sociedade/fechamentos", icone: BookCheck, papeis: ["administrador"] },
   { titulo: "Extrato", url: "/sociedade/extrato", icone: Receipt, papeis: ["administrador"] },
   { titulo: "Relatórios", url: "/igreja/relatorios", icone: BarChart3, papeis: ["administrador"] },
   { titulo: "Auditoria", url: "/igreja/auditoria", icone: ShieldCheck, papeis: ["administrador"] },
