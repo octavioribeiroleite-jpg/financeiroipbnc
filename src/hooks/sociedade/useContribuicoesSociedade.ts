@@ -16,6 +16,13 @@ export interface ContribuicaoInput {
 
 const KEY = (sociedadeId: string | null) => ["contribuicoes", sociedadeId] as const;
 
+function invalidarDadosFinanceiros(qc: ReturnType<typeof useQueryClient>, sociedadeId: string | null) {
+  qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
+  qc.invalidateQueries({ queryKey: ["resumo-sociedade", sociedadeId] });
+  qc.invalidateQueries({ queryKey: ["igreja"] });
+  qc.invalidateQueries({ queryKey: ["extrato-sociedade", sociedadeId] });
+}
+
 export function useContribuicoesSociedade(sociedadeId: string | null) {
   return useQuery({
     queryKey: KEY(sociedadeId),
@@ -52,8 +59,7 @@ export function useCriarContribuicao(sociedadeId: string | null, criadoPor: stri
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
-      qc.invalidateQueries({ queryKey: ["resumo-sociedade", sociedadeId] });
+      invalidarDadosFinanceiros(qc, sociedadeId);
       toast.success("Contribuição registrada");
     },
     onError: (e: Error) => toast.error("Falha ao registrar", { description: e.message }),
@@ -75,12 +81,13 @@ export function useAtualizarContribuicao(sociedadeId: string | null) {
           comprovante_url: input.comprovante_url ?? null,
           observacao: input.observacao ?? null,
         })
-        .eq("id", id);
+        .eq("id", id)
+        .select("id")
+        .single();
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
-      qc.invalidateQueries({ queryKey: ["resumo-sociedade", sociedadeId] });
+      invalidarDadosFinanceiros(qc, sociedadeId);
       toast.success("Contribuição atualizada");
     },
     onError: (e: Error) => toast.error("Falha ao atualizar", { description: e.message }),
@@ -91,12 +98,11 @@ export function useExcluirContribuicao(sociedadeId: string | null) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("contribuicoes").delete().eq("id", id);
+      const { error } = await supabase.from("contribuicoes").delete().eq("id", id).select("id").single();
       if (error) throw error;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
-      qc.invalidateQueries({ queryKey: ["resumo-sociedade", sociedadeId] });
+      invalidarDadosFinanceiros(qc, sociedadeId);
       toast.success("Contribuição removida");
     },
     onError: (e: Error) => toast.error("Falha ao remover", { description: e.message }),
