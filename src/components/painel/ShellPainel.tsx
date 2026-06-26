@@ -1,21 +1,24 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarPainel } from "./SidebarPainel";
 import { useAuth, AppRole } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { LogOut, HelpCircle } from "lucide-react";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Building2, Check, ChevronsUpDown, HelpCircle, LogOut } from "lucide-react";
 import { TourLauncher } from "@/components/tour/TourLauncher";
 import { iniciarTour, reexibirTodosTours, temTourPara } from "@/lib/tour/tours";
 import { toast } from "sonner";
 import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
+import { cn } from "@/lib/utils";
 
 const ROTULO_PAPEL: Record<AppRole, string> = {
   administrador: "Operador principal",
@@ -28,6 +31,94 @@ interface ShellPainelProps {
   children: ReactNode;
   titulo: string;
   descricao?: string;
+}
+
+type SociedadeOperacional = ReturnType<typeof useSociedadeOperacional>["sociedades"][number];
+
+interface SeletorSociedadeProps {
+  sociedades: SociedadeOperacional[];
+  sociedadeSelecionadaId: string | null;
+  setSociedadeSelecionadaId: (sociedadeId: string) => void;
+  className?: string;
+  compacto?: boolean;
+}
+
+function SeletorSociedade({
+  sociedades,
+  sociedadeSelecionadaId,
+  setSociedadeSelecionadaId,
+  className,
+  compacto,
+}: SeletorSociedadeProps) {
+  const [aberto, setAberto] = useState(false);
+  const selecionada = sociedades.find((s) => s.id === sociedadeSelecionadaId) ?? null;
+
+  return (
+    <Popover open={aberto} onOpenChange={setAberto}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={aberto}
+          className={cn(
+            "h-auto justify-between gap-3 px-3 py-2 text-left",
+            compacto ? "w-full" : "min-w-[260px] max-w-[340px]",
+            className,
+          )}
+        >
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <Building2 className="h-4 w-4" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-medium">
+                {selecionada?.nome ?? "Selecionar sociedade"}
+              </span>
+              <span className="block truncate text-xs text-muted-foreground">
+                {selecionada ? `${selecionada.tipo} em foco` : "Escolha o cofrinho ativo"}
+              </span>
+            </span>
+          </span>
+          <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[min(360px,calc(100vw-2rem))] p-0" align="end">
+        <Command>
+          <CommandInput placeholder="Buscar sociedade..." />
+          <CommandList>
+            <CommandEmpty>Nenhuma sociedade encontrada.</CommandEmpty>
+            <CommandGroup heading="Sociedade em foco">
+              {sociedades.map((sociedade) => (
+                <CommandItem
+                  key={sociedade.id}
+                  value={`${sociedade.nome} ${sociedade.tipo}`}
+                  onSelect={() => {
+                    setSociedadeSelecionadaId(sociedade.id);
+                    setAberto(false);
+                  }}
+                  className="gap-3 py-3"
+                >
+                  <Check
+                    className={cn(
+                      "h-4 w-4 shrink-0",
+                      sociedadeSelecionadaId === sociedade.id ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium">{sociedade.nome}</span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {sociedade.tipo}
+                    </span>
+                  </span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
@@ -64,19 +155,12 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
             </div>
             <div className="flex items-center gap-3">
               {sociedades.length > 0 && (
-                <div className="hidden min-w-[220px] lg:block" data-tour="seletor-sociedade-global">
-                  <Select value={sociedadeSelecionadaId ?? undefined} onValueChange={setSociedadeSelecionadaId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecionar sociedade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sociedades.map((sociedade) => (
-                        <SelectItem key={sociedade.id} value={sociedade.id}>
-                          {sociedade.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="hidden lg:block" data-tour="seletor-sociedade-global">
+                  <SeletorSociedade
+                    sociedades={sociedades}
+                    sociedadeSelecionadaId={sociedadeSelecionadaId}
+                    setSociedadeSelecionadaId={setSociedadeSelecionadaId}
+                  />
                 </div>
               )}
               <div className="hidden text-right md:block">
@@ -109,18 +193,12 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
               </div>
               {sociedades.length > 0 && (
                 <div className="mb-4 lg:hidden" data-tour="seletor-sociedade-global">
-                  <Select value={sociedadeSelecionadaId ?? undefined} onValueChange={setSociedadeSelecionadaId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecionar sociedade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sociedades.map((sociedade) => (
-                        <SelectItem key={sociedade.id} value={sociedade.id}>
-                          {sociedade.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SeletorSociedade
+                    sociedades={sociedades}
+                    sociedadeSelecionadaId={sociedadeSelecionadaId}
+                    setSociedadeSelecionadaId={setSociedadeSelecionadaId}
+                    compacto
+                  />
                 </div>
               )}
               {children}
@@ -131,4 +209,3 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
     </SidebarProvider>
   );
 }
-
