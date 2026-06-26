@@ -24,6 +24,7 @@ import { useCategorias } from "@/hooks/cadastros/useCategorias";
 import { useFornecedores } from "@/hooks/cadastros/useFornecedores";
 import { useSaldoPorSociedade } from "@/hooks/igreja/useSaldoPorSociedade";
 import { TabelaSaldoSociedades } from "@/components/igreja/TabelaSaldoSociedades";
+import { SeletorSociedade } from "@/components/painel/SeletorSociedade";
 import { useContribuicoesSociedade } from "@/hooks/sociedade/useContribuicoesSociedade";
 import { useSolicitacoesSociedade } from "@/hooks/sociedade/useSolicitacoesSociedade";
 import { useFechamentosSociedade } from "@/hooks/fechamentos/useFechamentos";
@@ -102,7 +103,12 @@ export default function PainelAdministrador() {
   const sociedades = useSociedades();
   const categorias = useCategorias();
   const fornecedores = useFornecedores();
-  const { sociedadeSelecionadaId, sociedadeSelecionada } = useSociedadeOperacional();
+  const {
+    sociedades: sociedadesOperacionais,
+    sociedadeSelecionadaId,
+    sociedadeSelecionada,
+    setSociedadeSelecionadaId,
+  } = useSociedadeOperacional();
 
   const { data: saldos = [] } = useSaldoPorSociedade(periodo);
   const { data: contribuicoes = [] } = useContribuicoesSociedade(sociedadeSelecionadaId);
@@ -226,19 +232,21 @@ export default function PainelAdministrador() {
             </CardTitle>
             <p className="text-sm text-muted-foreground">
               {sociedadeSelecionada
-                ? "Detalhes do cofrinho selecionado no topo."
+                ? "Detalhes do cofrinho selecionado para movimentar e acompanhar."
                 : "Resumo consolidado de todos os cofrinhos da igreja."}
             </p>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-md border p-3">
-                <p className="text-xs text-muted-foreground">
-                  {sociedadeSelecionada ? "Sociedade" : "Visão"}
+              <div className="rounded-md border p-3" data-tour="seletor-sociedade-global">
+                <p className="mb-2 text-xs text-muted-foreground">
+                  {sociedadeSelecionada ? "Sociedade em foco" : "Visão em foco"}
                 </p>
-                <p className="mt-1 truncate text-lg font-semibold">
-                  {sociedadeSelecionada?.nome ?? "Geral da conta"}
-                </p>
+                <SeletorSociedade
+                  sociedades={sociedadesOperacionais}
+                  sociedadeSelecionadaId={sociedadeSelecionadaId}
+                  setSociedadeSelecionadaId={setSociedadeSelecionadaId}
+                />
               </div>
               <div className="rounded-md border p-3">
                 <p className="text-xs text-muted-foreground">Saldo atual</p>
