@@ -10,7 +10,7 @@ interface SociedadeOperacionalContextValue {
   sociedades: Sociedade[];
   sociedadeSelecionadaId: string | null;
   sociedadeSelecionada: Sociedade | null;
-  setSociedadeSelecionadaId: (sociedadeId: string) => void;
+  setSociedadeSelecionadaId: (sociedadeId: string | null) => void;
   carregando: boolean;
 }
 
@@ -52,15 +52,14 @@ export function SociedadeOperacionalProvider({ children }: { children: ReactNode
 
   // Sincroniza fallback APENAS quando a lista chega e o id atual é inválido
   useEffect(() => {
-    if (!sociedades.length) return;
+    if (!sociedades.length || !sociedadeSelecionadaId) return;
 
-    const valido = sociedadeSelecionadaId && sociedades.some((s) => s.id === sociedadeSelecionadaId);
+    const valido = sociedades.some((s) => s.id === sociedadeSelecionadaId);
     if (valido) return;
 
-    const fallback = sociedades[0].id;
-    setSociedadeSelecionadaIdState(fallback);
+    setSociedadeSelecionadaIdState(null);
     try {
-      window.localStorage.setItem(STORAGE_KEY, fallback);
+      window.localStorage.removeItem(STORAGE_KEY);
     } catch {
       /* ignore */
     }
@@ -73,11 +72,14 @@ export function SociedadeOperacionalProvider({ children }: { children: ReactNode
     }
   }, [user]);
 
-  const setSociedadeSelecionadaId = useCallback((sociedadeId: string) => {
-    if (!sociedadeId) return;
+  const setSociedadeSelecionadaId = useCallback((sociedadeId: string | null) => {
     setSociedadeSelecionadaIdState(sociedadeId);
     try {
-      window.localStorage.setItem(STORAGE_KEY, sociedadeId);
+      if (sociedadeId) {
+        window.localStorage.setItem(STORAGE_KEY, sociedadeId);
+      } else {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
     } catch {
       /* ignore */
     }
