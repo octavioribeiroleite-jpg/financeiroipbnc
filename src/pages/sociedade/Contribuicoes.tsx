@@ -17,7 +17,7 @@ import {
 } from "@/hooks/sociedade/useContribuicoesSociedade";
 
 export default function Contribuicoes() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { sociedadeSelecionada, sociedadeSelecionadaId } = useSociedadeOperacional();
   const { data, isLoading } = useContribuicoesSociedade(sociedadeSelecionadaId);
   const excluir = useExcluirContribuicao(sociedadeSelecionadaId);
@@ -60,7 +60,7 @@ export default function Contribuicoes() {
       cabecalho: "",
       className: "w-1 text-right",
       render: (c) => {
-        const editavel = c.status_conferencia === "pendente";
+        const editavel = isAdmin || c.status_conferencia === "pendente";
         return (
           <div className="flex justify-end gap-1">
             <Button
@@ -68,7 +68,7 @@ export default function Contribuicoes() {
               size="sm"
               disabled={!editavel}
               onClick={() => abrirEditar(c)}
-              title={editavel ? "Editar" : "Já conferida — bloqueada"}
+              title={editavel ? "Editar" : "Já conferida — bloqueada para este perfil"}
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -77,7 +77,7 @@ export default function Contribuicoes() {
               size="sm"
               disabled={!editavel}
               onClick={() => setConfirmando(c)}
-              title={editavel ? "Excluir" : "Já conferida — bloqueada"}
+              title={editavel ? "Excluir" : "Já conferida — bloqueada para este perfil"}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -89,9 +89,9 @@ export default function Contribuicoes() {
 
   if (!sociedadeSelecionadaId || !user) {
     return (
-      <ShellPainel titulo="Contribuições" descricao="Selecione uma sociedade ativa para começar os lançamentos.">
+      <ShellPainel titulo="Entradas" descricao="Selecione uma sociedade ativa para começar os lançamentos.">
         <p className="text-sm text-muted-foreground">
-          Assim que escolher a sociedade no topo, você poderá registrar, editar e revisar as contribuições dela.
+          Assim que escolher uma sociedade no painel, você poderá registrar, editar e revisar as entradas dela.
         </p>
       </ShellPainel>
     );
@@ -99,8 +99,8 @@ export default function Contribuicoes() {
 
   return (
     <ShellPainel
-      titulo="Contribuições"
-      descricao={`Registre e acompanhe as contribuições de ${sociedadeSelecionada?.nome ?? "uma sociedade"}.`}
+      titulo="Entradas"
+      descricao={`Registre e acompanhe as entradas de ${sociedadeSelecionada?.nome ?? "uma sociedade"}.`}
     >
       <DataTable
         dados={data ?? []}
@@ -121,8 +121,8 @@ export default function Contribuicoes() {
       <FormDialog
         open={aberto}
         onOpenChange={setAberto}
-        titulo={editando ? "Editar contribuição" : "Nova contribuição"}
-        descricao={editando ? "Edição permitida apenas enquanto pendente de conferência." : undefined}
+        titulo={editando ? "Editar entrada" : "Nova entrada"}
+        descricao={editando ? "A correção fica registrada na auditoria do sistema." : undefined}
       >
         <FormContribuicao
           sociedadeId={sociedadeSelecionadaId}
@@ -136,7 +136,7 @@ export default function Contribuicoes() {
       <ConfirmDialog
         open={!!confirmando}
         onOpenChange={(o) => !o && setConfirmando(null)}
-        titulo="Excluir contribuição?"
+        titulo="Excluir entrada?"
         descricao={`Esta ação removerá o registro de "${confirmando?.membro_nome}". Não é possível desfazer.`}
         textoConfirmar="Excluir"
         destrutivo
