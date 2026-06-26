@@ -168,11 +168,9 @@ export default function PainelAdministrador() {
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-semibold text-foreground">Caixa geral e cofrinhos</h2>
-            {sociedadeSelecionada && (
-              <Badge variant="secondary" className="text-xs">
-                foco: {sociedadeSelecionada.nome}
-              </Badge>
-            )}
+            <Badge variant="secondary" className="text-xs">
+              {sociedadeSelecionada ? `detalhe: ${sociedadeSelecionada.nome}` : "geral da conta"}
+            </Badge>
           </div>
           <p className="text-sm text-muted-foreground">
             Acompanhe o saldo total da igreja e quanto pertence a cada sociedade.
@@ -223,57 +221,82 @@ export default function PainelAdministrador() {
       <div className="mb-4 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Sociedade em foco</CardTitle>
+            <CardTitle className="text-base">
+              {sociedadeSelecionada ? "Detalhe da sociedade" : "Geral da conta"}
+            </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Use o seletor do topo para trocar o cofrinho que será movimentado.
+              {sociedadeSelecionada
+                ? "Detalhes do cofrinho selecionado no topo."
+                : "Resumo consolidado de todos os cofrinhos da igreja."}
             </p>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-md border p-3">
-                <p className="text-xs text-muted-foreground">Sociedade</p>
+                <p className="text-xs text-muted-foreground">
+                  {sociedadeSelecionada ? "Sociedade" : "Visão"}
+                </p>
                 <p className="mt-1 truncate text-lg font-semibold">
-                  {sociedadeSelecionada?.nome ?? "Selecione"}
+                  {sociedadeSelecionada?.nome ?? "Geral da conta"}
                 </p>
               </div>
               <div className="rounded-md border p-3">
                 <p className="text-xs text-muted-foreground">Saldo atual</p>
                 <p className="mt-1 text-lg font-semibold">
-                  {formatarMoeda(saldoSociedadeAtiva?.saldoAtual ?? 0)}
+                  {formatarMoeda(saldoSociedadeAtiva?.saldoAtual ?? totaisConsolidados.saldo)}
                 </p>
               </div>
               <div className="rounded-md border p-3">
                 <p className="text-xs text-muted-foreground">Entradas do mês</p>
                 <p className="mt-1 text-lg font-semibold text-emerald-600">
-                  {formatarMoeda(saldoSociedadeAtiva?.entradasMes ?? totalContribMes)}
+                  {formatarMoeda(saldoSociedadeAtiva?.entradasMes ?? totaisConsolidados.entradas)}
                 </p>
               </div>
               <div className="rounded-md border p-3">
                 <p className="text-xs text-muted-foreground">Saídas do mês</p>
                 <p className="mt-1 text-lg font-semibold text-rose-600">
-                  {formatarMoeda(saldoSociedadeAtiva?.saidasMes ?? 0)}
+                  {formatarMoeda(saldoSociedadeAtiva?.saidasMes ?? totaisConsolidados.saidas)}
                 </p>
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button asChild>
-                <Link to="/sociedade/contribuicoes">
-                  <HandCoins className="h-4 w-4" />
-                  Lançar entrada
-                </Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link to="/central/solicitacoes">
-                  <FileText className="h-4 w-4" />
-                  Registrar saída
-                </Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link to="/sociedade/extrato">
-                  <Receipt className="h-4 w-4" />
-                  Ver extrato
-                </Link>
-              </Button>
+              {sociedadeSelecionada ? (
+                <>
+                  <Button asChild>
+                    <Link to="/sociedade/contribuicoes">
+                      <HandCoins className="h-4 w-4" />
+                      Lançar entrada
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link to="/central/solicitacoes">
+                      <FileText className="h-4 w-4" />
+                      Registrar saída
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link to="/sociedade/extrato">
+                      <Receipt className="h-4 w-4" />
+                      Ver extrato
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild>
+                    <Link to="/igreja/relatorios">
+                      <BarChart3 className="h-4 w-4" />
+                      Ver relatório geral
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link to="/sociedade/contribuicoes">
+                      <HandCoins className="h-4 w-4" />
+                      Lançar por sociedade
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
