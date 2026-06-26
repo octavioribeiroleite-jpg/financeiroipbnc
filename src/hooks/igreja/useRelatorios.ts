@@ -64,15 +64,15 @@ export function useRelatorioPagamentos(filtros: FiltroBase & {
 export function useRelatorioMovimentacoes(filtros: FiltroBase) {
   return useQuery({
     queryKey: ["igreja", "rel-mov", filtros] as const,
-    enabled: !!filtros.sociedadeId,
     queryFn: async (): Promise<Mov[]> => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("movimentacoes_sociedade")
         .select("*")
-        .eq("sociedade_id", filtros.sociedadeId!)
         .gte("data_movimento", filtros.inicio)
         .lte("data_movimento", filtros.fim)
         .order("data_movimento", { ascending: false });
+      if (filtros.sociedadeId) q = q.eq("sociedade_id", filtros.sociedadeId);
+      const { data, error } = await q;
       if (error) throw error;
       return data as Mov[];
     },

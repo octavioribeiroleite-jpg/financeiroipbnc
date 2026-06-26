@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { ArrowDownCircle, ArrowUpCircle, Download, Lock, RefreshCw, Wallet } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 import { useExtratoSociedade, type LinhaExtrato } from "@/hooks/sociedade/useExtratoSociedade";
 import { formatarData, formatarMoeda, primeiroDiaMesAtual } from "@/lib/format";
 import { exportarCsv } from "@/lib/exportCsv";
@@ -43,12 +44,14 @@ function rotuloOrigem(origem: string) {
 }
 
 export default function ExtratoSociedade() {
-  const { sociedadeId } = useAuth();
+  const { sociedadeId, isAdmin } = useAuth();
+  const { sociedadeSelecionadaId, sociedadeSelecionada } = useSociedadeOperacional();
+  const sociedadeAtivaId = isAdmin ? sociedadeSelecionadaId : sociedadeId;
   const [mes, setMes] = useState<string>(primeiroDiaMesAtual());
   const [tipo, setTipo] = useState<FiltroTipo>("todas");
   const [busca, setBusca] = useState("");
 
-  const { data, isLoading, refetch, isFetching } = useExtratoSociedade(sociedadeId, mes);
+  const { data, isLoading, refetch, isFetching } = useExtratoSociedade(sociedadeAtivaId, mes);
 
   const linhasFiltradas = useMemo<LinhaExtrato[]>(() => {
     const linhas = data?.linhas ?? [];
@@ -90,12 +93,12 @@ export default function ExtratoSociedade() {
     );
   }
 
-  if (!sociedadeId) {
+  if (!sociedadeAtivaId) {
     return (
       <ShellPainel titulo="Extrato" descricao="Conta sem sociedade vinculada.">
         <Card>
           <CardContent className="py-6 text-sm text-muted-foreground">
-            Solicite ao administrador o vínculo da sua conta a uma sociedade.
+            Selecione uma sociedade ativa no topo para consultar o cofrinho dela.
           </CardContent>
         </Card>
       </ShellPainel>
@@ -104,8 +107,8 @@ export default function ExtratoSociedade() {
 
   return (
     <ShellPainel
-      titulo="Extrato da Sociedade"
-      descricao="Movimentações do mês com saldo acumulado linha a linha."
+      titulo="Extrato da sociedade"
+      descricao={`Cofrinho ${sociedadeSelecionada?.nome ? `de ${sociedadeSelecionada.nome}` : "selecionado"} com saldo acumulado linha a linha.`}
     >
       {/* Filtros */}
       <Card>

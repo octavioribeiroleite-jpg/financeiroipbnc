@@ -19,6 +19,7 @@ import {
   useRelatorioPagamentos,
   useRelatorioMovimentacoes,
 } from "@/hooks/igreja/useRelatorios";
+import { useSaldoPorSociedade } from "@/hooks/igreja/useSaldoPorSociedade";
 import { useSociedades } from "@/hooks/cadastros/useSociedades";
 import { useCategorias } from "@/hooks/cadastros/useCategorias";
 import { useFornecedores } from "@/hooks/cadastros/useFornecedores";
@@ -346,31 +347,24 @@ function AbaMovimentacoes({
 }) {
   const { data = [], isLoading } = useRelatorioMovimentacoes({ inicio, fim, sociedadeId });
 
-  const entradas = data.filter((m) => m.tipo === "entrada").reduce((s, m) => s + Number(m.valor || 0), 0);
-  const saidas = data.filter((m) => m.tipo === "saida").reduce((s, m) => s + Number(m.valor || 0), 0);
+  const confirmadas = data.filter((m) => m.confirmada);
+  const entradas = confirmadas.filter((m) => m.tipo === "entrada").reduce((s, m) => s + Number(m.valor || 0), 0);
+  const saidas = confirmadas.filter((m) => m.tipo === "saida").reduce((s, m) => s + Number(m.valor || 0), 0);
   const saldoPeriodo = entradas - saidas;
 
   const colunas: ColunaTabela<typeof data[number]>[] = [
     { cabecalho: "Data", render: (r) => formatarData(r.data_movimento), valorCsv: (r) => formatarData(r.data_movimento) },
+    { cabecalho: "Sociedade", render: (r) => sociedadeMap.get(r.sociedade_id) ?? "—", valorCsv: (r) => sociedadeMap.get(r.sociedade_id) ?? "" },
     { cabecalho: "Tipo", render: (r) => r.tipo, valorCsv: (r) => r.tipo },
     { cabecalho: "Origem", render: (r) => r.origem, valorCsv: (r) => r.origem },
     { cabecalho: "Observação", render: (r) => r.observacao ?? "—", valorCsv: (r) => r.observacao ?? "" },
+    { cabecalho: "Status", render: (r) => (r.confirmada ? "Confirmada" : "Pendente"), valorCsv: (r) => (r.confirmada ? "Confirmada" : "Pendente"), alinhamento: "center" },
     { cabecalho: "Valor", render: (r) => formatarMoeda(Number(r.valor)), valorCsv: (r) => Number(r.valor), alinhamento: "right" },
   ];
 
-  if (!sociedadeId) {
-    return (
-      <Card>
-        <CardContent className="py-10 text-center text-sm text-muted-foreground">
-          Selecione uma sociedade no filtro acima para ver as movimentações.
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <TabelaRelatorio
-      titulo={`Movimentações — ${sociedadeMap.get(sociedadeId) ?? ""}`}
+      titulo={sociedadeId ? `Movimentações — ${sociedadeMap.get(sociedadeId) ?? ""}` : "Movimentações — todas as sociedades"}
       colunas={colunas}
       dados={data}
       loading={isLoading}
@@ -394,52 +388,46 @@ function AbaResumo({
   inicio,
   fim,
   sociedadeId,
-  sociedades,
 }: {
   inicio: string;
   fim: string;
   sociedadeId: string | null;
   sociedades: { id: string; nome: string; tipo: string }[];
 }) {
-  const { data: contrib = [] } = useRelatorioContribuicoes({ inicio, fim, sociedadeId });
-  const { data: pagas = [] } = useRelatorioPagamentos({ inicio, fim, sociedadeId, status: "paga" });
+  const { data: saldos = [], isLoading } = useSaldoPorSociedade(inicio);
 
-  const lista = sociedades
-    .filter((s) => !sociedadeId || s.id === sociedadeId)
-    .map((s) => {
-      const entradas = contrib
-        .filter((c) => c.sociedade_id === s.id)
-        .reduce((sum, c) => sum + Number(c.valor || 0), 0);
-      const saidas = pagas
-        .filter((p) => p.sociedade_id === s.id)
-        .reduce((sum, p) => sum + Number(p.valor || 0), 0);
-      return { id: s.id, nome: s.nome, tipo: s.tipo, entradas, saidas, saldo: entradas - saidas };
-    });
+  const lista = saldos.filter((s) => !sociedadeId || s.sociedadeId === sociedadeId);
 
   const colunas: ColunaTabela<typeof lista[number]>[] = [
     { cabecalho: "Sociedade", render: (r) => r.nome, valorCsv: (r) => r.nome },
     { cabecalho: "Tipo", render: (r) => r.tipo, valorCsv: (r) => r.tipo },
-    { cabecalho: "Entradas", render: (r) => formatarMoeda(r.entradas), valorCsv: (r) => r.entradas, alinhamento: "right" },
-    { cabecalho: "Saídas", render: (r) => formatarMoeda(r.saidas), valorCsv: (r) => r.saidas, alinhamento: "right" },
-    { cabecalho: "Saldo", render: (r) => formatarMoeda(r.saldo), valorCsv: (r) => r.saldo, alinhamento: "right" },
+    { cabecalho: "Saldo inicial", render: (r) => formatarMoeda(r.saldoInicial), valorCsv: (r) => r.saldoInicial, alinhamento: "right" },
+    { cabecalho: "Entradas", render: (r) => formatarMoeda(r.entradasMes), valorCsv: (r) => r.entradasMes, alinhamento: "right" },
+    { cabecalho: "Saídas", render: (r) => formatarMoeda(r.saidasMes), valorCsv: (r) => r.saidasMes, alinhamento: "right" },
+    { cabecalho: "Saldo final", render: (r) => formatarMoeda(r.saldoFinalMes), valorCsv: (r) => r.saldoFinalMes, alinhamento: "right" },
+    { cabecalho: "Saldo atual", render: (r) => formatarMoeda(r.saldoAtual), valorCsv: (r) => r.saldoAtual, alinhamento: "right" },
   ];
 
-  const totEntradas = lista.reduce((s, x) => s + x.entradas, 0);
-  const totSaidas = lista.reduce((s, x) => s + x.saidas, 0);
+  const totSaldoInicial = lista.reduce((s, x) => s + x.saldoInicial, 0);
+  const totEntradas = lista.reduce((s, x) => s + x.entradasMes, 0);
+  const totSaidas = lista.reduce((s, x) => s + x.saidasMes, 0);
+  const totSaldoFinal = lista.reduce((s, x) => s + x.saldoFinalMes, 0);
 
   return (
     <TabelaRelatorio
       titulo="Resumo por sociedade"
       colunas={colunas}
       dados={lista}
+      loading={isLoading}
       nomeArquivo={`resumo_sociedades_${inicio}_${fim}`}
       rodape={
         <div className="flex flex-wrap justify-between gap-2">
           <span className="text-muted-foreground">{lista.length} sociedade(s)</span>
           <div className="flex gap-4">
+            <span>Inicial: <strong>{formatarMoeda(totSaldoInicial)}</strong></span>
             <span className="text-emerald-600">Entradas: <strong>{formatarMoeda(totEntradas)}</strong></span>
             <span className="text-rose-600">Saídas: <strong>{formatarMoeda(totSaidas)}</strong></span>
-            <span>Resultado: <strong>{formatarMoeda(totEntradas - totSaidas)}</strong></span>
+            <span>Final: <strong>{formatarMoeda(totSaldoFinal)}</strong></span>
           </div>
         </div>
       }
