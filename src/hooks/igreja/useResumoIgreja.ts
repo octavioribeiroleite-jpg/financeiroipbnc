@@ -23,23 +23,19 @@ export function useResumoIgreja(inicioMes: string) {
   return useQuery({
     queryKey: ["igreja", "resumo", inicioMes] as const,
     queryFn: async (): Promise<ResumoIgreja> => {
-      const [movRes, contribMesRes, contribPendRes, solicRes] = await Promise.all([
+      const [movRes, contribPendRes, solicRes] = await Promise.all([
         supabase.from("movimentacoes_sociedade").select("tipo, valor, confirmada, data_movimento"),
-        supabase
-          .from("contribuicoes")
-          .select("valor, data_pagamento")
-          .gte("data_pagamento", inicioMes)
-          .lte("data_pagamento", fim),
         supabase.from("contribuicoes").select("id, status_conferencia"),
         supabase.from("solicitacoes_pagamento").select("id, status, valor, data_pagamento"),
       ]);
 
       if (movRes.error) throw movRes.error;
-      if (contribMesRes.error) throw contribMesRes.error;
       if (contribPendRes.error) throw contribPendRes.error;
       if (solicRes.error) throw solicRes.error;
 
-      const saldoConsolidado = (movRes.data ?? []).reduce((acc, m) => {
+      const movimentosConfirmados = (movRes.data ?? []).filter((m) => m.confirmada);
+
+      const saldoConsolidado = movimentosConfirmados.reduce((acc, m) => {
         if (!m.confirmada) return acc;
         const v = Number(m.valor) || 0;
         if (m.tipo === "entrada") return acc + v;
@@ -47,20 +43,17 @@ export function useResumoIgreja(inicioMes: string) {
         return acc + v;
       }, 0);
 
-      const entradasMes = (contribMesRes.data ?? []).reduce(
-        (acc, c) => acc + (Number(c.valor) || 0),
-        0,
+      const movimentosMes = movimentosConfirmados.filter(
+        (m) => m.data_movimento >= inicioMes && m.data_movimento <= fim,
       );
 
-      const saidasMes = (solicRes.data ?? [])
-        .filter(
-          (s) =>
-            s.status === "paga" &&
-            s.data_pagamento &&
-            s.data_pagamento >= inicioMes &&
-            s.data_pagamento <= fim,
-        )
-        .reduce((acc, s) => acc + (Number(s.valor) || 0), 0);
+      const entradasMes = movimentosMes
+        .filter((m) => m.tipo === "entrada")
+        .reduce((acc, m) => acc + (Number(m.valor) || 0), 0);
+
+      const saidasMes = movimentosMes
+        .filter((m) => m.tipo === "saida")
+        .reduce((acc, m) => acc + (Number(m.valor) || 0), 0);
 
       const solicitacoesPendentes = (solicRes.data ?? []).filter((s) =>
         ["enviada", "em_analise"].includes(s.status as string),

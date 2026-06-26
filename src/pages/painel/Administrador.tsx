@@ -5,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Tags, Briefcase, ArrowRight, HandCoins, FileText, BookCheck, Wallet } from "lucide-react";
+import { Building2, Tags, Briefcase, ArrowRight, HandCoins, FileText, BookCheck, Wallet, TrendingDown, TrendingUp } from "lucide-react";
 import { useSociedades } from "@/hooks/cadastros/useSociedades";
 import { useCategorias } from "@/hooks/cadastros/useCategorias";
 import { useFornecedores } from "@/hooks/cadastros/useFornecedores";
 import { useSaldoPorSociedade } from "@/hooks/igreja/useSaldoPorSociedade";
+import { TabelaSaldoSociedades } from "@/components/igreja/TabelaSaldoSociedades";
 import { useContribuicoesSociedade } from "@/hooks/sociedade/useContribuicoesSociedade";
 import { useSolicitacoesSociedade } from "@/hooks/sociedade/useSolicitacoesSociedade";
 import { useFechamentosSociedade } from "@/hooks/fechamentos/useFechamentos";
@@ -69,6 +70,15 @@ export default function PainelAdministrador() {
     const s = saldos.find((x) => x.sociedadeId === sociedadeSelecionadaId);
     return s?.saldoAtual ?? 0;
   }, [saldos, sociedadeSelecionadaId]);
+
+  const totaisConsolidados = useMemo(
+    () => ({
+      saldo: saldos.reduce((acc, s) => acc + s.saldoAtual, 0),
+      entradas: saldos.reduce((acc, s) => acc + s.entradasMes, 0),
+      saidas: saldos.reduce((acc, s) => acc + s.saidasMes, 0),
+    }),
+    [saldos],
+  );
 
   const contribuicoesMes = useMemo(
     () =>
@@ -134,6 +144,30 @@ export default function PainelAdministrador() {
 
       <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Atalho
+          titulo="Saldo consolidado"
+          descricao="Soma dos saldos de todos os cofrinhos."
+          icone={Wallet}
+          para="/igreja/relatorios"
+          valor={formatarMoeda(totaisConsolidados.saldo)}
+          legenda={`${saldos.length} sociedade(s)`}
+        />
+        <Atalho
+          titulo="Entradas consolidadas"
+          descricao="Total confirmado no mês selecionado."
+          icone={TrendingUp}
+          para="/igreja/relatorios"
+          valor={formatarMoeda(totaisConsolidados.entradas)}
+          legenda="todas as sociedades"
+        />
+        <Atalho
+          titulo="Saídas consolidadas"
+          descricao="Total confirmado no mês selecionado."
+          icone={TrendingDown}
+          para="/igreja/relatorios"
+          valor={formatarMoeda(totaisConsolidados.saidas)}
+          legenda="todas as sociedades"
+        />
+        <Atalho
           titulo="Saldo da sociedade"
           descricao="Posição atual considerando movimentações confirmadas."
           icone={Wallet}
@@ -176,6 +210,10 @@ export default function PainelAdministrador() {
         <Button asChild variant="outline">
           <Link to="/sociedade/fechamentos">Fechar mês</Link>
         </Button>
+      </div>
+
+      <div className="mb-4">
+        <TabelaSaldoSociedades dados={saldos} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
