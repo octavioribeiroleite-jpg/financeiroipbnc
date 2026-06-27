@@ -9,8 +9,8 @@ interface RotaProtegidaProps {
   papeis?: AppRole[];
 }
 
-export function RotaProtegida({ children }: RotaProtegidaProps) {
-  const { user, loading } = useAuth();
+export function RotaProtegida({ children, papeis: papeisPermitidos }: RotaProtegidaProps) {
+  const { user, loading, papeis } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -23,6 +23,10 @@ export function RotaProtegida({ children }: RotaProtegidaProps) {
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (papeisPermitidos?.length && !papeisPermitidos.some((papel) => papeis.includes(papel))) {
+    return <Navigate to="/acesso-negado" replace />;
   }
 
   return <PinGate>{children}</PinGate>;
