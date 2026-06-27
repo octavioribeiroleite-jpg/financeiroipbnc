@@ -5,8 +5,9 @@ import { FormDialog } from "@/components/painel/FormDialog";
 import { ConfirmDialog } from "@/components/painel/ConfirmDialog";
 import { StatusContribuicaoBadge } from "@/components/sociedade/StatusContribuicaoBadge";
 import { FormContribuicao } from "@/components/sociedade/FormContribuicao";
+import { ModalConferirContribuicao } from "@/components/central/ModalConferirContribuicao";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Paperclip } from "lucide-react";
+import { Plus, Pencil, Trash2, Paperclip, CheckCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 import { formatarData, formatarMesAno, formatarMoeda } from "@/lib/format";
@@ -25,6 +26,7 @@ export default function Contribuicoes() {
   const [aberto, setAberto] = useState(false);
   const [editando, setEditando] = useState<Contribuicao | null>(null);
   const [confirmando, setConfirmando] = useState<Contribuicao | null>(null);
+  const [conferindo, setConferindo] = useState<Contribuicao | null>(null);
 
   const abrirNova = () => {
     setEditando(null);
@@ -46,6 +48,11 @@ export default function Contribuicoes() {
         </div>
       ),
     },
+    {
+      chave: "sociedade",
+      cabecalho: "Sociedade",
+      render: () => <span className="font-medium">{sociedadeSelecionada?.nome ?? "—"}</span>,
+    },
     { chave: "ref", cabecalho: "Referência", render: (c) => formatarMesAno(c.referencia_mes) },
     { chave: "valor", cabecalho: "Valor", render: (c) => formatarMoeda(Number(c.valor)) },
     { chave: "data", cabecalho: "Pagamento", render: (c) => formatarData(c.data_pagamento) },
@@ -61,8 +68,19 @@ export default function Contribuicoes() {
       className: "w-1 text-right",
       render: (c) => {
         const editavel = isAdmin || c.status_conferencia === "pendente";
+        const podeConferir = isAdmin && c.status_conferencia === "pendente";
         return (
           <div className="flex justify-end gap-1">
+            {podeConferir && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setConferindo(c)}
+                title="Conferir entrada"
+              >
+                <CheckCheck className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -106,9 +124,11 @@ export default function Contribuicoes() {
         dados={data ?? []}
         colunas={colunas}
         carregando={isLoading}
-        buscaPlaceholder="Buscar por membro ou forma..."
+        buscaPlaceholder="Buscar por membro, sociedade ou forma..."
         filtrarPor={(c, t) =>
-          c.membro_nome.toLowerCase().includes(t) || c.forma_pagamento.toLowerCase().includes(t)
+          c.membro_nome.toLowerCase().includes(t) ||
+          c.forma_pagamento.toLowerCase().includes(t) ||
+          (sociedadeSelecionada?.nome ?? "").toLowerCase().includes(t)
         }
         acoes={
           <Button onClick={abrirNova}>
@@ -146,6 +166,12 @@ export default function Contribuicoes() {
             setConfirmando(null);
           }
         }}
+      />
+
+      <ModalConferirContribuicao
+        contribuicao={conferindo}
+        open={!!conferindo}
+        onClose={() => setConferindo(null)}
       />
     </ShellPainel>
   );
