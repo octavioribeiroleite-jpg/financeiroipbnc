@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validar:
@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Baixar código
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Configurar Node.js
         uses: actions/setup-node@v4
@@ -33,10 +35,14 @@ jobs:
       - name: Compilar aplicação
         run: npm run build
 
-      - name: Salvar lockfile atualizado
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: package-lock-atualizado
-          path: package-lock.json
-          retention-days: 1
+      - name: Atualizar lockfile da branch
+        if: github.event_name == 'pull_request'
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "Atualiza package-lock.json"
+          git push origin HEAD:${GITHUB_HEAD_REF}
