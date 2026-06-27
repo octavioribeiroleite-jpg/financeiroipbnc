@@ -17,7 +17,7 @@ export default function AcessoPendente() {
   if (!user) return <Navigate to="/login" replace />;
 
   if (isAdmin) return <Navigate to="/painel/administrador" replace />;
-  if (papeis.length > 0) return <Navigate to="/" replace />;
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
