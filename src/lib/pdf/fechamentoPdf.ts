@@ -232,6 +232,43 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
   // @ts-expect-error - lastAutoTable é injetado pelo autoTable
   y = (doc.lastAutoTable?.finalY ?? y + 28) + 7;
 
+  // ---------- Saldo disponível por sociedade ----------
+  if (saldosPorSociedade.length > 0) {
+    let ySaldos = y;
+    if (ySaldos + 30 > pageH - 20) {
+      doc.addPage();
+      ySaldos = margin;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(20);
+    doc.text("Saldo disponível por sociedade", margin, ySaldos);
+
+    const totalGeral = saldosPorSociedade.reduce((acc, s) => acc + (Number(s.saldoFinal) || 0), 0);
+
+    autoTable(doc, {
+      startY: ySaldos + 3,
+      head: [["Sociedade", "Saldo disponível"]],
+      body: saldosPorSociedade.map((s) => [s.nome, formatarMoeda(Number(s.saldoFinal) || 0)]),
+      foot: [[
+        { content: "Total geral", styles: { halign: "right", fontStyle: "bold" } } as never,
+        { content: formatarMoeda(totalGeral), styles: { halign: "right", fontStyle: "bold" } } as never,
+      ]],
+      styles: { fontSize: 8.5, cellPadding: 1.7, textColor: 30 },
+      headStyles: { fillColor: [230, 235, 242], textColor: 30, fontStyle: "bold" },
+      footStyles: { fillColor: [245, 248, 252], textColor: 20 },
+      columnStyles: {
+        0: { cellWidth: "auto" },
+        1: { cellWidth: 50, halign: "right", fontStyle: "bold" },
+      },
+      margin: { left: margin, right: margin },
+      theme: "grid",
+    });
+
+    // @ts-expect-error - lastAutoTable é injetado pelo autoTable
+    y = (doc.lastAutoTable?.finalY ?? ySaldos + 30) + 7;
+  }
+
   // ---------- Leitura rapida ----------
   autoTable(doc, {
     startY: y,
@@ -400,42 +437,6 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
     finalTabelaY = doc.lastAutoTable?.finalY ?? yNao + 30;
   }
 
-  // ---------- Saldo disponível por sociedade ----------
-  if (saldosPorSociedade.length > 0) {
-    let ySaldos = finalTabelaY + 9;
-    if (ySaldos + 30 > pageH - 20) {
-      doc.addPage();
-      ySaldos = margin;
-    }
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(20);
-    doc.text("Saldo disponível por sociedade", margin, ySaldos);
-
-    const totalGeral = saldosPorSociedade.reduce((acc, s) => acc + (Number(s.saldoFinal) || 0), 0);
-
-    autoTable(doc, {
-      startY: ySaldos + 3,
-      head: [["Sociedade", "Saldo disponível"]],
-      body: saldosPorSociedade.map((s) => [s.nome, formatarMoeda(Number(s.saldoFinal) || 0)]),
-      foot: [[
-        { content: "Total geral", styles: { halign: "right", fontStyle: "bold" } } as never,
-        { content: formatarMoeda(totalGeral), styles: { halign: "right", fontStyle: "bold" } } as never,
-      ]],
-      styles: { fontSize: 8.5, cellPadding: 1.7, textColor: 30 },
-      headStyles: { fillColor: [230, 235, 242], textColor: 30, fontStyle: "bold" },
-      footStyles: { fillColor: [245, 248, 252], textColor: 20 },
-      columnStyles: {
-        0: { cellWidth: "auto" },
-        1: { cellWidth: 50, halign: "right", fontStyle: "bold" },
-      },
-      margin: { left: margin, right: margin },
-      theme: "grid",
-    });
-
-    // @ts-expect-error - lastAutoTable é injetado pelo autoTable
-    finalTabelaY = doc.lastAutoTable?.finalY ?? finalTabelaY + 30;
-  }
 
 
   // ---------- Bloco de assinaturas ----------
