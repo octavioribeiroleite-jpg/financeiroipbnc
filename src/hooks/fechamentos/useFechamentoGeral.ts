@@ -28,6 +28,7 @@ export interface FechamentoGeralMes {
   mes: number;
   inicio: string;
   fim: string;
+  fimAnterior: string;
   resumo: {
     saldoInicial: number;
     entradas: number;
@@ -50,6 +51,11 @@ function fimMesIso(ano: number, mes: number): string {
   return `${fim.getFullYear()}-${String(fim.getMonth() + 1).padStart(2, "0")}-${String(fim.getDate()).padStart(2, "0")}`;
 }
 
+function fimMesAnteriorIso(ano: number, mes: number): string {
+  const fimAnterior = new Date(ano, mes - 1, 0);
+  return `${fimAnterior.getFullYear()}-${String(fimAnterior.getMonth() + 1).padStart(2, "0")}-${String(fimAnterior.getDate()).padStart(2, "0")}`;
+}
+
 function valorImpacto(mov: Pick<Movimento, "tipo" | "valor">): number {
   const valor = Number(mov.valor) || 0;
   return mov.tipo === "saida" ? -valor : valor;
@@ -70,6 +76,7 @@ export function useFechamentoGeral(mesReferencia: string) {
       const mes = Number(mesStr);
       const inicio = inicioMesIso(ano, mes);
       const fim = fimMesIso(ano, mes);
+      const fimAnterior = fimMesAnteriorIso(ano, mes);
 
       const [sociedadesRes, movimentosRes] = await Promise.all([
         supabase.from("sociedades").select("*").order("nome", { ascending: true }),
@@ -145,6 +152,7 @@ export function useFechamentoGeral(mesReferencia: string) {
         mes,
         inicio,
         fim,
+        fimAnterior,
         resumo: {
           saldoInicial,
           entradas,
