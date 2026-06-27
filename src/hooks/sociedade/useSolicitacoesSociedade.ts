@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 
 export type Solicitacao = Database["public"]["Tables"]["solicitacoes_pagamento"]["Row"];
 export type StatusSolicitacao = Database["public"]["Enums"]["status_solicitacao"];
@@ -11,12 +11,21 @@ export interface SolicitacaoInput {
   categoria_id?: string | null;
   descricao: string;
   valor: number;
-  vencimento: string; // YYYY-MM-DD
+  vencimento: string;
   observacoes?: string | null;
   anexo_nota_url?: string | null;
 }
 
 const KEY = (sociedadeId: string | null) => ["solicitacoes", sociedadeId] as const;
+const ERRO_BLOQUEADO = "Este pagamento já entrou em processamento e não pode mais ser alterado como rascunho.";
+
+function invalidarFluxo(qc: ReturnType<typeof useQueryClient>, sociedadeId: string | null) {
+  qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
+  qc.invalidateQueries({ queryKey: ["solicitacoes"] });
+  qc.invalidateQueries({ queryKey: ["central", "solicitacoes"] });
+  qc.invalidateQueries({ queryKey: ["resumo-sociedade"] });
+  qc.invalidateQueries({ queryKey: ["igreja"] });
+}
 
 export function useSolicitacoesSociedade(sociedadeId: string | null) {
   return useQuery({
@@ -54,10 +63,14 @@ export function useCriarSolicitacao(sociedadeId: string | null, criadoPor: strin
       });
       if (error) throw error;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
-      qc.invalidateQueries({ queryKey: ["resumo-sociedade", sociedadeId] });
-      toast.success("Pagamento salvo");
+    onSuccess: (_, input) => {
+      invalidarFluxo(qc, sociedadeId);
+      toast.success(input.status === "enviada" ? "Pagamento liberado" : "Rascunho salvo", {
+        description:
+          input.status === "enviada"
+            ? "A solicitação entrou na fila central de processamento."
+            : "Você ainda pode editar antes de liberar para processamento.",
+      });
     },
     onError: (e: Error) => toast.error("Falha ao salvar", { description: e.message }),
   });
@@ -70,7 +83,7 @@ export function useAtualizarSolicitacao(sociedadeId: string | null) {
       id,
       ...input
     }: SolicitacaoInput & { id: string; status?: "rascunho" | "enviada" }) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("solicitacoes_pagamento")
         .update({
           fornecedor_id: input.fornecedor_id,
@@ -82,13 +95,16 @@ export function useAtualizarSolicitacao(sociedadeId: string | null) {
           anexo_nota_url: input.anexo_nota_url || null,
           ...(input.status ? { status: input.status } : {}),
         })
-        .eq("id", id);
+        .eq("id", id)
+        .eq("status", "rascunho")
+        .select("id")
+        .maybeSingle();
       if (error) throw error;
+      if (!data) throw new Error(ERRO_BLOQUEADO);
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
-      qc.invalidateQueries({ queryKey: ["resumo-sociedade", sociedadeId] });
-      toast.success("Pagamento atualizado");
+    onSuccess: (_, input) => {
+      invalidarFluxo(qc, sociedadeId);
+      toast.success(input.status === "enviada" ? "Pagamento liberado" : "Rascunho atualizado");
     },
     onError: (e: Error) => toast.error("Falha ao atualizar", { description: e.message }),
   });
@@ -98,15 +114,19 @@ export function useEnviarSolicitacao(sociedadeId: string | null) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("solicitacoes_pagamento")
         .update({ status: "enviada" })
-        .eq("id", id);
+        .eq("id", id)
+        .eq("status", "rascunho")
+        .select("id")
+        .maybeSingle();
       if (error) throw error;
+      if (!data) throw new Error(ERRO_BLOQUEADO);
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
-      toast.success("Pagamento liberado para processamento");
+      invalidarFluxo(qc, sociedadeId);
+      toast.success("Pagamento liberado", { description: "A solicitação entrou na fila central." });
     },
     onError: (e: Error) => toast.error("Falha ao enviar", { description: e.message }),
   });
@@ -116,12 +136,19 @@ export function useExcluirSolicitacao(sociedadeId: string | null) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("solicitacoes_pagamento").delete().eq("id", id);
+      const { data, error } = await supabase
+        .from("solicitacoes_pagamento")
+        .delete()
+        .eq("id", id)
+        .eq("status", "rascunho")
+        .select("id")
+        .maybeSingle();
       if (error) throw error;
+      if (!data) throw new Error(ERRO_BLOQUEADO);
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
-      toast.success("Pagamento removido");
+      invalidarFluxo(qc, sociedadeId);
+      toast.success("Rascunho removido");
     },
     onError: (e: Error) => toast.error("Falha ao remover", { description: e.message }),
   });
