@@ -39,12 +39,22 @@ export function useConferirContribuicao() {
         data_conferencia: new Date().toISOString(),
       };
       if (observacao !== undefined) update.observacao = observacao;
-      const { error } = await supabase.from("contribuicoes").update(update).eq("id", id);
+      const { data, error } = await supabase
+        .from("contribuicoes")
+        .update(update)
+        .eq("id", id)
+        .select("id, sociedade_id")
+        .single();
       if (error) throw error;
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: KEY });
       qc.invalidateQueries({ queryKey: ["contribuicoes"] });
+      qc.invalidateQueries({ queryKey: ["contribuicoes", data.sociedade_id] });
+      qc.invalidateQueries({ queryKey: ["resumo-sociedade", data.sociedade_id] });
+      qc.invalidateQueries({ queryKey: ["extrato-sociedade", data.sociedade_id] });
+      qc.invalidateQueries({ queryKey: ["igreja"] });
       toast.success("Conferência registrada");
     },
     onError: (e: Error) => toast.error("Falha ao conferir", { description: e.message }),
