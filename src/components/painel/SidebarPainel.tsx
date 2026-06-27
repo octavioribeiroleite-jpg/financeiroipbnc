@@ -1,6 +1,6 @@
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
-import { useAuth, AppRole } from "@/contexts/AuthContext";
+import { useAuth, type AppRole } from "@/contexts/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -29,44 +29,100 @@ import {
   BookCheck,
   Settings,
   Receipt,
+  ClipboardCheck,
 } from "lucide-react";
 
 interface ItemMenu {
   titulo: string;
   url: string;
   icone: typeof LayoutDashboard;
-  papeis: AppRole[];
 }
 
-const OPERACAO: ItemMenu[] = [
-  { titulo: "Painel", url: "/painel/administrador", icone: LayoutDashboard, papeis: ["administrador"] },
-  { titulo: "Entradas", url: "/sociedade/contribuicoes", icone: HandCoins, papeis: ["administrador"] },
-  { titulo: "Saídas", url: "/central/solicitacoes", icone: FileText, papeis: ["administrador"] },
-  { titulo: "Fechamento mensal", url: "/sociedade/fechamentos", icone: BookCheck, papeis: ["administrador"] },
-  { titulo: "Extrato", url: "/sociedade/extrato", icone: Receipt, papeis: ["administrador"] },
-  { titulo: "Relatórios", url: "/igreja/relatorios", icone: BarChart3, papeis: ["administrador"] },
-  { titulo: "Auditoria", url: "/igreja/auditoria", icone: ShieldCheck, papeis: ["administrador"] },
+interface GrupoMenu {
+  rotulo: string;
+  itens: ItemMenu[];
+}
+
+const MENU_ADMIN: GrupoMenu[] = [
+  {
+    rotulo: "Operação",
+    itens: [
+      { titulo: "Painel", url: "/painel/administrador", icone: LayoutDashboard },
+      { titulo: "Entradas", url: "/sociedade/contribuicoes", icone: HandCoins },
+      { titulo: "Saídas", url: "/central/solicitacoes", icone: FileText },
+      { titulo: "Fechamento mensal", url: "/sociedade/fechamentos", icone: BookCheck },
+      { titulo: "Extrato", url: "/sociedade/extrato", icone: Receipt },
+      { titulo: "Relatórios", url: "/igreja/relatorios", icone: BarChart3 },
+      { titulo: "Auditoria", url: "/igreja/auditoria", icone: ShieldCheck },
+    ],
+  },
+  {
+    rotulo: "Cadastros",
+    itens: [
+      { titulo: "Sociedades", url: "/cadastros/sociedades", icone: Building2 },
+      { titulo: "Categorias", url: "/cadastros/categorias", icone: Tags },
+      { titulo: "Fornecedores", url: "/cadastros/fornecedores", icone: Briefcase },
+      { titulo: "Configurações", url: "/cadastros/igreja", icone: Settings },
+    ],
+  },
 ];
 
-const CADASTROS: ItemMenu[] = [
-  { titulo: "Sociedades", url: "/cadastros/sociedades", icone: Building2, papeis: ["administrador"] },
-  { titulo: "Categorias", url: "/cadastros/categorias", icone: Tags, papeis: ["administrador"] },
-  { titulo: "Fornecedores", url: "/cadastros/fornecedores", icone: Briefcase, papeis: ["administrador"] },
-  { titulo: "Configurações", url: "/cadastros/igreja", icone: Settings, papeis: ["administrador"] },
+const MENU_IGREJA: GrupoMenu[] = [
+  {
+    rotulo: "Igreja",
+    itens: [
+      { titulo: "Painel", url: "/painel/igreja", icone: LayoutDashboard },
+      { titulo: "Fechamentos", url: "/igreja/fechamentos", icone: BookCheck },
+      { titulo: "Relatórios", url: "/igreja/relatorios", icone: BarChart3 },
+      { titulo: "Auditoria", url: "/igreja/auditoria", icone: ShieldCheck },
+      { titulo: "Configurações", url: "/cadastros/igreja", icone: Settings },
+    ],
+  },
 ];
 
-function podeVer(item: ItemMenu, papeis: AppRole[]) {
-  return item.papeis.some((p) => papeis.includes(p));
+const MENU_CENTRAL: GrupoMenu[] = [
+  {
+    rotulo: "Tesouraria central",
+    itens: [
+      { titulo: "Painel", url: "/painel/central", icone: LayoutDashboard },
+      { titulo: "Conferir entradas", url: "/central/contribuicoes", icone: ClipboardCheck },
+      { titulo: "Pagamentos", url: "/central/solicitacoes", icone: FileText },
+      { titulo: "Fechamentos", url: "/central/fechamentos", icone: BookCheck },
+    ],
+  },
+  {
+    rotulo: "Cadastros",
+    itens: [{ titulo: "Fornecedores", url: "/cadastros/fornecedores", icone: Briefcase }],
+  },
+];
+
+const MENU_SOCIEDADE: GrupoMenu[] = [
+  {
+    rotulo: "Sociedade",
+    itens: [
+      { titulo: "Painel", url: "/painel/sociedade", icone: LayoutDashboard },
+      { titulo: "Entradas", url: "/sociedade/contribuicoes", icone: HandCoins },
+      { titulo: "Pagamentos", url: "/sociedade/solicitacoes", icone: FileText },
+      { titulo: "Extrato", url: "/sociedade/extrato", icone: Receipt },
+      { titulo: "Fechamento mensal", url: "/sociedade/fechamentos", icone: BookCheck },
+    ],
+  },
+];
+
+function menuDoPapel(papel: AppRole | null): GrupoMenu[] {
+  if (papel === "administrador") return MENU_ADMIN;
+  if (papel === "tesoureiro_igreja") return MENU_IGREJA;
+  if (papel === "tesoureiro_central") return MENU_CENTRAL;
+  if (papel === "tesoureiro_sociedade") return MENU_SOCIEDADE;
+  return [];
 }
 
 export function SidebarPainel() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { papeis } = useAuth();
+  const { papelPrincipal } = useAuth();
   const location = useLocation();
-
-  const operacaoVisiveis = OPERACAO.filter((i) => podeVer(i, papeis));
-  const cadastrosVisiveis = CADASTROS.filter((i) => podeVer(i, papeis));
+  const grupos = menuDoPapel(papelPrincipal);
 
   const isActive = (url: string) => location.pathname === url;
 
@@ -129,35 +185,21 @@ export function SidebarPainel() {
       </SidebarHeader>
 
       <SidebarContent className="py-2">
-        {operacaoVisiveis.length > 0 && (
-          <SidebarGroup className={cn("py-1", collapsed ? "px-1.5" : "px-2")}>
-            {!collapsed && (
-              <SidebarGroupLabel className="px-3 text-[10px] font-semibold uppercase tracking-[0.14em]">
-                Operação
-              </SidebarGroupLabel>
-            )}
-            <SidebarGroupContent>
-              <SidebarMenu className="gap-1.5">{operacaoVisiveis.map(renderItem)}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {operacaoVisiveis.length > 0 && cadastrosVisiveis.length > 0 && (
-          <SidebarSeparator className={cn("my-2", collapsed ? "mx-2" : "mx-4")} />
-        )}
-
-        {cadastrosVisiveis.length > 0 && (
-          <SidebarGroup className={cn("py-1", collapsed ? "px-1.5" : "px-2")}>
-            {!collapsed && (
-              <SidebarGroupLabel className="px-3 text-[10px] font-semibold uppercase tracking-[0.14em]">
-                Cadastros
-              </SidebarGroupLabel>
-            )}
-            <SidebarGroupContent>
-              <SidebarMenu className="gap-1.5">{cadastrosVisiveis.map(renderItem)}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {grupos.map((grupo, indice) => (
+          <div key={grupo.rotulo}>
+            {indice > 0 && <SidebarSeparator className={cn("my-2", collapsed ? "mx-2" : "mx-4")} />}
+            <SidebarGroup className={cn("py-1", collapsed ? "px-1.5" : "px-2")}>
+              {!collapsed && (
+                <SidebarGroupLabel className="px-3 text-[10px] font-semibold uppercase tracking-[0.14em]">
+                  {grupo.rotulo}
+                </SidebarGroupLabel>
+              )}
+              <SidebarGroupContent>
+                <SidebarMenu className="gap-1.5">{grupo.itens.map(renderItem)}</SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </div>
+        ))}
       </SidebarContent>
 
       <SidebarRail />
