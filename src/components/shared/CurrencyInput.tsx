@@ -1,6 +1,5 @@
 import { forwardRef, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { parseValorBR } from "@/lib/format";
 
 interface CurrencyInputProps {
   id?: string;
@@ -14,6 +13,12 @@ interface CurrencyInputProps {
 function formatarParaDigitacao(n: number): string {
   if (!n) return "";
   return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function converterDigitacaoEmValor(texto: string): number {
+  const somenteDigitos = texto.replace(/\D/g, "");
+  if (!somenteDigitos) return 0;
+  return Number(somenteDigitos) / 100;
 }
 
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
@@ -38,9 +43,9 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
           className={`pl-9 ${className ?? ""}`}
           value={texto}
           onChange={(e) => {
-            const t = e.target.value;
-            setTexto(t);
-            onChange(parseValorBR(t));
+            const valor = converterDigitacaoEmValor(e.target.value);
+            setTexto(formatarParaDigitacao(valor));
+            onChange(valor);
           }}
           onBlur={() => setTexto(formatarParaDigitacao(value))}
         />
