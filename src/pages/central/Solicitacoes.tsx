@@ -14,8 +14,7 @@ import { useSolicitacoesCentral, type Solicitacao } from "@/hooks/central/useSol
 import { useSociedades } from "@/hooks/cadastros/useSociedades";
 import { useFornecedores } from "@/hooks/cadastros/useFornecedores";
 import { StatusSolicitacaoBadge } from "@/components/sociedade/StatusSolicitacaoBadge";
-import { ModalAnalisarSolicitacao } from "@/components/central/ModalAnalisarSolicitacao";
-import { ModalRegistrarPagamento } from "@/components/central/ModalRegistrarPagamento";
+import { ModalProcessarPagamento } from "@/components/central/ModalProcessarPagamento";
 import { formatarData, formatarMoeda } from "@/lib/format";
 import {
   type AbaPagamento,
@@ -23,7 +22,7 @@ import {
   hojeISO,
   pertenceAbaPagamento,
 } from "@/lib/pagamentos";
-import { Banknote, CircleAlert, Eye, Search } from "lucide-react";
+import { Banknote, CheckCircle2, CircleAlert, Eye } from "lucide-react";
 import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 import { cn } from "@/lib/utils";
 
@@ -54,8 +53,7 @@ export default function CentralSolicitacoes() {
 
   const [aba, setAba] = useState<AbaPagamento>("pendentes");
   const [selecionada, setSelecionada] = useState<Solicitacao | null>(null);
-  const [modalAnalise, setModalAnalise] = useState(false);
-  const [modalPagamento, setModalPagamento] = useState(false);
+  const [popupAberto, setPopupAberto] = useState(false);
 
   const dataHoje = hojeISO();
   const nomeSociedade = (id: string) => sociedades.find((s) => s.id === id)?.nome ?? "—";
@@ -88,14 +86,9 @@ export default function CentralSolicitacoes() {
     [aba, baseSociedade],
   );
 
-  const abrirAnalise = (solicitacao: Solicitacao) => {
+  const abrirPopup = (solicitacao: Solicitacao) => {
     setSelecionada(solicitacao);
-    setModalAnalise(true);
-  };
-
-  const abrirPagamento = (solicitacao: Solicitacao) => {
-    setSelecionada(solicitacao);
-    setModalPagamento(true);
+    setPopupAberto(true);
   };
 
   const colunas: Coluna<Solicitacao>[] = [
@@ -144,31 +137,33 @@ export default function CentralSolicitacoes() {
     },
     {
       chave: "acoes",
-      cabecalho: "Ações",
+      cabecalho: "Ação",
       className:
         "sticky right-0 z-10 min-w-[145px] whitespace-nowrap border-l bg-card text-right shadow-[-8px_0_14px_-14px_rgba(15,23,42,0.55)]",
-      render: (s) => (
-        <div className="flex justify-end gap-1">
-          {s.status === "aprovada" && (
-            <Button variant="default" size="sm" onClick={() => abrirPagamento(s)} title="Registrar pagamento">
-              <Banknote className="h-4 w-4" />
-              Pagar
+      render: (s) => {
+        const pendente = s.status === "enviada" || s.status === "em_analise";
+        const aprovada = s.status === "aprovada";
+
+        return (
+          <div className="flex justify-end">
+            <Button
+              variant={pendente || aprovada ? "default" : "outline"}
+              size="sm"
+              onClick={() => abrirPopup(s)}
+              className="min-w-[105px]"
+            >
+              {pendente ? (
+                <CheckCircle2 className="h-4 w-4" />
+              ) : aprovada ? (
+                <Banknote className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+              {pendente ? "Processar" : aprovada ? "Pagar" : "Ver detalhes"}
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => abrirAnalise(s)}
-            title={s.status === "enviada" || s.status === "em_analise" ? "Processar pagamento" : "Visualizar detalhes"}
-          >
-            {s.status === "enviada" || s.status === "em_analise" ? (
-              <Search className="h-4 w-4" />
-            ) : (
-              <Eye className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      ),
+          </div>
+        );
+      },
     },
   ];
 
@@ -248,19 +243,11 @@ export default function CentralSolicitacoes() {
         }
       />
 
-      <ModalAnalisarSolicitacao
+      <ModalProcessarPagamento
         solicitacao={selecionada}
-        open={modalAnalise}
+        open={popupAberto}
         onClose={() => {
-          setModalAnalise(false);
-          setSelecionada(null);
-        }}
-      />
-      <ModalRegistrarPagamento
-        solicitacao={selecionada}
-        open={modalPagamento}
-        onClose={() => {
-          setModalPagamento(false);
+          setPopupAberto(false);
           setSelecionada(null);
         }}
       />
