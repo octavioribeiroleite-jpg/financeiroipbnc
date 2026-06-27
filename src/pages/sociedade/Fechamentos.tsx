@@ -11,6 +11,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -31,19 +38,22 @@ const MESES = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
-function criarFechamentoSintetico(dados: ReturnType<typeof useFechamentoGeral>["data"]): Fechamento | null {
+function criarFechamentoSintetico(
+  dados: ReturnType<typeof useFechamentoGeral>["data"],
+  escopo: { id: string; saldoInicial: number; entradas: number; saidas: number; ajustes: number; saldoFinal: number; observacao: string },
+): Fechamento | null {
   if (!dados) return null;
   return {
-    id: `geral-${dados.ano}-${String(dados.mes).padStart(2, "0")}`,
-    sociedade_id: "geral",
+    id: `${escopo.id}-${dados.ano}-${String(dados.mes).padStart(2, "0")}`,
+    sociedade_id: escopo.id,
     ano: dados.ano,
     mes: dados.mes,
-    saldo_inicial: dados.resumo.saldoInicial,
-    total_entradas: dados.resumo.entradas + dados.resumo.ajustes,
-    total_saidas: dados.resumo.saidas,
-    saldo_final: dados.resumo.saldoFinal,
+    saldo_inicial: escopo.saldoInicial,
+    total_entradas: escopo.entradas + escopo.ajustes,
+    total_saidas: escopo.saidas,
+    saldo_final: escopo.saldoFinal,
     status: "aberto",
-    observacao: "Fechamento consolidado com todas as sociedades.",
+    observacao: escopo.observacao,
     data_criacao: new Date().toISOString(),
     data_envio: null,
     enviado_por: null,
@@ -54,18 +64,55 @@ function criarFechamentoSintetico(dados: ReturnType<typeof useFechamentoGeral>["
 
 export default function FechamentosSociedade() {
   const [mesReferencia, setMesReferencia] = useState(() => primeiroDiaMesAtual().slice(0, 7));
+  const [escopoRelatorio, setEscopoRelatorio] = useState<string>("geral");
   const { data, isLoading } = useFechamentoGeral(mesReferencia);
   const { config } = useConfigIgreja();
   const { perfil } = useAuth();
 
   const baixarPdf = () => {
-    const fechamento = criarFechamentoSintetico(data);
-    if (!fechamento || !data) return;
+    if (!data) return;
+    const ehGeral = escopoRelatorio === "geral";
+
+    const escopo = ehGeral
+      ? {
+          id: "geral",
+          saldoInicial: data.resumo.saldoInicial,
+          entradas: data.resumo.entradas,
+          saidas: data.resumo.saidas,
+          ajustes: data.resumo.ajustes,
+          saldoFinal: data.resumo.saldoFinal,
+          observacao: "Fechamento consolidado com todas as sociedades.",
+        }
+      : (() => {
+          const s = data.sociedades.find((x) => x.sociedadeId === escopoRelatorio);
+          if (!s) return null;
+          return {
+            id: s.sociedadeId,
+            saldoInicial: s.saldoInicial,
+            entradas: s.entradas,
+            saidas: s.saidas,
+            ajustes: s.ajustes,
+            saldoFinal: s.saldoFinal,
+            observacao: `Fechamento individual da sociedade ${s.nome}.`,
+          };
+        })();
+
+    if (!escopo) return;
+
+    const sociedadeAtual = ehGeral ? null : data.sociedades.find((x) => x.sociedadeId === escopoRelatorio);
+    const nomeSociedade = ehGeral ? "Geral da conta" : sociedadeAtual?.nome ?? "Sociedade";
+
+    const fechamento = criarFechamentoSintetico(data, escopo);
+    if (!fechamento) return;
+
+    const movimentacoesFiltradas = ehGeral
+      ? data.movimentacoes
+      : data.movimentacoes.filter((m) => m.sociedade_id === escopoRelatorio);
 
     const doc = gerarPdfFechamento({
       fechamento,
-      nomeSociedade: "Geral da conta",
-      movimentacoes: data.movimentacoes.map((m) => ({
+      nomeSociedade,
+      movimentacoes: movimentacoesFiltradas.map((m) => ({
         id: m.id,
         tipo: m.tipo,
         origem: m.origem,
@@ -77,14 +124,12 @@ export default function FechamentosSociedade() {
       })),
       config,
       geradoPor: perfil?.nome,
-      saldosPorSociedade: data.sociedades.map((s) => ({
-        nome: s.nome,
-        saldoFinal: s.saldoFinal,
-      })),
+      saldosPorSociedade: ehGeral
+        ? data.sociedades.map((s) => ({ nome: s.nome, saldoFinal: s.saldoFinal }))
+        : undefined,
     });
 
-
-    doc.save(nomeArquivoFechamento({ fechamento, nomeSociedade: "Geral da conta", movimentacoes: [], config }));
+    doc.save(nomeArquivoFechamento({ fechamento, nomeSociedade, movimentacoes: [], config }));
   };
 
   return (
@@ -110,11 +155,28 @@ export default function FechamentosSociedade() {
               className="w-full sm:w-48"
             />
           </div>
+          <div className="space-y-1">
+            <Label htmlFor="escopo-relatorio">Relatório</Label>
+            <Select value={escopoRelatorio} onValueChange={setEscopoRelatorio}>
+              <SelectTrigger id="escopo-relatorio" className="w-full sm:w-56">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="geral">Geral (todas as sociedades)</SelectItem>
+                {data?.sociedades.map((s) => (
+                  <SelectItem key={s.sociedadeId} value={s.sociedadeId}>
+                    {s.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button onClick={baixarPdf} disabled={!data || isLoading}>
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
             Relatório PDF
           </Button>
         </div>
+
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
