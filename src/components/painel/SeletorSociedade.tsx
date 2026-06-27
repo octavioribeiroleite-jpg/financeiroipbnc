@@ -1,15 +1,7 @@
 import { useState } from "react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Building2, Check, ChevronsUpDown } from "lucide-react";
+import { Building2, Check, ChevronsUpDown, Wallet } from "lucide-react";
 import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +26,11 @@ export function SeletorSociedade({
 }: SeletorSociedadeProps) {
   const [aberto, setAberto] = useState(false);
   const selecionada = sociedades.find((s) => s.id === sociedadeSelecionadaId) ?? null;
+
+  const selecionar = (sociedadeId: string | null) => {
+    setSociedadeSelecionadaId(sociedadeId);
+    setAberto(false);
+  };
 
   return (
     <Popover open={aberto} onOpenChange={setAberto}>
@@ -65,64 +62,99 @@ export function SeletorSociedade({
           <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[min(360px,calc(100vw-2rem))] p-0" align="start">
-        <Command>
-          <CommandInput placeholder="Buscar sociedade..." />
-          <CommandList>
-            <CommandEmpty>Nenhuma sociedade encontrada.</CommandEmpty>
-            {mostrarGeral && (
-              <CommandGroup heading="Visão geral">
-                <CommandItem
-                  value="geral conta consolidado todas sociedades"
-                  onSelect={() => {
-                    setSociedadeSelecionadaId(null);
-                    setAberto(false);
-                  }}
-                  className="gap-3 py-3"
-                >
+      <PopoverContent className="w-[min(520px,calc(100vw-2rem))] p-3" align="start">
+        <div className="mb-3">
+          <p className="text-sm font-semibold text-foreground">Escolha a visão</p>
+          <p className="text-xs text-muted-foreground">
+            Clique em um card para alternar entre o caixa geral e os cofrinhos.
+          </p>
+        </div>
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          {mostrarGeral && (
+            <button
+              type="button"
+              onClick={() => selecionar(null)}
+              className={cn(
+                "group flex min-h-[86px] items-start gap-3 rounded-md border p-3 text-left transition-colors",
+                !sociedadeSelecionadaId
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card hover:border-primary/50 hover:bg-muted/50",
+              )}
+            >
+              <span
+                className={cn(
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-md",
+                  !sociedadeSelecionadaId
+                    ? "bg-primary-foreground/15 text-primary-foreground"
+                    : "bg-primary/10 text-primary",
+                )}
+              >
+                <Wallet className="h-4 w-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center justify-between gap-2">
+                  <span className="truncate text-sm font-semibold">Geral da conta</span>
                   <Check
                     className={cn(
                       "h-4 w-4 shrink-0",
                       !sociedadeSelecionadaId ? "opacity-100" : "opacity-0",
                     )}
                   />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">Geral da conta</span>
-                    <span className="block truncate text-xs text-muted-foreground">
-                      Saldo consolidado de todas as sociedades
-                    </span>
-                  </span>
-                </CommandItem>
-              </CommandGroup>
-            )}
-            <CommandGroup heading="Detalhar sociedade">
-              {sociedades.map((sociedade) => (
-                <CommandItem
-                  key={sociedade.id}
-                  value={`${sociedade.nome} ${sociedade.tipo}`}
-                  onSelect={() => {
-                    setSociedadeSelecionadaId(sociedade.id);
-                    setAberto(false);
-                  }}
-                  className="gap-3 py-3"
+                </span>
+                <span
+                  className={cn(
+                    "mt-1 block text-xs",
+                    !sociedadeSelecionadaId ? "text-primary-foreground/80" : "text-muted-foreground",
+                  )}
                 >
-                  <Check
-                    className={cn(
-                      "h-4 w-4 shrink-0",
-                      sociedadeSelecionadaId === sociedade.id ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">{sociedade.nome}</span>
-                    <span className="block truncate text-xs text-muted-foreground">
-                      {sociedade.tipo} em detalhes
-                    </span>
+                  Saldo consolidado
+                </span>
+              </span>
+            </button>
+          )}
+
+          {sociedades.map((sociedade) => {
+            const ativo = sociedadeSelecionadaId === sociedade.id;
+
+            return (
+              <button
+                key={sociedade.id}
+                type="button"
+                onClick={() => selecionar(sociedade.id)}
+                className={cn(
+                  "group flex min-h-[86px] items-start gap-3 rounded-md border p-3 text-left transition-colors",
+                  ativo
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card hover:border-primary/50 hover:bg-muted/50",
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-md",
+                    ativo ? "bg-primary-foreground/15 text-primary-foreground" : "bg-primary/10 text-primary",
+                  )}
+                >
+                  <Building2 className="h-4 w-4" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="truncate text-sm font-semibold">{sociedade.nome}</span>
+                    <Check className={cn("h-4 w-4 shrink-0", ativo ? "opacity-100" : "opacity-0")} />
                   </span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
+                  <span
+                    className={cn(
+                      "mt-1 block text-xs",
+                      ativo ? "text-primary-foreground/80" : "text-muted-foreground",
+                    )}
+                  >
+                    {sociedade.tipo}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </PopoverContent>
     </Popover>
   );
