@@ -17,10 +17,12 @@ export interface ContribuicaoInput {
 const KEY = (sociedadeId: string | null) => ["contribuicoes", sociedadeId] as const;
 
 function invalidarDadosFinanceiros(qc: ReturnType<typeof useQueryClient>, sociedadeId: string | null) {
+  qc.invalidateQueries({ queryKey: ["contribuicoes"] });
   qc.invalidateQueries({ queryKey: KEY(sociedadeId) });
-  qc.invalidateQueries({ queryKey: ["resumo-sociedade", sociedadeId] });
+  qc.invalidateQueries({ queryKey: ["resumo-sociedade"] });
   qc.invalidateQueries({ queryKey: ["igreja"] });
-  qc.invalidateQueries({ queryKey: ["extrato-sociedade", sociedadeId] });
+  qc.invalidateQueries({ queryKey: ["extrato-sociedade"] });
+  qc.invalidateQueries({ queryKey: ["fechamentos"] });
 }
 
 export function useContribuicoesSociedade(sociedadeId: string | null) {
