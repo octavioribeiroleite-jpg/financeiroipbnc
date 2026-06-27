@@ -27,13 +27,20 @@ export interface MovimentacaoMesPdf {
   sociedade_nome?: string | null;
 }
 
+export interface SaldoSociedadePdf {
+  nome: string;
+  saldoFinal: number;
+}
+
 export interface GerarPdfInput {
   fechamento: Fechamento;
   nomeSociedade: string;
   movimentacoes: MovimentacaoMesPdf[];
   config: ConfigIgreja;
   geradoPor?: string | null;
+  saldosPorSociedade?: SaldoSociedadePdf[];
 }
+
 
 function slug(s: string) {
   return s
