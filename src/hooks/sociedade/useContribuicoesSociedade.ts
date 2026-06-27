@@ -40,6 +40,21 @@ export function useContribuicoesSociedade(sociedadeId: string | null) {
   });
 }
 
+export function useContribuicoesTodas() {
+  return useQuery({
+    queryKey: ["contribuicoes", "todas"],
+    placeholderData: keepPreviousData,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contribuicoes")
+        .select("*")
+        .order("data_pagamento", { ascending: false });
+      if (error) throw error;
+      return data as Contribuicao[];
+    },
+  });
+}
+
 export function useCriarContribuicao(sociedadeId: string | null, criadoPor: string | null) {
   const qc = useQueryClient();
   return useMutation({
