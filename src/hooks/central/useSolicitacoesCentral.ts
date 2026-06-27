@@ -53,6 +53,11 @@ interface ProcessarResultado {
   status: Solicitacao["status"];
 }
 
+interface ErroRpc {
+  message: string;
+  code?: string;
+}
+
 type RpcProcessar = (
   funcao: "processar_solicitacao_pagamento",
   argumentos: {
@@ -65,7 +70,7 @@ type RpcProcessar = (
   },
 ) => PromiseLike<{
   data: ProcessarResultado[] | null;
-  error: { message: string } | null;
+  error: ErroRpc | null;
 }>;
 
 const MENSAGENS: Record<AcaoProcessamento, { titulo: string; descricao: string }> = {
@@ -91,6 +96,144 @@ const MENSAGENS: Record<AcaoProcessamento, { titulo: string; descricao: string }
   },
 };
 
+export function funcaoRpcAusente(error: ErroRpc | null): boolean {
+  if (!error) return false;
+  return (
+    error.code === "PGRST202" ||
+    error.message.includes("Could not find the function") ||
+    error.message.includes("schema cache")
+  );
+}
+
+async function atualizarComStatus(
+  id: string,
+  statusEsperado: Solicitacao["status"],
+  update: Database["public"]["Tables"]["solicitacoes_pagamento"]["Update"],
+): Promise<Pick<Solicitacao, "id" | "sociedade_id" | "status" | "observacoes">> {
+  const { data, error } = await supabase
+    .from("solicitacoes_pagamento")
+    .update(update)
+    .eq("id", id)
+    .eq("status", statusEsperado)
+    .select("id, sociedade_id, status, observacoes")
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) throw new Error(ERRO_CONCORRENCIA);
+  return data;
+}
+
+async function processarSemRpc(input: ProcessarInput): Promise<ProcessarResultado> {
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  const usuarioId = authData.user?.id;
+  if (!usuarioId) throw new Error("Sua sessão expirou. Entre novamente para concluir o pagamento.");
+
+  const { data: registro, error: registroError } = await supabase
+    .from("solicitacoes_pagamento")
+    .select("*")
+    .eq("id", input.id)
+    .maybeSingle();
+
+  if (registroError) throw registroError;
+  if (!registro) throw new Error("Solicitação não encontrada.");
+
+  let atual = registro as Solicitacao;
+
+  const iniciarAnalise = async () => {
+    if (atual.status !== "enviada") return;
+    atual = {
+      ...atual,
+      ...(await atualizarComStatus(input.id, "enviada", {
+        status: "em_analise",
+        conferido_por: usuarioId,
+      })),
+    };
+  };
+
+  const aprovar = async () => {
+    await iniciarAnalise();
+    if (atual.status !== "em_analise") {
+      throw new Error("Esta solicitação não está disponível para aprovação.");
+    }
+    atual = {
+      ...atual,
+      ...(await atualizarComStatus(input.id, "em_analise", {
+        status: "aprovada",
+        conferido_por: usuarioId,
+        motivo_recusa: null,
+      })),
+    };
+  };
+
+  const pagar = async () => {
+    if (!input.dataPagamento || !input.comprovanteUrl) {
+      throw new Error("Informe a data e o comprovante do pagamento.");
+    }
+    if (atual.status !== "aprovada") {
+      throw new Error("Somente solicitações aprovadas podem ser pagas.");
+    }
+
+    const observacoes = input.observacoes?.trim()
+      ? `${atual.observacoes ? `${atual.observacoes}\n— ` : ""}${input.observacoes.trim()}`
+      : atual.observacoes;
+
+    atual = {
+      ...atual,
+      ...(await atualizarComStatus(input.id, "aprovada", {
+        status: "paga",
+        data_pagamento: input.dataPagamento,
+        anexo_comprovante_url: input.comprovanteUrl,
+        pago_por: usuarioId,
+        conferido_por: atual.conferido_por ?? usuarioId,
+        observacoes,
+      })),
+    };
+  };
+
+  if (input.acao === "aprovar") {
+    await aprovar();
+  } else if (input.acao === "aprovar_pagar") {
+    await aprovar();
+    await pagar();
+  } else if (input.acao === "pagar") {
+    await pagar();
+  } else if (input.acao === "devolver") {
+    if (!input.motivo?.trim()) throw new Error("Informe o ajuste necessário.");
+    if (atual.status !== "enviada" && atual.status !== "em_analise") {
+      throw new Error("Esta solicitação não pode ser devolvida neste status.");
+    }
+    atual = {
+      ...atual,
+      ...(await atualizarComStatus(input.id, atual.status, {
+        status: "rascunho",
+        motivo_recusa: input.motivo.trim(),
+        conferido_por: usuarioId,
+      })),
+    };
+  } else if (input.acao === "recusar") {
+    if (!input.motivo?.trim()) throw new Error("Informe o motivo da recusa.");
+    await iniciarAnalise();
+    if (atual.status !== "em_analise") {
+      throw new Error("Esta solicitação não pode ser recusada neste status.");
+    }
+    atual = {
+      ...atual,
+      ...(await atualizarComStatus(input.id, "em_analise", {
+        status: "recusada",
+        motivo_recusa: input.motivo.trim(),
+        conferido_por: usuarioId,
+      })),
+    };
+  }
+
+  return {
+    id: atual.id,
+    sociedade_id: atual.sociedade_id,
+    status: atual.status,
+  };
+}
+
 export function useProcessarSolicitacao() {
   const qc = useQueryClient();
 
@@ -103,6 +246,7 @@ export function useProcessarSolicitacao() {
       comprovanteUrl = null,
       observacoes = null,
     }: ProcessarInput) => {
+      const input = { id, acao, motivo, dataPagamento, comprovanteUrl, observacoes };
       const rpc = bindMetodoRpc(supabase) as unknown as RpcProcessar;
       const { data, error } = await rpc("processar_solicitacao_pagamento", {
         _solicitacao_id: id,
@@ -112,6 +256,11 @@ export function useProcessarSolicitacao() {
         _comprovante_url: comprovanteUrl,
         _observacoes: observacoes,
       });
+
+      if (funcaoRpcAusente(error)) {
+        const resultado = await processarSemRpc(input);
+        return { ...resultado, acao };
+      }
 
       if (error) throw new Error(error.message);
       const resultado = data?.[0];
