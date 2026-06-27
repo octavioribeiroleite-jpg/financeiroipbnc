@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import type { AppRole } from "@/contexts/AuthContext";
 import { SociedadeOperacionalProvider } from "@/contexts/SociedadeOperacionalContext";
 import { RotaProtegida } from "@/components/RotaProtegida";
 import Index from "./pages/Index.tsx";
@@ -33,7 +34,10 @@ import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
-const PAPEL_ADMIN = ["administrador"] as const;
+const PAPEIS_ADMIN: AppRole[] = ["administrador"];
+const PAPEIS_IGREJA: AppRole[] = ["administrador", "tesoureiro_igreja"];
+const PAPEIS_CENTRAL: AppRole[] = ["administrador", "tesoureiro_central"];
+const PAPEIS_SOCIEDADE: AppRole[] = ["administrador", "tesoureiro_sociedade"];
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -43,180 +47,179 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <SociedadeOperacionalProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/acesso-negado" element={<AcessoNegado />} />
-            <Route
-              path="/acesso-pendente"
-              element={
-                <RotaProtegida>
-                  <AcessoPendente />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/"
-              element={
-                <RotaProtegida>
-                  <Index />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/painel/administrador"
-              element={
-                <RotaProtegida papeis={["administrador"]}>
-                  <PainelAdministrador />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/painel/igreja"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <PainelIgreja />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/painel/central"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <PainelCentral />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/painel/sociedade"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <PainelSociedade />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/cadastros/sociedades"
-              element={
-                <RotaProtegida papeis={["administrador"]}>
-                  <CadastroSociedades />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/cadastros/usuarios"
-              element={
-                <RotaProtegida papeis={["administrador"]}>
-                  <CadastroUsuarios />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/cadastros/categorias"
-              element={
-                <RotaProtegida papeis={["administrador"]}>
-                  <CadastroCategorias />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/cadastros/fornecedores"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <CadastroFornecedores />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/cadastros/igreja"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <ConfiguracoesIgreja />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/sociedade/extrato"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <SociedadeExtrato />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/sociedade/contribuicoes"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <SociedadeContribuicoes />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/sociedade/solicitacoes"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <SociedadeSolicitacoes />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/central/contribuicoes"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <CentralContribuicoes />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/central/solicitacoes"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <CentralSolicitacoes />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/igreja/relatorios"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <IgrejaRelatorios />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/igreja/auditoria"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <IgrejaAuditoria />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/sociedade/fechamentos"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <SociedadeFechamentos />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/central/fechamentos"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <CentralFechamentos />
-                </RotaProtegida>
-              }
-            />
-            <Route
-              path="/igreja/fechamentos"
-              element={
-                <RotaProtegida papeis={[...PAPEL_ADMIN]}>
-                  <IgrejaFechamentos />
-                </RotaProtegida>
-              }
-            />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/acesso-negado" element={<AcessoNegado />} />
+              <Route
+                path="/acesso-pendente"
+                element={
+                  <RotaProtegida>
+                    <AcessoPendente />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/"
+                element={
+                  <RotaProtegida>
+                    <Index />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/painel/administrador"
+                element={
+                  <RotaProtegida papeis={PAPEIS_ADMIN}>
+                    <PainelAdministrador />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/painel/igreja"
+                element={
+                  <RotaProtegida papeis={PAPEIS_IGREJA}>
+                    <PainelIgreja />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/painel/central"
+                element={
+                  <RotaProtegida papeis={PAPEIS_CENTRAL}>
+                    <PainelCentral />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/painel/sociedade"
+                element={
+                  <RotaProtegida papeis={PAPEIS_SOCIEDADE}>
+                    <PainelSociedade />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/cadastros/sociedades"
+                element={
+                  <RotaProtegida papeis={PAPEIS_ADMIN}>
+                    <CadastroSociedades />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/cadastros/usuarios"
+                element={
+                  <RotaProtegida papeis={PAPEIS_ADMIN}>
+                    <CadastroUsuarios />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/cadastros/categorias"
+                element={
+                  <RotaProtegida papeis={PAPEIS_ADMIN}>
+                    <CadastroCategorias />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/cadastros/fornecedores"
+                element={
+                  <RotaProtegida papeis={PAPEIS_CENTRAL}>
+                    <CadastroFornecedores />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/cadastros/igreja"
+                element={
+                  <RotaProtegida papeis={PAPEIS_IGREJA}>
+                    <ConfiguracoesIgreja />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/sociedade/extrato"
+                element={
+                  <RotaProtegida papeis={PAPEIS_SOCIEDADE}>
+                    <SociedadeExtrato />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/sociedade/contribuicoes"
+                element={
+                  <RotaProtegida papeis={PAPEIS_SOCIEDADE}>
+                    <SociedadeContribuicoes />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/sociedade/solicitacoes"
+                element={
+                  <RotaProtegida papeis={PAPEIS_SOCIEDADE}>
+                    <SociedadeSolicitacoes />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/central/contribuicoes"
+                element={
+                  <RotaProtegida papeis={PAPEIS_CENTRAL}>
+                    <CentralContribuicoes />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/central/solicitacoes"
+                element={
+                  <RotaProtegida papeis={PAPEIS_CENTRAL}>
+                    <CentralSolicitacoes />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/igreja/relatorios"
+                element={
+                  <RotaProtegida papeis={PAPEIS_IGREJA}>
+                    <IgrejaRelatorios />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/igreja/auditoria"
+                element={
+                  <RotaProtegida papeis={PAPEIS_IGREJA}>
+                    <IgrejaAuditoria />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/sociedade/fechamentos"
+                element={
+                  <RotaProtegida papeis={PAPEIS_SOCIEDADE}>
+                    <SociedadeFechamentos />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/central/fechamentos"
+                element={
+                  <RotaProtegida papeis={PAPEIS_CENTRAL}>
+                    <CentralFechamentos />
+                  </RotaProtegida>
+                }
+              />
+              <Route
+                path="/igreja/fechamentos"
+                element={
+                  <RotaProtegida papeis={PAPEIS_IGREJA}>
+                    <IgrejaFechamentos />
+                  </RotaProtegida>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </SociedadeOperacionalProvider>
         </AuthProvider>
       </BrowserRouter>
