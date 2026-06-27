@@ -140,9 +140,9 @@ export default function Contribuicoes() {
         descricao={`Esta ação removerá o registro de "${confirmando?.membro_nome}". Não é possível desfazer.`}
         textoConfirmar="Excluir"
         destrutivo
-        onConfirmar={() => {
+        onConfirmar={async () => {
           if (confirmando) {
-            excluir.mutate(confirmando.id);
+            await excluir.mutateAsync(confirmando.id);
             setConfirmando(null);
           }
         }}
