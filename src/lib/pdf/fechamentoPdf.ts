@@ -27,14 +27,20 @@ export interface MovimentacaoMesPdf {
   sociedade_nome?: string | null;
 }
 
+export interface SaldoSociedadePdf {
+  nome: string;
+  saldoFinal: number;
+}
+
 export interface GerarPdfInput {
   fechamento: Fechamento;
   nomeSociedade: string;
   movimentacoes: MovimentacaoMesPdf[];
   config: ConfigIgreja;
   geradoPor?: string | null;
-  saldoPorSociedade?: { nome: string; saldoFinal: number }[];
+  saldosPorSociedade?: SaldoSociedadePdf[];
 }
+
 
 function slug(s: string) {
   return s
@@ -86,6 +92,8 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
   const saidasContabilizadas = movimentacoesContabilizadas.filter((m) => m.tipo === "saida");
   const ajustesContabilizados = movimentacoesContabilizadas.filter((m) => m.tipo === "ajuste");
   const incluiSociedade = movimentacoes.some((m) => !!m.sociedade_nome);
+  const saldosPorSociedade = input.saldosPorSociedade ?? [];
+
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
@@ -393,54 +401,42 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
   }
 
   // ---------- Saldo disponível por sociedade ----------
-  const { saldoPorSociedade } = input;
-  if (saldoPorSociedade && saldoPorSociedade.length > 0) {
-    let ySaldo = finalTabelaY + 9;
-    const alturaEstimada = 18 + saldoPorSociedade.length * 6;
-    if (ySaldo + alturaEstimada > pageH - 20) {
+  if (saldosPorSociedade.length > 0) {
+    let ySaldos = finalTabelaY + 9;
+    if (ySaldos + 30 > pageH - 20) {
       doc.addPage();
-      ySaldo = margin;
+      ySaldos = margin;
     }
-
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(20);
-    doc.text("Saldo disponível por sociedade", margin, ySaldo);
-    ySaldo += 2;
+    doc.text("Saldo disponível por sociedade", margin, ySaldos);
 
-    const totalSociedades = saldoPorSociedade.reduce((acc, s) => acc + s.saldoFinal, 0);
+    const totalGeral = saldosPorSociedade.reduce((acc, s) => acc + (Number(s.saldoFinal) || 0), 0);
 
     autoTable(doc, {
-      startY: ySaldo,
+      startY: ySaldos + 3,
       head: [["Sociedade", "Saldo disponível"]],
-      body: [
-        ...saldoPorSociedade.map((s) => [s.nome, formatarMoeda(s.saldoFinal)]),
-        [
-          { content: "Total geral", colSpan: 1, styles: { fontStyle: "bold" } } as never,
-          { content: formatarMoeda(totalSociedades), styles: { fontStyle: "bold", halign: "right" } } as never,
-        ],
-      ],
-      styles: { fontSize: 8.5, cellPadding: 1.7, textColor: 35 },
-      headStyles: { fillColor: [40, 40, 50], textColor: 255, fontStyle: "bold" },
-      footStyles: { fillColor: [245, 245, 245], textColor: 30 },
+      body: saldosPorSociedade.map((s) => [s.nome, formatarMoeda(Number(s.saldoFinal) || 0)]),
+      foot: [[
+        { content: "Total geral", styles: { halign: "right", fontStyle: "bold" } } as never,
+        { content: formatarMoeda(totalGeral), styles: { halign: "right", fontStyle: "bold" } } as never,
+      ]],
+      styles: { fontSize: 8.5, cellPadding: 1.7, textColor: 30 },
+      headStyles: { fillColor: [230, 235, 242], textColor: 30, fontStyle: "bold" },
+      footStyles: { fillColor: [245, 248, 252], textColor: 20 },
       columnStyles: {
         0: { cellWidth: "auto" },
-        1: { cellWidth: 42, halign: "right" },
-      },
-      didParseCell: (data) => {
-        if (data.section === "body" && data.column.index === 1) {
-          const isTotalRow = data.row.index === saldoPorSociedade.length;
-          if (!isTotalRow) {
-            data.cell.styles.textColor = [22, 101, 52];
-          }
-        }
+        1: { cellWidth: 50, halign: "right", fontStyle: "bold" },
       },
       margin: { left: margin, right: margin },
+      theme: "grid",
     });
 
     // @ts-expect-error - lastAutoTable é injetado pelo autoTable
-    finalTabelaY = doc.lastAutoTable?.finalY ?? ySaldo + 28;
+    finalTabelaY = doc.lastAutoTable?.finalY ?? finalTabelaY + 30;
   }
+
 
   // ---------- Bloco de assinaturas ----------
   const espacoAssinaturas = 38;

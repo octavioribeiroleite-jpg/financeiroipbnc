@@ -77,11 +77,12 @@ export default function FechamentosSociedade() {
       })),
       config,
       geradoPor: perfil?.nome,
-      saldoPorSociedade: data.sociedades.map((s) => ({
+      saldosPorSociedade: data.sociedades.map((s) => ({
         nome: s.nome,
         saldoFinal: s.saldoFinal,
       })),
     });
+
 
     doc.save(nomeArquivoFechamento({ fechamento, nomeSociedade: "Geral da conta", movimentacoes: [], config }));
   };
