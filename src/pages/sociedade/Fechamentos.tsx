@@ -115,10 +115,15 @@ export default function FechamentosSociedade() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Saldo inicial</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">
+              Saldo inicial {data ? `em ${formatarData(data.inicio)}` : ""}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-semibold">{formatarMoeda(data?.resumo.saldoInicial)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {data ? `Acumulado até ${formatarData(data.fimAnterior)}.` : "Saldo anterior ao mês selecionado."}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -162,7 +167,10 @@ export default function FechamentosSociedade() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Sociedade</TableHead>
-                  <TableHead className="text-right">Saldo inicial</TableHead>
+                  <TableHead className="text-right">
+                    Saldo inicial
+                    {data && <span className="block text-xs font-normal text-muted-foreground">até {formatarData(data.fimAnterior)}</span>}
+                  </TableHead>
                   <TableHead className="text-right">Entradas</TableHead>
                   <TableHead className="text-right">Saídas</TableHead>
                   <TableHead className="text-right">Saldo final</TableHead>
