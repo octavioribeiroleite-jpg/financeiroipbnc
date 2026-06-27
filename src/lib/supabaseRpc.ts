@@ -1,5 +1,4 @@
-export function bindMetodoRpc<T extends (...args: never[]) => unknown>(
-  cliente: { rpc: T },
-): T {
-  return cliente.rpc.bind(cliente) as T;
+export function bindMetodoRpc<T>(cliente: { rpc: T }): T {
+  const metodo = cliente.rpc as unknown as { bind(thisArg: unknown): T };
+  return metodo.bind(cliente);
 }
