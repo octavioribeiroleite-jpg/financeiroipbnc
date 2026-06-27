@@ -193,6 +193,7 @@ export default function FechamentosSociedade() {
         open={!!detalhe}
         onOpenChange={(v) => !v && setDetalhe(null)}
         fechamento={detalhe}
+        nomeSociedade={sociedadeSelecionada?.nome}
       />
 
       <AlertDialog open={!!paraExcluir} onOpenChange={(v) => !v && setParaExcluir(null)}>
