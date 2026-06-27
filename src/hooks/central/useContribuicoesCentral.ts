@@ -55,6 +55,7 @@ export function useConferirContribuicao() {
       qc.invalidateQueries({ queryKey: ["resumo-sociedade", data.sociedade_id] });
       qc.invalidateQueries({ queryKey: ["extrato-sociedade", data.sociedade_id] });
       qc.invalidateQueries({ queryKey: ["igreja"] });
+      qc.invalidateQueries({ queryKey: ["fechamentos"] });
       toast.success("Conferência registrada");
     },
     onError: (e: Error) => toast.error("Falha ao conferir", { description: e.message }),
