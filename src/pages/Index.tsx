@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
 export default function Index() {
-  const { loading, user, papeis, perfil, isAdmin } = useAuth();
+  const { loading, user } = useAuth();
 
   if (loading) {
     return (
@@ -14,9 +14,5 @@ export default function Index() {
   }
 
   if (!user) return <Navigate to="/login" replace />;
-  if (perfil && !perfil.ativo) return <Navigate to="/login" replace />;
-  if (isAdmin) return <Navigate to="/painel/administrador" replace />;
-  if (papeis.length === 0) return <Navigate to="/acesso-pendente" replace />;
-
-  return <Navigate to="/acesso-pendente" replace />;
+  return <Navigate to="/painel/administrador" replace />;
 }
