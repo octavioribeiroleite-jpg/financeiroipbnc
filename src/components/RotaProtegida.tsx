@@ -2,6 +2,8 @@ import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth, AppRole } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { PinGate } from "@/components/PinGate";
+
 
 interface RotaProtegidaProps {
   children: ReactNode;
@@ -33,7 +35,7 @@ export function RotaProtegida({ children, papeis }: RotaProtegidaProps) {
   }
 
   if (isAdmin) {
-    return <>{children}</>;
+    return <PinGate>{children}</PinGate>;
   }
 
   if (papeis && papeis.length > 0) {
@@ -41,5 +43,6 @@ export function RotaProtegida({ children, papeis }: RotaProtegidaProps) {
     if (!tem) return <Navigate to="/acesso-negado" replace />;
   }
 
-  return <>{children}</>;
+  return <PinGate>{children}</PinGate>;
 }
+
