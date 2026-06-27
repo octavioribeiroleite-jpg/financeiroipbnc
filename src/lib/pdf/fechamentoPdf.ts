@@ -23,6 +23,7 @@ export interface MovimentacaoMesPdf {
   valor: number | string;
   data_movimento: string;
   observacao?: string | null;
+  confirmada?: boolean | null;
 }
 
 export interface GerarPdfInput {
@@ -48,9 +49,40 @@ export function nomeArquivoFechamento(input: GerarPdfInput): string {
   return `fechamento_${slug(input.nomeSociedade)}_${ym}.pdf`;
 }
 
+function labelTipo(tipo: MovimentacaoMesPdf["tipo"]): string {
+  if (tipo === "entrada") return "Entrada";
+  if (tipo === "saida") return "Saída";
+  return "Ajuste";
+}
+
+function labelOrigem(origem: string): string {
+  const labels: Record<string, string> = {
+    contribuicao: "Entrada registrada",
+    solicitacao_pagamento: "Pagamento realizado",
+    ajuste: "Ajuste manual",
+  };
+  return labels[origem] ?? origem;
+}
+
+function impactoSaldo(m: MovimentacaoMesPdf): number {
+  const valor = Number(m.valor) || 0;
+  return m.tipo === "saida" ? -valor : valor;
+}
+
+function somaMovs(movs: MovimentacaoMesPdf[], tipo: "entrada" | "saida"): number {
+  return movs
+    .filter((m) => m.tipo === tipo)
+    .reduce((acc, m) => acc + (Number(m.valor) || 0), 0);
+}
+
 /** Gera o PDF e retorna o documento jsPDF (caller chama .save()). */
 export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
   const { fechamento: f, nomeSociedade, movimentacoes, config, geradoPor } = input;
+  const movimentacoesContabilizadas = movimentacoes.filter((m) => m.confirmada !== false);
+  const movimentacoesNaoContabilizadas = movimentacoes.filter((m) => m.confirmada === false);
+  const entradasContabilizadas = movimentacoesContabilizadas.filter((m) => m.tipo === "entrada");
+  const saidasContabilizadas = movimentacoesContabilizadas.filter((m) => m.tipo === "saida");
+  const ajustesContabilizados = movimentacoesContabilizadas.filter((m) => m.tipo === "ajuste");
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
@@ -113,7 +145,17 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
   doc.setFontSize(9);
   doc.setTextColor(90);
   doc.text(`Status: ${STATUS_LABEL[f.status] ?? f.status}`, pageW / 2, y, { align: "center" });
-  y += 6;
+  y += 8;
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(75);
+  const introducao = doc.splitTextToSize(
+    "Este relatório apresenta, de forma resumida e detalhada, o dinheiro recebido, os pagamentos realizados e como foi formado o saldo final do mês. Somente movimentações confirmadas entram nos totais do fechamento.",
+    pageW - margin * 2,
+  );
+  doc.text(introducao, margin, y);
+  y += introducao.length * 4.2 + 4;
 
   // ---------- Quadro-resumo ----------
   const boxes = [
@@ -140,6 +182,67 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
   });
   y += boxH + 6;
 
+  // ---------- Composição do resultado ----------
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(20);
+  doc.text("Como o saldo final foi formado", margin, y);
+  y += 4;
+
+  autoTable(doc, {
+    startY: y,
+    body: [
+      ["Saldo inicial do mês", formatarMoeda(Number(f.saldo_inicial))],
+      ["+ Entradas confirmadas", formatarMoeda(Number(f.total_entradas))],
+      ["- Saídas confirmadas", formatarMoeda(Number(f.total_saidas))],
+      ["= Saldo final para o próximo mês", formatarMoeda(Number(f.saldo_final))],
+    ],
+    styles: { fontSize: 8.5, cellPadding: 1.7, textColor: 35 },
+    columnStyles: {
+      0: { cellWidth: "auto" },
+      1: { cellWidth: 42, halign: "right", fontStyle: "bold" },
+    },
+    didParseCell: (data) => {
+      if (data.row.index === 3) {
+        data.cell.styles.fillColor = [245, 248, 252];
+        data.cell.styles.fontStyle = "bold";
+      }
+      if (data.column.index === 1 && data.row.index === 1) {
+        data.cell.styles.textColor = [22, 101, 52];
+      }
+      if (data.column.index === 1 && data.row.index === 2) {
+        data.cell.styles.textColor = [159, 18, 57];
+      }
+    },
+    margin: { left: margin, right: margin },
+    theme: "grid",
+  });
+
+  // @ts-expect-error - lastAutoTable é injetado pelo autoTable
+  y = (doc.lastAutoTable?.finalY ?? y + 28) + 7;
+
+  // ---------- Leitura rapida ----------
+  autoTable(doc, {
+    startY: y,
+    head: [["Leitura rápida", "Quantidade", "Total"]],
+    body: [
+      ["Entradas contabilizadas", String(entradasContabilizadas.length), formatarMoeda(somaMovs(entradasContabilizadas, "entrada"))],
+      ["Saídas contabilizadas", String(saidasContabilizadas.length), formatarMoeda(somaMovs(saidasContabilizadas, "saida"))],
+      ["Ajustes contabilizados", String(ajustesContabilizados.length), formatarMoeda(ajustesContabilizados.reduce((acc, m) => acc + impactoSaldo(m), 0))],
+      ["Lançamentos não contabilizados", String(movimentacoesNaoContabilizadas.length), formatarMoeda(movimentacoesNaoContabilizadas.reduce((acc, m) => acc + Math.abs(impactoSaldo(m)), 0))],
+    ],
+    styles: { fontSize: 8.3, cellPadding: 1.6, textColor: 35 },
+    headStyles: { fillColor: [230, 235, 242], textColor: 30, fontStyle: "bold" },
+    columnStyles: {
+      1: { cellWidth: 26, halign: "center" },
+      2: { cellWidth: 34, halign: "right" },
+    },
+    margin: { left: margin, right: margin },
+  });
+
+  // @ts-expect-error - lastAutoTable é injetado pelo autoTable
+  y = (doc.lastAutoTable?.finalY ?? y + 28) + 7;
+
   // ---------- Observação ----------
   if (f.observacao && f.observacao.trim()) {
     doc.setFont("helvetica", "bold");
@@ -163,15 +266,15 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
   doc.setTextColor(20);
-  doc.text("Extrato de movimentações", margin, y);
+  doc.text("Movimentações contabilizadas no fechamento", margin, y);
   y += 3;
 
-  const linhas = movimentacoes.map((m) => {
+  const linhas = movimentacoesContabilizadas.map((m) => {
     const v = Number(m.valor) || 0;
     return [
       formatarData(m.data_movimento),
-      m.tipo === "entrada" ? "Entrada" : m.tipo === "saida" ? "Saída" : "Ajuste",
-      m.origem,
+      labelTipo(m.tipo),
+      labelOrigem(m.origem),
       m.observacao ?? "",
       formatarMoeda(v),
       m.tipo,
@@ -180,7 +283,7 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
 
   let totalEntradas = 0;
   let totalSaidas = 0;
-  for (const m of movimentacoes) {
+  for (const m of movimentacoesContabilizadas) {
     const v = Number(m.valor) || 0;
     if (m.tipo === "entrada" || m.tipo === "ajuste") totalEntradas += v;
     else if (m.tipo === "saida") totalSaidas += v;
@@ -191,7 +294,7 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
     head: [["Data", "Tipo", "Origem", "Descrição", "Valor"]],
     body: linhas.length
       ? linhas.map((l) => l.slice(0, 5))
-      : [[{ content: "Sem movimentações no período.", colSpan: 5, styles: { halign: "center", textColor: 130 } } as never]],
+      : [[{ content: "Sem movimentações contabilizadas no período.", colSpan: 5, styles: { halign: "center", textColor: 130 } } as never]],
     foot:
       linhas.length > 0
         ? [
@@ -222,11 +325,55 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
     margin: { left: margin, right: margin },
   });
 
-  // ---------- Bloco de assinaturas ----------
   // @ts-expect-error - lastAutoTable é injetado pelo autoTable
-  const finalY: number = doc.lastAutoTable?.finalY ?? y + 30;
+  let finalTabelaY: number = doc.lastAutoTable?.finalY ?? y + 30;
+
+  if (movimentacoesNaoContabilizadas.length > 0) {
+    let yNao = finalTabelaY + 9;
+    if (yNao + 32 > pageH - 20) {
+      doc.addPage();
+      yNao = margin;
+    }
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(20);
+    doc.text("Lançamentos não contabilizados no saldo", margin, yNao);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(90);
+    doc.text("Itens abaixo aparecem para conferência, mas não entraram no saldo final deste fechamento.", margin, yNao + 4);
+
+    autoTable(doc, {
+      startY: yNao + 7,
+      head: [["Data", "Tipo", "Origem", "Descrição", "Valor"]],
+      body: movimentacoesNaoContabilizadas.map((m) => [
+        formatarData(m.data_movimento),
+        labelTipo(m.tipo),
+        labelOrigem(m.origem),
+        m.observacao ?? "",
+        formatarMoeda(Number(m.valor) || 0),
+      ]),
+      styles: { fontSize: 8.3, cellPadding: 1.5, textColor: 45 },
+      headStyles: { fillColor: [245, 230, 180], textColor: 35, fontStyle: "bold" },
+      columnStyles: {
+        0: { cellWidth: 22 },
+        1: { cellWidth: 20 },
+        2: { cellWidth: 38 },
+        3: { cellWidth: "auto" },
+        4: { cellWidth: 28, halign: "right" },
+      },
+      margin: { left: margin, right: margin },
+    });
+
+    // @ts-expect-error - lastAutoTable é injetado pelo autoTable
+    finalTabelaY = doc.lastAutoTable?.finalY ?? yNao + 30;
+  }
+
+  // ---------- Bloco de assinaturas ----------
   const espacoAssinaturas = 38;
-  let yAss = finalY + 14;
+  let yAss = finalTabelaY + 14;
   if (yAss + espacoAssinaturas > pageH - 20) {
     doc.addPage();
     yAss = margin + 10;
