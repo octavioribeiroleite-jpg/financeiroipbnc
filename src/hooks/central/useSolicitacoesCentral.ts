@@ -4,6 +4,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { toast } from "@/components/ui/sonner";
 
 export type Solicitacao = Database["public"]["Tables"]["solicitacoes_pagamento"]["Row"];
+export type AcaoProcessamento = "aprovar" | "aprovar_pagar" | "pagar" | "devolver" | "recusar";
 
 const KEY = ["central", "solicitacoes"] as const;
 const ERRO_CONCORRENCIA = "A solicitação mudou de status em outra sessão. Atualize a tela e tente novamente.";
@@ -33,6 +34,95 @@ export function useSolicitacoesCentral() {
       if (error) throw error;
       return data as Solicitacao[];
     },
+  });
+}
+
+interface ProcessarInput {
+  id: string;
+  acao: AcaoProcessamento;
+  motivo?: string | null;
+  dataPagamento?: string | null;
+  comprovanteUrl?: string | null;
+  observacoes?: string | null;
+}
+
+interface ProcessarResultado {
+  id: string;
+  sociedade_id: string;
+  status: Solicitacao["status"];
+}
+
+type RpcProcessar = (
+  funcao: "processar_solicitacao_pagamento",
+  argumentos: {
+    _solicitacao_id: string;
+    _acao: string;
+    _motivo: string | null;
+    _data_pagamento: string | null;
+    _comprovante_url: string | null;
+    _observacoes: string | null;
+  },
+) => PromiseLike<{
+  data: ProcessarResultado[] | null;
+  error: { message: string } | null;
+}>;
+
+const MENSAGENS: Record<AcaoProcessamento, { titulo: string; descricao: string }> = {
+  aprovar: {
+    titulo: "Pagamento aprovado",
+    descricao: "A solicitação ficou disponível para quitação.",
+  },
+  aprovar_pagar: {
+    titulo: "Pagamento concluído",
+    descricao: "A solicitação foi aprovada, paga e lançada no extrato.",
+  },
+  pagar: {
+    titulo: "Pagamento concluído",
+    descricao: "A saída foi registrada no extrato da sociedade.",
+  },
+  devolver: {
+    titulo: "Solicitação devolvida",
+    descricao: "Ela voltou para rascunho e poderá ser corrigida.",
+  },
+  recusar: {
+    titulo: "Solicitação recusada",
+    descricao: "O motivo ficou registrado no histórico.",
+  },
+};
+
+export function useProcessarSolicitacao() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      acao,
+      motivo = null,
+      dataPagamento = null,
+      comprovanteUrl = null,
+      observacoes = null,
+    }: ProcessarInput) => {
+      const rpc = supabase.rpc as unknown as RpcProcessar;
+      const { data, error } = await rpc("processar_solicitacao_pagamento", {
+        _solicitacao_id: id,
+        _acao: acao,
+        _motivo: motivo,
+        _data_pagamento: dataPagamento,
+        _comprovante_url: comprovanteUrl,
+        _observacoes: observacoes,
+      });
+
+      if (error) throw new Error(error.message);
+      const resultado = data?.[0];
+      if (!resultado) throw new Error(ERRO_CONCORRENCIA);
+      return { ...resultado, acao };
+    },
+    onSuccess: (resultado) => {
+      invalidarFluxo(qc, resultado.sociedade_id);
+      const mensagem = MENSAGENS[resultado.acao];
+      toast.success(mensagem.titulo, { description: mensagem.descricao });
+    },
+    onError: (e: Error) => toast.error("Não foi possível concluir", { description: e.message }),
   });
 }
 
