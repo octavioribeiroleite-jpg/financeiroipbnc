@@ -33,6 +33,7 @@ export interface GerarPdfInput {
   movimentacoes: MovimentacaoMesPdf[];
   config: ConfigIgreja;
   geradoPor?: string | null;
+  saldoPorSociedade?: { nome: string; saldoFinal: number }[];
 }
 
 function slug(s: string) {
