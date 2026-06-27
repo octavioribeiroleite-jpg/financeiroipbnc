@@ -155,11 +155,28 @@ export default function FechamentosSociedade() {
               className="w-full sm:w-48"
             />
           </div>
+          <div className="space-y-1">
+            <Label htmlFor="escopo-relatorio">Relatório</Label>
+            <Select value={escopoRelatorio} onValueChange={setEscopoRelatorio}>
+              <SelectTrigger id="escopo-relatorio" className="w-full sm:w-56">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="geral">Geral (todas as sociedades)</SelectItem>
+                {data?.sociedades.map((s) => (
+                  <SelectItem key={s.sociedadeId} value={s.sociedadeId}>
+                    {s.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button onClick={baixarPdf} disabled={!data || isLoading}>
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
             Relatório PDF
           </Button>
         </div>
+
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
