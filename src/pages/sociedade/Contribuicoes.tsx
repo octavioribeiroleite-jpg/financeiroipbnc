@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ShellPainel } from "@/components/painel/ShellPainel";
 import { DataTable, Coluna } from "@/components/painel/DataTable";
 import { FormDialog } from "@/components/painel/FormDialog";
@@ -7,26 +7,40 @@ import { StatusContribuicaoBadge } from "@/components/sociedade/StatusContribuic
 import { FormContribuicao } from "@/components/sociedade/FormContribuicao";
 import { ModalConferirContribuicao } from "@/components/central/ModalConferirContribuicao";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Paperclip, CheckCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 import { formatarData, formatarMesAno, formatarMoeda } from "@/lib/format";
+import { useSociedades } from "@/hooks/cadastros/useSociedades";
 import {
   Contribuicao,
-  useContribuicoesSociedade,
+  useContribuicoesTodas,
   useExcluirContribuicao,
 } from "@/hooks/sociedade/useContribuicoesSociedade";
 
 export default function Contribuicoes() {
   const { user, isAdmin } = useAuth();
-  const { sociedadeSelecionada, sociedadeSelecionadaId } = useSociedadeOperacional();
-  const { data, isLoading } = useContribuicoesSociedade(sociedadeSelecionadaId);
-  const excluir = useExcluirContribuicao(sociedadeSelecionadaId);
+  const { data, isLoading } = useContribuicoesTodas();
+  const { data: sociedades } = useSociedades();
+  const excluir = useExcluirContribuicao(null);
 
   const [aberto, setAberto] = useState(false);
   const [editando, setEditando] = useState<Contribuicao | null>(null);
   const [confirmando, setConfirmando] = useState<Contribuicao | null>(null);
   const [conferindo, setConferindo] = useState<Contribuicao | null>(null);
+  const [sociedadeFiltroId, setSociedadeFiltroId] = useState("todas");
+
+  const sociedadesPorId = useMemo(() => {
+    return new Map((sociedades ?? []).map((sociedade) => [sociedade.id, sociedade]));
+  }, [sociedades]);
+
+  const entradasFiltradas = useMemo(() => {
+    const entradas = data ?? [];
+    if (sociedadeFiltroId === "todas") return entradas;
+    return entradas.filter((entrada) => entrada.sociedade_id === sociedadeFiltroId);
+  }, [data, sociedadeFiltroId]);
+
+  const sociedadeFormularioId = editando?.sociedade_id ?? (sociedadeFiltroId === "todas" ? null : sociedadeFiltroId);
 
   const abrirNova = () => {
     setEditando(null);
@@ -51,7 +65,7 @@ export default function Contribuicoes() {
     {
       chave: "sociedade",
       cabecalho: "Sociedade",
-      render: () => <span className="font-medium">{sociedadeSelecionada?.nome ?? "—"}</span>,
+      render: (c) => <span className="font-medium">{sociedadesPorId.get(c.sociedade_id)?.nome ?? "—"}</span>,
     },
     { chave: "ref", cabecalho: "Referência", render: (c) => formatarMesAno(c.referencia_mes) },
     { chave: "valor", cabecalho: "Valor", render: (c) => formatarMoeda(Number(c.valor)) },
@@ -105,11 +119,11 @@ export default function Contribuicoes() {
     },
   ];
 
-  if (!sociedadeSelecionadaId || !user) {
+  if (!user) {
     return (
-      <ShellPainel titulo="Entradas" descricao="Selecione uma sociedade ativa para começar os lançamentos.">
+      <ShellPainel titulo="Entradas" descricao="Entre no sistema para visualizar os lançamentos.">
         <p className="text-sm text-muted-foreground">
-          Assim que escolher uma sociedade no painel, você poderá registrar, editar e revisar as entradas dela.
+          Assim que entrar, você poderá registrar, editar e revisar as entradas.
         </p>
       </ShellPainel>
     );
@@ -118,23 +132,42 @@ export default function Contribuicoes() {
   return (
     <ShellPainel
       titulo="Entradas"
-      descricao={`Registre e acompanhe as entradas de ${sociedadeSelecionada?.nome ?? "uma sociedade"}.`}
+      descricao="Registre e acompanhe as entradas gerais ou filtre por sociedade."
     >
       <DataTable
-        dados={data ?? []}
+        dados={entradasFiltradas}
         colunas={colunas}
         carregando={isLoading}
         buscaPlaceholder="Buscar por membro, sociedade ou forma..."
         filtrarPor={(c, t) =>
           c.membro_nome.toLowerCase().includes(t) ||
           c.forma_pagamento.toLowerCase().includes(t) ||
-          (sociedadeSelecionada?.nome ?? "").toLowerCase().includes(t)
+          (sociedadesPorId.get(c.sociedade_id)?.nome ?? "").toLowerCase().includes(t)
         }
         acoes={
-          <Button onClick={abrirNova}>
-            <Plus className="h-4 w-4" />
-            Nova entrada
-          </Button>
+          <>
+            <Select value={sociedadeFiltroId} onValueChange={setSociedadeFiltroId}>
+              <SelectTrigger className="w-[220px]">
+                <SelectValue placeholder="Filtrar sociedade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todas as sociedades</SelectItem>
+                {(sociedades ?? []).map((sociedade) => (
+                  <SelectItem key={sociedade.id} value={sociedade.id}>
+                    {sociedade.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={abrirNova}
+              disabled={sociedadeFiltroId === "todas"}
+              title={sociedadeFiltroId === "todas" ? "Escolha uma sociedade no filtro para lançar." : "Nova entrada"}
+            >
+              <Plus className="h-4 w-4" />
+              Nova entrada
+            </Button>
+          </>
         }
       />
 
@@ -144,13 +177,15 @@ export default function Contribuicoes() {
         titulo={editando ? "Editar entrada" : "Nova entrada"}
         descricao={editando ? "A correção fica registrada na auditoria do sistema." : undefined}
       >
-        <FormContribuicao
-          sociedadeId={sociedadeSelecionadaId}
-          usuarioId={user.id}
-          registro={editando}
-          onConcluido={() => setAberto(false)}
-          onCancelar={() => setAberto(false)}
-        />
+        {sociedadeFormularioId && (
+          <FormContribuicao
+            sociedadeId={sociedadeFormularioId}
+            usuarioId={user.id}
+            registro={editando}
+            onConcluido={() => setAberto(false)}
+            onCancelar={() => setAberto(false)}
+          />
+        )}
       </FormDialog>
 
       <ConfirmDialog
