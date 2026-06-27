@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { toast } from "@/components/ui/sonner";
+import { bindMetodoRpc } from "@/lib/supabaseRpc";
 
 export type Solicitacao = Database["public"]["Tables"]["solicitacoes_pagamento"]["Row"];
 export type AcaoProcessamento = "aprovar" | "aprovar_pagar" | "pagar" | "devolver" | "recusar";
@@ -102,7 +103,7 @@ export function useProcessarSolicitacao() {
       comprovanteUrl = null,
       observacoes = null,
     }: ProcessarInput) => {
-      const rpc = supabase.rpc as unknown as RpcProcessar;
+      const rpc = bindMetodoRpc(supabase) as unknown as RpcProcessar;
       const { data, error } = await rpc("processar_solicitacao_pagamento", {
         _solicitacao_id: id,
         _acao: acao,
