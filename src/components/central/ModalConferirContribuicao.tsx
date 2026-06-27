@@ -45,25 +45,23 @@ export function ModalConferirContribuicao({ contribuicao, open, onClose }: Props
     setObservacao("");
   };
 
-  const handleConferir = (status: "conferida" | "divergente") => {
+  const handleConferir = async (status: "conferida" | "divergente") => {
     if (!contribuicao || !user) return;
     if (status === "divergente" && !observacao.trim()) {
       return;
     }
-    conferir.mutate(
-      {
+    try {
+      await conferir.mutateAsync({
         id: contribuicao.id,
         status,
         observacao: observacao.trim() || contribuicao.observacao,
         conferidoPor: user.id,
-      },
-      {
-        onSuccess: () => {
-          reset();
-          onClose();
-        },
-      },
-    );
+      });
+      reset();
+      onClose();
+    } catch {
+      // O erro ja aparece no aviso do sistema.
+    }
   };
 
   const handleClose = () => {
@@ -147,7 +145,7 @@ export function ModalConferirContribuicao({ contribuicao, open, onClose }: Props
                     onCheckedChange={(v) => setComprovanteOk(!!v)}
                   />
                   <Label htmlFor="comprovante" className="text-sm font-normal leading-tight">
-                    Comprovante válido (quando aplicável)
+                    Comprovante válido (opcional, quando houver)
                   </Label>
                 </div>
                 <div className="flex items-start gap-2">
@@ -190,14 +188,15 @@ export function ModalConferirContribuicao({ contribuicao, open, onClose }: Props
                 disabled={conferir.isPending || !observacao.trim()}
               >
                 <AlertTriangle className="h-4 w-4" />
-                Marcar divergente
+                {conferir.isPending ? "Salvando..." : "Marcar divergente"}
               </Button>
               <Button
                 onClick={() => handleConferir("conferida")}
                 disabled={!podeConferir || conferir.isPending}
+                title={!podeConferir ? "Marque valores e referência para liberar a conferência." : undefined}
               >
                 <CheckCircle2 className="h-4 w-4" />
-                Conferir
+                {conferir.isPending ? "Salvando..." : "Conferir"}
               </Button>
             </>
           )}
