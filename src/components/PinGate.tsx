@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Lock, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
-const PIN_CORRETO = "10203";
+const PIN_CORRETO = "010203";
 const CHAVE = "pin_desbloqueado";
 
 export function PinGate({ children }: { children: ReactNode }) {
