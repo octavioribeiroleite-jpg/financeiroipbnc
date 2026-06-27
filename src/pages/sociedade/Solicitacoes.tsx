@@ -91,7 +91,7 @@ export default function Solicitacoes() {
       cabecalho: "",
       className: "w-1 text-right",
       render: (s) => {
-        const podeEditar = s.status === "rascunho" || s.status === "enviada";
+        const podeEditar = s.status === "rascunho";
         const podeExcluir = s.status === "rascunho";
         const podeEnviar = s.status === "rascunho";
         return (
@@ -117,7 +117,7 @@ export default function Solicitacoes() {
                 setEditando(s);
                 setAberto(true);
               }}
-              title={podeEditar ? "Editar" : "Não editável neste status"}
+              title={podeEditar ? "Editar" : "Bloqueado após o envio para processamento"}
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -143,7 +143,7 @@ export default function Solicitacoes() {
         descricao="Selecione uma sociedade para centralizar os pagamentos."
       >
         <p className="text-sm text-muted-foreground">
-          Com a sociedade ativa definida, você consegue lançar, aprovar e quitar pagamentos em sequência.
+          Com a sociedade ativa definida, você consegue lançar e acompanhar pagamentos em sequência.
         </p>
       </ShellPainel>
     );
@@ -211,11 +211,11 @@ export default function Solicitacoes() {
         open={!!confirmandoEnvio}
         onOpenChange={(o) => !o && setConfirmandoEnvio(null)}
         titulo="Liberar pagamento para processamento?"
-        descricao="Ele ficará pronto para aprovação e quitação na fila operacional única."
+        descricao="Depois de liberado, o pagamento ficará bloqueado para edição até ser devolvido para ajuste."
         textoConfirmar="Liberar"
-        onConfirmar={() => {
+        onConfirmar={async () => {
           if (confirmandoEnvio) {
-            enviar.mutate(confirmandoEnvio.id);
+            await enviar.mutateAsync(confirmandoEnvio.id);
             setConfirmandoEnvio(null);
           }
         }}
@@ -228,9 +228,9 @@ export default function Solicitacoes() {
         descricao={`O rascunho "${confirmandoExclusao?.descricao}" será removido permanentemente.`}
         textoConfirmar="Excluir"
         destrutivo
-        onConfirmar={() => {
+        onConfirmar={async () => {
           if (confirmandoExclusao) {
-            excluir.mutate(confirmandoExclusao.id);
+            await excluir.mutateAsync(confirmandoExclusao.id);
             setConfirmandoExclusao(null);
           }
         }}

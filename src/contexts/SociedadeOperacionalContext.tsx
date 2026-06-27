@@ -17,7 +17,6 @@ interface SociedadeOperacionalContextValue {
 const SociedadeOperacionalContext = createContext<SociedadeOperacionalContextValue | undefined>(undefined);
 const STORAGE_KEY = "sociedade_operacional_id";
 
-// Lê o valor salvo já no primeiro render para evitar flash de "selecione uma sociedade"
 function lerIdSalvo(): string | null {
   if (typeof window === "undefined") return null;
   try {
@@ -28,33 +27,58 @@ function lerIdSalvo(): string | null {
 }
 
 export function SociedadeOperacionalProvider({ children }: { children: ReactNode }) {
-  const { user, loading: authLoading } = useAuth();
-  // Inicializa direto do localStorage — sem useEffect adicional → sem flash
+  const {
+    user,
+    loading: authLoading,
+    sociedadeId,
+    isAdmin,
+    isIgreja,
+    isCentral,
+    isSociedade,
+  } = useAuth();
+  const podeVerTodas = isAdmin || isIgreja || isCentral;
   const [sociedadeSelecionadaId, setSociedadeSelecionadaIdState] = useState<string | null>(lerIdSalvo);
 
   const { data: sociedades = [], isLoading } = useQuery({
-    queryKey: ["sociedades-operacionais"],
-    // Habilita assim que existir um usuário autenticado (não depende mais de isAdmin assíncrono)
-    enabled: !!user && !authLoading,
-    staleTime: 5 * 60 * 1000, // 5min — a lista quase nunca muda
+    queryKey: ["sociedades-operacionais", podeVerTodas ? "todas" : sociedadeId],
+    enabled: !!user && !authLoading && (podeVerTodas || (!!sociedadeId && isSociedade)),
+    staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     queryFn: async () => {
-      const { data, error } = await supabase
+      let consulta = supabase
         .from("sociedades")
         .select("*")
         .eq("status", "ativa")
         .order("nome", { ascending: true });
 
+      if (!podeVerTodas && sociedadeId) {
+        consulta = consulta.eq("id", sociedadeId);
+      }
+
+      const { data, error } = await consulta;
       if (error) throw error;
       return data as Sociedade[];
     },
   });
 
-  // Sincroniza fallback APENAS quando a lista chega e o id atual é inválido
   useEffect(() => {
-    if (!sociedades.length || !sociedadeSelecionadaId) return;
+    if (!user) {
+      setSociedadeSelecionadaIdState(null);
+      return;
+    }
 
-    const valido = sociedades.some((s) => s.id === sociedadeSelecionadaId);
+    if (isSociedade && !podeVerTodas && sociedadeId) {
+      setSociedadeSelecionadaIdState(sociedadeId);
+      try {
+        window.localStorage.setItem(STORAGE_KEY, sociedadeId);
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
+
+    if (!sociedadeSelecionadaId || !sociedades.length) return;
+    const valido = sociedades.some((sociedade) => sociedade.id === sociedadeSelecionadaId);
     if (valido) return;
 
     setSociedadeSelecionadaIdState(null);
@@ -63,35 +87,36 @@ export function SociedadeOperacionalProvider({ children }: { children: ReactNode
     } catch {
       /* ignore */
     }
-  }, [sociedades, sociedadeSelecionadaId]);
+  }, [isSociedade, podeVerTodas, sociedadeId, sociedadeSelecionadaId, sociedades, user]);
 
-  // Limpa quando o usuário desloga
-  useEffect(() => {
-    if (!user) {
-      setSociedadeSelecionadaIdState(null);
-    }
-  }, [user]);
+  const setSociedadeSelecionadaId = useCallback(
+    (novoId: string | null) => {
+      if (isSociedade && !podeVerTodas) return;
 
-  const setSociedadeSelecionadaId = useCallback((sociedadeId: string | null) => {
-    setSociedadeSelecionadaIdState(sociedadeId);
-    try {
-      if (sociedadeId) {
-        window.localStorage.setItem(STORAGE_KEY, sociedadeId);
-      } else {
-        window.localStorage.removeItem(STORAGE_KEY);
+      setSociedadeSelecionadaIdState(novoId);
+      try {
+        if (novoId) {
+          window.localStorage.setItem(STORAGE_KEY, novoId);
+        } else {
+          window.localStorage.removeItem(STORAGE_KEY);
+        }
+      } catch {
+        /* ignore */
       }
-    } catch {
-      /* ignore */
-    }
-  }, []);
+    },
+    [isSociedade, podeVerTodas],
+  );
 
-  const value = useMemo<SociedadeOperacionalContextValue>(() => ({
-    sociedades,
-    sociedadeSelecionadaId,
-    sociedadeSelecionada: sociedades.find((s) => s.id === sociedadeSelecionadaId) ?? null,
-    setSociedadeSelecionadaId,
-    carregando: isLoading,
-  }), [isLoading, sociedadeSelecionadaId, sociedades, setSociedadeSelecionadaId]);
+  const value = useMemo<SociedadeOperacionalContextValue>(
+    () => ({
+      sociedades,
+      sociedadeSelecionadaId,
+      sociedadeSelecionada: sociedades.find((sociedade) => sociedade.id === sociedadeSelecionadaId) ?? null,
+      setSociedadeSelecionadaId,
+      carregando: isLoading,
+    }),
+    [isLoading, sociedadeSelecionadaId, sociedades, setSociedadeSelecionadaId],
+  );
 
   return (
     <SociedadeOperacionalContext.Provider value={value}>

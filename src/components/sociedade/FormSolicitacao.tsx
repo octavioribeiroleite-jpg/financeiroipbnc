@@ -51,6 +51,18 @@ interface Props {
   onCancelar: () => void;
 }
 
+function valoresIniciais(): FormData {
+  return {
+    fornecedor_id: "",
+    categoria_id: null,
+    descricao: "",
+    valor: 0,
+    vencimento: hojeISO(),
+    observacoes: "",
+    anexo_nota_url: null,
+  };
+}
+
 export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido, onCancelar }: Props) {
   const { data: fornecedores } = useFornecedores();
   const { data: categorias } = useCategorias();
@@ -68,15 +80,7 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      fornecedor_id: "",
-      categoria_id: null,
-      descricao: "",
-      valor: 0,
-      vencimento: hojeISO(),
-      observacoes: "",
-      anexo_nota_url: null,
-    },
+    defaultValues: valoresIniciais(),
   });
 
   useEffect(() => {
@@ -90,7 +94,10 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
         observacoes: registro.observacoes ?? "",
         anexo_nota_url: registro.anexo_nota_url,
       });
+      return;
     }
+
+    form.reset(valoresIniciais());
   }, [registro, form]);
 
   const salvar = async (v: FormData, status: "rascunho" | "enviada") => {
@@ -112,7 +119,7 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
   };
 
   const submetendo = criar.isPending || atualizar.isPending;
-  const podeEditar = !registro || registro.status === "rascunho" || registro.status === "enviada";
+  const podeEditar = !registro || registro.status === "rascunho";
   const vencimento = form.watch("vencimento");
   const { data: travado } = useMesConsolidado(sociedadeId, vencimento);
 
@@ -240,7 +247,7 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
         {podeEditar && (
           <>
             <Button type="submit" variant="outline" disabled={submetendo || !!travado}>
-              Salvar
+              Salvar rascunho
             </Button>
             <Button
               type="button"
