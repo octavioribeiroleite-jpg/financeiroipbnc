@@ -12,7 +12,7 @@ permissions:
 jobs:
   validar:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
 
     steps:
       - name: Baixar código
@@ -21,14 +21,22 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
-      - name: Instalar dependências
-        run: npm ci
+      - name: Sincronizar e instalar dependências
+        run: npm install --no-audit --no-fund
 
       - name: Executar testes
         run: npm run test
 
       - name: Compilar aplicação
         run: npm run build
+
+      - name: Salvar lockfile atualizado
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-lock-atualizado
+          path: package-lock.json
+          retention-days: 1
