@@ -11,8 +11,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
+  SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 import {
   Church,
   LayoutDashboard,
@@ -67,57 +70,97 @@ export function SidebarPainel() {
 
   const isActive = (url: string) => location.pathname === url;
 
-  const renderItem = (item: ItemMenu) => (
-    <SidebarMenuItem key={item.url}>
-      <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.titulo}>
-        <NavLink
-          to={item.url}
-          end
-          className="flex items-center gap-2"
-          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+  const renderItem = (item: ItemMenu) => {
+    const active = isActive(item.url);
+
+    return (
+      <SidebarMenuItem key={item.url}>
+        <SidebarMenuButton
+          asChild
+          isActive={active}
+          tooltip={{ children: item.titulo, sideOffset: 8 }}
+          className={cn(
+            "h-10 rounded-xl px-3 transition-all duration-200",
+            "hover:translate-x-0.5 hover:bg-sidebar-accent/80",
+            "group-data-[collapsible=icon]:!size-9 group-data-[collapsible=icon]:!p-0",
+            "group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:hover:translate-x-0",
+            active && "shadow-sm ring-1 ring-sidebar-border/70",
+          )}
         >
-          <item.icone className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>{item.titulo}</span>}
-        </NavLink>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  );
+          <NavLink
+            to={item.url}
+            end
+            className={cn("flex items-center gap-3", collapsed && "justify-center")}
+            activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+          >
+            <item.icone
+              className={cn(
+                "h-[18px] w-[18px] shrink-0 transition-transform duration-200",
+                active && "scale-105 stroke-[2.25]",
+              )}
+            />
+            {!collapsed && <span className="truncate">{item.titulo}</span>}
+          </NavLink>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  };
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-            <Church className="h-4 w-4" />
+      <SidebarHeader className="h-16 border-b border-sidebar-border p-0">
+        <div
+          className={cn(
+            "flex h-full w-full items-center transition-all duration-200",
+            collapsed ? "justify-center" : "gap-3 px-3",
+          )}
+          title={collapsed ? "Tesouraria Presbiteriana" : undefined}
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-sm ring-1 ring-white/10">
+            <Church className="h-[18px] w-[18px]" />
           </div>
           {!collapsed && (
-            <div className="min-w-0">
+            <div className="min-w-0 leading-tight">
               <p className="truncate text-sm font-semibold text-sidebar-foreground">Tesouraria</p>
-              <p className="truncate text-xs text-sidebar-foreground/70">Presbiteriana</p>
+              <p className="truncate text-xs text-sidebar-foreground/65">Presbiteriana</p>
             </div>
           )}
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="py-2">
         {operacaoVisiveis.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Operação</SidebarGroupLabel>
+          <SidebarGroup className={cn("py-1", collapsed ? "px-1.5" : "px-2")}>
+            {!collapsed && (
+              <SidebarGroupLabel className="px-3 text-[10px] font-semibold uppercase tracking-[0.14em]">
+                Operação
+              </SidebarGroupLabel>
+            )}
             <SidebarGroupContent>
-              <SidebarMenu>{operacaoVisiveis.map(renderItem)}</SidebarMenu>
+              <SidebarMenu className="gap-1.5">{operacaoVisiveis.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
 
+        {operacaoVisiveis.length > 0 && cadastrosVisiveis.length > 0 && (
+          <SidebarSeparator className={cn("my-2", collapsed ? "mx-2" : "mx-4")} />
+        )}
+
         {cadastrosVisiveis.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Cadastros</SidebarGroupLabel>
+          <SidebarGroup className={cn("py-1", collapsed ? "px-1.5" : "px-2")}>
+            {!collapsed && (
+              <SidebarGroupLabel className="px-3 text-[10px] font-semibold uppercase tracking-[0.14em]">
+                Cadastros
+              </SidebarGroupLabel>
+            )}
             <SidebarGroupContent>
-              <SidebarMenu>{cadastrosVisiveis.map(renderItem)}</SidebarMenu>
+              <SidebarMenu className="gap-1.5">{cadastrosVisiveis.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
       </SidebarContent>
+
+      <SidebarRail />
     </Sidebar>
   );
 }
