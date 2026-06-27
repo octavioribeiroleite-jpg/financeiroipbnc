@@ -30,18 +30,13 @@ export function ModalConferirContribuicao({ contribuicao, open, onClose }: Props
   const { data: sociedades } = useSociedades();
   const conferir = useConferirContribuicao();
 
-  const [valoresOk, setValoresOk] = useState(false);
-  const [comprovanteOk, setComprovanteOk] = useState(false);
-  const [referenciaOk, setReferenciaOk] = useState(false);
+  const [conferenciaOk, setConferenciaOk] = useState(false);
   const [observacao, setObservacao] = useState("");
 
   const sociedade = sociedades?.find((s) => s.id === contribuicao?.sociedade_id);
-  const podeConferir = valoresOk && referenciaOk;
 
   const reset = () => {
-    setValoresOk(false);
-    setComprovanteOk(false);
-    setReferenciaOk(false);
+    setConferenciaOk(false);
     setObservacao("");
   };
 
@@ -130,32 +125,12 @@ export function ModalConferirContribuicao({ contribuicao, open, onClose }: Props
                 <p className="text-sm font-medium">Checklist de conferência</p>
                 <div className="flex items-start gap-2">
                   <Checkbox
-                    id="valores"
-                    checked={valoresOk}
-                    onCheckedChange={(v) => setValoresOk(!!v)}
+                    id="conferencia"
+                    checked={conferenciaOk}
+                    onCheckedChange={(v) => setConferenciaOk(!!v)}
                   />
-                  <Label htmlFor="valores" className="text-sm font-normal leading-tight">
-                    Valores conferidos
-                  </Label>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Checkbox
-                    id="comprovante"
-                    checked={comprovanteOk}
-                    onCheckedChange={(v) => setComprovanteOk(!!v)}
-                  />
-                  <Label htmlFor="comprovante" className="text-sm font-normal leading-tight">
-                    Comprovante válido (opcional, quando houver)
-                  </Label>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Checkbox
-                    id="referencia"
-                    checked={referenciaOk}
-                    onCheckedChange={(v) => setReferenciaOk(!!v)}
-                  />
-                  <Label htmlFor="referencia" className="text-sm font-normal leading-tight">
-                    Referência (mês) correta
+                  <Label htmlFor="conferencia" className="text-sm font-normal leading-tight">
+                    Conferi valor, referência e comprovante quando houver
                   </Label>
                 </div>
               </div>
@@ -192,8 +167,8 @@ export function ModalConferirContribuicao({ contribuicao, open, onClose }: Props
               </Button>
               <Button
                 onClick={() => handleConferir("conferida")}
-                disabled={!podeConferir || conferir.isPending}
-                title={!podeConferir ? "Marque valores e referência para liberar a conferência." : undefined}
+                disabled={!conferenciaOk || conferir.isPending}
+                title={!conferenciaOk ? "Marque a confirmação para liberar a conferência." : undefined}
               >
                 <CheckCircle2 className="h-4 w-4" />
                 {conferir.isPending ? "Salvando..." : "Conferir"}
