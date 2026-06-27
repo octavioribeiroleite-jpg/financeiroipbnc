@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { FileText, Loader2 } from "lucide-react";
 import { ShellPainel } from "@/components/painel/ShellPainel";
-import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -16,207 +18,239 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Plus, RefreshCw, Send, Eye, Trash2 } from "lucide-react";
-import {
-  useFechamentosSociedade,
-  useEnviarFechamento,
-  useRecalcularFechamento,
-  useExcluirFechamento,
-  type Fechamento,
-} from "@/hooks/fechamentos/useFechamentos";
-import { StatusFechamentoBadge } from "@/components/fechamentos/StatusFechamentoBadge";
-import { ModalNovoFechamento } from "@/components/fechamentos/ModalNovoFechamento";
-import { DetalheFechamento } from "@/components/fechamentos/DetalheFechamento";
-import { formatarMoeda } from "@/lib/format";
+import { Badge } from "@/components/ui/badge";
+import { useFechamentoGeral } from "@/hooks/fechamentos/useFechamentoGeral";
+import type { Fechamento } from "@/hooks/fechamentos/useFechamentos";
+import { useConfigIgreja } from "@/hooks/igreja/useConfigIgreja";
+import { useAuth } from "@/contexts/AuthContext";
+import { formatarData, formatarMoeda, primeiroDiaMesAtual } from "@/lib/format";
+import { gerarPdfFechamento, nomeArquivoFechamento } from "@/lib/pdf/fechamentoPdf";
 
 const MESES = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
-export default function FechamentosSociedade() {
-  const { sociedadeSelecionadaId: sociedadeId, sociedadeSelecionada } = useSociedadeOperacional();
-  const { data = [], isLoading } = useFechamentosSociedade(sociedadeId);
-  const enviar = useEnviarFechamento();
-  const recalcular = useRecalcularFechamento();
-  const excluir = useExcluirFechamento();
+function criarFechamentoSintetico(dados: ReturnType<typeof useFechamentoGeral>["data"]): Fechamento | null {
+  if (!dados) return null;
+  return {
+    id: `geral-${dados.ano}-${String(dados.mes).padStart(2, "0")}`,
+    sociedade_id: "geral",
+    ano: dados.ano,
+    mes: dados.mes,
+    saldo_inicial: dados.resumo.saldoInicial,
+    total_entradas: dados.resumo.entradas + dados.resumo.ajustes,
+    total_saidas: dados.resumo.saidas,
+    saldo_final: dados.resumo.saldoFinal,
+    status: "aberto",
+    observacao: "Fechamento consolidado com todas as sociedades.",
+    data_criacao: new Date().toISOString(),
+    data_envio: null,
+    enviado_por: null,
+    data_conferencia: null,
+    conferido_por: null,
+  };
+}
 
-  const [novoOpen, setNovoOpen] = useState(false);
-  const [detalhe, setDetalhe] = useState<Fechamento | null>(null);
-  const [paraExcluir, setParaExcluir] = useState<Fechamento | null>(null);
+export default function FechamentosSociedade() {
+  const [mesReferencia, setMesReferencia] = useState(() => primeiroDiaMesAtual().slice(0, 7));
+  const { data, isLoading } = useFechamentoGeral(mesReferencia);
+  const { config } = useConfigIgreja();
+  const { perfil } = useAuth();
+
+  const baixarPdf = () => {
+    const fechamento = criarFechamentoSintetico(data);
+    if (!fechamento || !data) return;
+
+    const doc = gerarPdfFechamento({
+      fechamento,
+      nomeSociedade: "Geral da conta",
+      movimentacoes: data.movimentacoes.map((m) => ({
+        id: m.id,
+        tipo: m.tipo,
+        origem: m.origem,
+        valor: m.valor,
+        data_movimento: m.data_movimento,
+        observacao: m.observacao,
+        confirmada: m.confirmada,
+        sociedade_nome: m.sociedade_nome,
+      })),
+      config,
+      geradoPor: perfil?.nome,
+    });
+
+    doc.save(nomeArquivoFechamento({ fechamento, nomeSociedade: "Geral da conta", movimentacoes: [], config }));
+  };
 
   return (
     <ShellPainel
-      titulo="Fechamentos mensais"
-      descricao="Crie, recalcule e envie o fechamento do mês para conferência."
+      titulo="Fechamento mensal"
+      descricao="Consolidado de todas as sociedades, com entradas, saídas e saldo separado por cofrinho."
     >
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Fechamentos mensais</h2>
+          <h2 className="text-2xl font-semibold">Fechamento mensal geral</h2>
           <p className="text-sm text-muted-foreground">
-            {sociedadeSelecionada
-              ? `Sociedade ativa: ${sociedadeSelecionada.nome}`
-              : "Selecione uma sociedade no topo para começar."}
+            Tudo junto na conta principal, com o valor separado por sociedade.
           </p>
         </div>
-        <Button onClick={() => setNovoOpen(true)} disabled={!sociedadeId} data-tour="novo-fechamento">
-          <Plus className="h-4 w-4" />
-          Novo fechamento
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <div className="space-y-1">
+            <Label htmlFor="mes-fechamento">Mês do fechamento</Label>
+            <Input
+              id="mes-fechamento"
+              type="month"
+              value={mesReferencia}
+              onChange={(event) => setMesReferencia(event.target.value)}
+              className="w-full sm:w-48"
+            />
+          </div>
+          <Button onClick={baixarPdf} disabled={!data || isLoading}>
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+            Relatório PDF
+          </Button>
+        </div>
       </div>
 
-      <Card>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Saldo inicial</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold">{formatarMoeda(data?.resumo.saldoInicial)}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Entradas confirmadas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold text-emerald-600">{formatarMoeda(data?.resumo.entradas)}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Saídas confirmadas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold text-rose-600">{formatarMoeda(data?.resumo.saidas)}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground">Saldo final consolidado</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold">{formatarMoeda(data?.resumo.saldoFinal)}</p>
+            {!!data?.resumo.pendentes && (
+              <p className="mt-1 text-xs text-amber-700">
+                {data.resumo.pendentes} lançamento(s) pendente(s) fora do saldo.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="mt-5">
         <CardHeader>
-          <CardTitle className="text-base">Histórico</CardTitle>
+          <CardTitle className="text-base">Cofrinhos por sociedade</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Mês</TableHead>
+                  <TableHead>Sociedade</TableHead>
                   <TableHead className="text-right">Saldo inicial</TableHead>
                   <TableHead className="text-right">Entradas</TableHead>
                   <TableHead className="text-right">Saídas</TableHead>
                   <TableHead className="text-right">Saldo final</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead className="text-right">Participação</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-sm text-muted-foreground">
-                      Carregando...
+                    <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
+                      Carregando fechamento...
                     </TableCell>
                   </TableRow>
                 )}
-                {!isLoading && data.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-sm text-muted-foreground">
-                      Nenhum fechamento ainda.
+                {!isLoading && data?.sociedades.map((sociedade) => (
+                  <TableRow key={sociedade.sociedadeId}>
+                    <TableCell className="font-medium">
+                      {sociedade.nome}
+                      <span className="ml-2 text-xs text-muted-foreground">{sociedade.tipo}</span>
                     </TableCell>
+                    <TableCell className="text-right">{formatarMoeda(sociedade.saldoInicial)}</TableCell>
+                    <TableCell className="text-right text-emerald-600">{formatarMoeda(sociedade.entradas)}</TableCell>
+                    <TableCell className="text-right text-rose-600">{formatarMoeda(sociedade.saidas)}</TableCell>
+                    <TableCell className="text-right font-semibold">{formatarMoeda(sociedade.saldoFinal)}</TableCell>
+                    <TableCell className="text-right">{sociedade.participacao.toFixed(1)}%</TableCell>
                   </TableRow>
-                )}
-                {data.map((f) => {
-                  const editavel = f.status === "aberto";
-                  return (
-                    <TableRow key={f.id}>
-                      <TableCell className="font-medium">
-                        {MESES[f.mes - 1]} / {f.ano}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatarMoeda(Number(f.saldo_inicial))}
-                      </TableCell>
-                      <TableCell className="text-right text-emerald-600">
-                        {formatarMoeda(Number(f.total_entradas))}
-                      </TableCell>
-                      <TableCell className="text-right text-rose-600">
-                        {formatarMoeda(Number(f.total_saidas))}
-                      </TableCell>
-                      <TableCell className="text-right font-semibold">
-                        {formatarMoeda(Number(f.saldo_final))}
-                      </TableCell>
-                      <TableCell>
-                        <StatusFechamentoBadge status={f.status} />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDetalhe(f)}
-                            title="Detalhe"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          {editavel && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => recalcular.mutate(f)}
-                                disabled={recalcular.isPending}
-                                title="Recalcular"
-                              >
-                                <RefreshCw className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => enviar.mutate(f)}
-                                disabled={enviar.isPending}
-                                title="Enviar"
-                              >
-                                <Send className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setParaExcluir(f)}
-                                title="Excluir"
-                              >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                ))}
               </TableBody>
             </Table>
           </div>
         </CardContent>
       </Card>
 
-      {sociedadeId && (
-        <ModalNovoFechamento
-          open={novoOpen}
-          onOpenChange={setNovoOpen}
-          sociedadeId={sociedadeId}
-        />
-      )}
-
-      <DetalheFechamento
-        open={!!detalhe}
-        onOpenChange={(v) => !v && setDetalhe(null)}
-        fechamento={detalhe}
-        nomeSociedade={sociedadeSelecionada?.nome}
-      />
-
-      <AlertDialog open={!!paraExcluir} onOpenChange={(v) => !v && setParaExcluir(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir fechamento?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Apenas fechamentos em rascunho podem ser excluídos.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (paraExcluir) excluir.mutate(paraExcluir.id);
-                setParaExcluir(null);
-              }}
-            >
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Card className="mt-5">
+        <CardHeader>
+          <CardTitle className="text-base">
+            Movimentações de {data ? `${MESES[data.mes - 1]} / ${data.ano}` : "mês"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Sociedade</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
+                      Buscando movimentações...
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!isLoading && data?.movimentacoes.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
+                      Nenhuma movimentação nesse mês.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!isLoading && data?.movimentacoes.map((mov) => (
+                  <TableRow key={mov.id}>
+                    <TableCell>{formatarData(mov.data_movimento)}</TableCell>
+                    <TableCell className="font-medium">{mov.sociedade_nome}</TableCell>
+                    <TableCell>{mov.tipo === "saida" ? "Saída" : mov.tipo === "ajuste" ? "Ajuste" : "Entrada"}</TableCell>
+                    <TableCell className="max-w-md truncate">{mov.observacao || mov.origem}</TableCell>
+                    <TableCell>
+                      <Badge variant={mov.confirmada ? "secondary" : "outline"}>
+                        {mov.confirmada ? "Contabilizada" : "Pendente"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className={`text-right font-medium ${mov.tipo === "saida" ? "text-rose-600" : "text-emerald-600"}`}>
+                      {formatarMoeda(mov.valor)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </ShellPainel>
   );
 }
