@@ -1,3 +1,4 @@
+import { MouseEvent, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +18,7 @@ interface ConfirmDialogProps {
   textoConfirmar?: string;
   textoCancelar?: string;
   destrutivo?: boolean;
-  onConfirmar: () => void;
+  onConfirmar: () => void | Promise<void>;
 }
 
 export function ConfirmDialog({
@@ -30,6 +31,20 @@ export function ConfirmDialog({
   destrutivo = false,
   onConfirmar,
 }: ConfirmDialogProps) {
+  const [confirmando, setConfirmando] = useState(false);
+
+  const handleConfirmar = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    if (confirmando) return;
+
+    setConfirmando(true);
+    try {
+      await onConfirmar();
+    } finally {
+      setConfirmando(false);
+    }
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -40,10 +55,11 @@ export function ConfirmDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>{textoCancelar}</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirmar}
+            disabled={confirmando}
+            onClick={handleConfirmar}
             className={destrutivo ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
           >
-            {textoConfirmar}
+            {confirmando ? "Aguarde..." : textoConfirmar}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
