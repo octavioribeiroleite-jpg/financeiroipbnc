@@ -392,6 +392,56 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
     finalTabelaY = doc.lastAutoTable?.finalY ?? yNao + 30;
   }
 
+  // ---------- Saldo disponível por sociedade ----------
+  const { saldoPorSociedade } = input;
+  if (saldoPorSociedade && saldoPorSociedade.length > 0) {
+    let ySaldo = finalTabelaY + 9;
+    const alturaEstimada = 18 + saldoPorSociedade.length * 6;
+    if (ySaldo + alturaEstimada > pageH - 20) {
+      doc.addPage();
+      ySaldo = margin;
+    }
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(20);
+    doc.text("Saldo disponível por sociedade", margin, ySaldo);
+    ySaldo += 2;
+
+    const totalSociedades = saldoPorSociedade.reduce((acc, s) => acc + s.saldoFinal, 0);
+
+    autoTable(doc, {
+      startY: ySaldo,
+      head: [["Sociedade", "Saldo disponível"]],
+      body: [
+        ...saldoPorSociedade.map((s) => [s.nome, formatarMoeda(s.saldoFinal)]),
+        [
+          { content: "Total geral", colSpan: 1, styles: { fontStyle: "bold" } } as never,
+          { content: formatarMoeda(totalSociedades), styles: { fontStyle: "bold", halign: "right" } } as never,
+        ],
+      ],
+      styles: { fontSize: 8.5, cellPadding: 1.7, textColor: 35 },
+      headStyles: { fillColor: [40, 40, 50], textColor: 255, fontStyle: "bold" },
+      footStyles: { fillColor: [245, 245, 245], textColor: 30 },
+      columnStyles: {
+        0: { cellWidth: "auto" },
+        1: { cellWidth: 42, halign: "right" },
+      },
+      didParseCell: (data) => {
+        if (data.section === "body" && data.column.index === 1) {
+          const isTotalRow = data.row.index === saldoPorSociedade.length;
+          if (!isTotalRow) {
+            data.cell.styles.textColor = [22, 101, 52];
+          }
+        }
+      },
+      margin: { left: margin, right: margin },
+    });
+
+    // @ts-expect-error - lastAutoTable é injetado pelo autoTable
+    finalTabelaY = doc.lastAutoTable?.finalY ?? ySaldo + 28;
+  }
+
   // ---------- Bloco de assinaturas ----------
   const espacoAssinaturas = 38;
   let yAss = finalTabelaY + 14;
