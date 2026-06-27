@@ -132,7 +132,7 @@ export default function IgrejaRelatorios() {
 
       <Tabs defaultValue="contribuicoes">
         <TabsList>
-          <TabsTrigger value="contribuicoes">Contribuições</TabsTrigger>
+          <TabsTrigger value="contribuicoes">Entradas</TabsTrigger>
           <TabsTrigger value="pagamentos">Pagamentos</TabsTrigger>
           <TabsTrigger value="movimentacoes">Movimentações</TabsTrigger>
           <TabsTrigger value="resumo">Resumo</TabsTrigger>
@@ -182,7 +182,7 @@ export default function IgrejaRelatorios() {
   );
 }
 
-// ---------- Contribuições ----------
+// ---------- Entradas ----------
 function AbaContribuicoes({
   inicio,
   fim,
@@ -218,7 +218,7 @@ function AbaContribuicoes({
 
   return (
     <TabelaRelatorio
-      titulo="Contribuições"
+      titulo="Entradas"
       colunas={colunas}
       dados={data}
       loading={isLoading}
