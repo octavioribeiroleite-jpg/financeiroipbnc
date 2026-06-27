@@ -24,6 +24,7 @@ export interface MovimentacaoMesPdf {
   data_movimento: string;
   observacao?: string | null;
   confirmada?: boolean | null;
+  sociedade_nome?: string | null;
 }
 
 export interface GerarPdfInput {
@@ -83,6 +84,7 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
   const entradasContabilizadas = movimentacoesContabilizadas.filter((m) => m.tipo === "entrada");
   const saidasContabilizadas = movimentacoesContabilizadas.filter((m) => m.tipo === "saida");
   const ajustesContabilizados = movimentacoesContabilizadas.filter((m) => m.tipo === "ajuste");
+  const incluiSociedade = movimentacoes.some((m) => !!m.sociedade_nome);
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
@@ -271,6 +273,16 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
 
   const linhas = movimentacoesContabilizadas.map((m) => {
     const v = Number(m.valor) || 0;
+    if (incluiSociedade) {
+      return [
+        formatarData(m.data_movimento),
+        m.sociedade_nome ?? "",
+        labelTipo(m.tipo),
+        [labelOrigem(m.origem), m.observacao].filter(Boolean).join(" - "),
+        formatarMoeda(v),
+        m.tipo,
+      ];
+    }
     return [
       formatarData(m.data_movimento),
       labelTipo(m.tipo),
@@ -291,7 +303,7 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
 
   autoTable(doc, {
     startY: y + 2,
-    head: [["Data", "Tipo", "Origem", "Descrição", "Valor"]],
+    head: [incluiSociedade ? ["Data", "Sociedade", "Tipo", "Descrição", "Valor"] : ["Data", "Tipo", "Origem", "Descrição", "Valor"]],
     body: linhas.length
       ? linhas.map((l) => l.slice(0, 5))
       : [[{ content: "Sem movimentações contabilizadas no período.", colSpan: 5, styles: { halign: "center", textColor: 130 } } as never]],
@@ -310,8 +322,8 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
     footStyles: { fillColor: [245, 245, 245], textColor: 30 },
     columnStyles: {
       0: { cellWidth: 22 },
-      1: { cellWidth: 20 },
-      2: { cellWidth: 38 },
+      1: { cellWidth: incluiSociedade ? 30 : 20 },
+      2: { cellWidth: incluiSociedade ? 20 : 38 },
       3: { cellWidth: "auto" },
       4: { cellWidth: 28, halign: "right" },
     },
@@ -347,20 +359,28 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
 
     autoTable(doc, {
       startY: yNao + 7,
-      head: [["Data", "Tipo", "Origem", "Descrição", "Valor"]],
-      body: movimentacoesNaoContabilizadas.map((m) => [
-        formatarData(m.data_movimento),
-        labelTipo(m.tipo),
-        labelOrigem(m.origem),
-        m.observacao ?? "",
-        formatarMoeda(Number(m.valor) || 0),
-      ]),
+      head: [incluiSociedade ? ["Data", "Sociedade", "Tipo", "Descrição", "Valor"] : ["Data", "Tipo", "Origem", "Descrição", "Valor"]],
+      body: movimentacoesNaoContabilizadas.map((m) => incluiSociedade
+        ? [
+            formatarData(m.data_movimento),
+            m.sociedade_nome ?? "",
+            labelTipo(m.tipo),
+            [labelOrigem(m.origem), m.observacao].filter(Boolean).join(" - "),
+            formatarMoeda(Number(m.valor) || 0),
+          ]
+        : [
+            formatarData(m.data_movimento),
+            labelTipo(m.tipo),
+            labelOrigem(m.origem),
+            m.observacao ?? "",
+            formatarMoeda(Number(m.valor) || 0),
+          ]),
       styles: { fontSize: 8.3, cellPadding: 1.5, textColor: 45 },
       headStyles: { fillColor: [245, 230, 180], textColor: 35, fontStyle: "bold" },
       columnStyles: {
         0: { cellWidth: 22 },
-        1: { cellWidth: 20 },
-        2: { cellWidth: 38 },
+        1: { cellWidth: incluiSociedade ? 30 : 20 },
+        2: { cellWidth: incluiSociedade ? 20 : 38 },
         3: { cellWidth: "auto" },
         4: { cellWidth: 28, halign: "right" },
       },
