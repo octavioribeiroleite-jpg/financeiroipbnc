@@ -92,6 +92,8 @@ export function gerarPdfFechamento(input: GerarPdfInput): jsPDF {
   const saidasContabilizadas = movimentacoesContabilizadas.filter((m) => m.tipo === "saida");
   const ajustesContabilizados = movimentacoesContabilizadas.filter((m) => m.tipo === "ajuste");
   const incluiSociedade = movimentacoes.some((m) => !!m.sociedade_nome);
+  const saldosPorSociedade = input.saldosPorSociedade ?? [];
+
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
