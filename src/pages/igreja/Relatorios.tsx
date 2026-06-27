@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ShellPainel } from "@/components/painel/ShellPainel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,11 +26,34 @@ import { useCategorias } from "@/hooks/cadastros/useCategorias";
 import { useFornecedores } from "@/hooks/cadastros/useFornecedores";
 import { formatarData, formatarMoeda, primeiroDiaMesAtual, hojeISO } from "@/lib/format";
 import type { Database } from "@/integrations/supabase/types";
+import { useUploadAnexo } from "@/hooks/shared/useUploadAnexo";
+import { ExternalLink } from "lucide-react";
 
 const TODOS = "__todos__";
 
 type StatusConf = Database["public"]["Enums"]["status_conferencia"];
 type StatusSolic = Database["public"]["Enums"]["status_solicitacao"];
+
+function BotaoComprovante({ caminho }: { caminho: string | null }) {
+  const { obterUrlAssinada } = useUploadAnexo();
+
+  if (!caminho) return <span className="text-muted-foreground">—</span>;
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={async () => {
+        const url = await obterUrlAssinada(caminho);
+        if (url) window.open(url, "_blank", "noopener");
+      }}
+    >
+      <ExternalLink className="h-4 w-4" />
+      Abrir
+    </Button>
+  );
+}
 
 export default function IgrejaRelatorios() {
   const [inicio, setInicio] = useState(primeiroDiaMesAtual());
@@ -188,6 +212,7 @@ function AbaContribuicoes({
     { cabecalho: "Membro", render: (r) => r.membro_nome, valorCsv: (r) => r.membro_nome },
     { cabecalho: "Forma", render: (r) => r.forma_pagamento, valorCsv: (r) => r.forma_pagamento },
     { cabecalho: "Status", render: (r) => <StatusContribuicaoBadge status={r.status_conferencia} />, valorCsv: (r) => r.status_conferencia, alinhamento: "center" },
+    { cabecalho: "Comprovante", render: (r) => <BotaoComprovante caminho={r.comprovante_url} />, valorCsv: (r) => r.comprovante_url ?? "", alinhamento: "center" },
     { cabecalho: "Valor", render: (r) => formatarMoeda(Number(r.valor)), valorCsv: (r) => Number(r.valor), alinhamento: "right" },
   ];
 
