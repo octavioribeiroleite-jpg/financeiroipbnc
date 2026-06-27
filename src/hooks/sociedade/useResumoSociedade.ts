@@ -20,16 +20,11 @@ export function useResumoSociedade(sociedadeId: string | null) {
     queryFn: async (): Promise<ResumoSociedade> => {
       const inicio = inicioMesIso();
 
-      const [movRes, contribMesRes, solicRes] = await Promise.all([
+      const [movRes, solicRes] = await Promise.all([
         supabase
           .from("movimentacoes_sociedade")
-          .select("tipo, valor, confirmada")
+          .select("tipo, valor, confirmada, data_movimento")
           .eq("sociedade_id", sociedadeId!),
-        supabase
-          .from("contribuicoes")
-          .select("valor, data_pagamento")
-          .eq("sociedade_id", sociedadeId!)
-          .gte("data_pagamento", inicio),
         supabase
           .from("solicitacoes_pagamento")
           .select("id, status, valor, data_pagamento")
@@ -37,7 +32,6 @@ export function useResumoSociedade(sociedadeId: string | null) {
       ]);
 
       if (movRes.error) throw movRes.error;
-      if (contribMesRes.error) throw contribMesRes.error;
       if (solicRes.error) throw solicRes.error;
 
       const saldo = (movRes.data ?? []).reduce((acc, m) => {
@@ -48,10 +42,9 @@ export function useResumoSociedade(sociedadeId: string | null) {
         return acc + v; // ajuste
       }, 0);
 
-      const contribuicoesMes = (contribMesRes.data ?? []).reduce(
-        (acc, c) => acc + (Number(c.valor) || 0),
-        0,
-      );
+      const contribuicoesMes = (movRes.data ?? [])
+        .filter((m) => m.confirmada && m.tipo === "entrada" && m.data_movimento >= inicio)
+        .reduce((acc, m) => acc + (Number(m.valor) || 0), 0);
 
       const pagamentosMes = (solicRes.data ?? [])
         .filter((s) => s.status === "paga" && s.data_pagamento && s.data_pagamento >= inicio)
