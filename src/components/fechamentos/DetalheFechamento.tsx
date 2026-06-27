@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Download, FileDown, Unlock } from "lucide-react";
+import { Download, FileText, Unlock } from "lucide-react";
 import { formatarData, formatarMoeda } from "@/lib/format";
 import {
   useMovimentacoesMes,
@@ -65,9 +65,6 @@ export function DetalheFechamento({ open, onOpenChange, fechamento, nomeSociedad
       movs,
     );
   };
-
-  const podeGerarPdf =
-    fechamento.status === "conferido" || fechamento.status === "consolidado";
 
   const handlePdf = () => {
     const doc = gerarPdfFechamento({
@@ -146,12 +143,10 @@ export function DetalheFechamento({ open, onOpenChange, fechamento, nomeSociedad
                 Reabrir mês
               </Button>
             )}
-            {podeGerarPdf && (
-              <Button variant="outline" size="sm" onClick={handlePdf}>
-                <FileDown className="h-4 w-4" />
-                PDF
-              </Button>
-            )}
+            <Button variant="outline" size="sm" onClick={handlePdf} disabled={isLoading}>
+              <FileText className="h-4 w-4" />
+              Relatório PDF
+            </Button>
             <Button variant="outline" size="sm" onClick={handleExportar} disabled={movs.length === 0}>
               <Download className="h-4 w-4" />
               CSV
