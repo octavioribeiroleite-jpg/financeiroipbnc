@@ -38,7 +38,12 @@ export function UploadAnexo({
     if (!caminho) return;
     // Abrimos a janela imediatamente (gesto do usuário) para evitar bloqueio
     // de popup do navegador. Em seguida atualizamos a URL com a assinada.
-    const janela = window.open("about:blank", "_blank", "noopener");
+    const janela = window.open("", "_blank");
+    if (janela) {
+      janela.opener = null;
+      janela.document.write("<p style='font-family: system-ui; padding: 24px'>Abrindo anexo...</p>");
+      janela.document.close();
+    }
     const url = await obterUrlAssinada(caminho);
     if (!url) {
       janela?.close();
