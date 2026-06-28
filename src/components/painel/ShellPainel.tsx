@@ -43,12 +43,13 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
   const handleAjuda = () => {
     if (temTourPara(location.pathname)) {
       iniciarTour(location.pathname, { force: true, userId: user?.id ?? null });
-    } else {
-      reexibirTodosTours();
-      toast.success("Dicas reabilitadas", {
-        description: "Visite cada tela para ver o passo a passo novamente.",
-      });
+      return;
     }
+
+    reexibirTodosTours();
+    toast.success("Dicas reabilitadas", {
+      description: "Visite cada tela para ver o passo a passo novamente.",
+    });
   };
 
   return (
@@ -63,59 +64,61 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
       <TourLauncher />
       <div className="flex min-h-screen w-full bg-background">
         <SidebarPainel />
+
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between gap-3 border-b border-border bg-card/95 px-3 backdrop-blur sm:px-5 lg:px-6">
-            <div className="flex min-w-0 items-center gap-3">
+          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b border-border/80 bg-card/95 px-3 backdrop-blur sm:h-16 sm:px-5 lg:px-6">
+            <div className="flex min-w-0 items-center gap-2.5">
               <span data-tour="sidebar-trigger">
-                <SidebarTrigger className="h-10 w-10 rounded-xl border border-border/80 bg-card shadow-sm hover:bg-muted" />
+                <SidebarTrigger className="h-9 w-9 rounded-xl border border-border/80 bg-card shadow-sm hover:bg-muted sm:h-10 sm:w-10" />
               </span>
+
               <div className="hidden min-w-0 sm:block">
-                <h1 className="truncate text-base font-semibold leading-tight text-foreground">{titulo}</h1>
+                <h1 className="truncate text-base font-bold leading-tight text-foreground">{titulo}</h1>
                 {descricao && <p className="truncate text-xs text-muted-foreground">{descricao}</p>}
               </div>
+
               <div className="sm:hidden">
                 <LogoTesouraria variant="icon" theme="light" size="sm" />
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1">
               <div className="hidden xl:block">
                 <SeletorSociedade
                   sociedades={sociedades}
                   sociedadeSelecionadaId={sociedadeSelecionadaId}
                   setSociedadeSelecionadaId={setSociedadeSelecionadaId}
+                  simples
                 />
               </div>
 
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={handleAjuda}
                 data-tour="ajuda-tour"
-                title="Reexibir dicas desta tela"
+                title="Ajuda"
                 aria-label="Ajuda"
-                className="h-10 rounded-xl px-3"
+                className="h-9 w-9 rounded-xl sm:h-10 sm:w-10"
               >
-                <HelpCircle className="h-4 w-4" />
-                <span className="hidden lg:inline">Ajuda</span>
+                <HelpCircle className="h-[18px] w-[18px]" />
               </Button>
 
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={() => {
                   sessionStorage.removeItem("pin_desbloqueado");
                   window.location.reload();
                 }}
                 title="Travar com PIN"
                 aria-label="Travar com PIN"
-                className="h-10 rounded-xl px-3"
+                className="h-9 w-9 rounded-xl sm:h-10 sm:w-10"
               >
-                <Lock className="h-4 w-4" />
-                <span className="hidden lg:inline">Travar</span>
+                <Lock className="h-[18px] w-[18px]" />
               </Button>
 
-              <div className="ml-1 flex items-center gap-3 border-l border-border pl-3">
+              <div className="ml-1 flex items-center gap-3 border-l border-border pl-2 sm:pl-3">
                 <div className="hidden min-w-0 text-right md:block">
                   <p className="max-w-[220px] truncate text-sm font-semibold leading-tight text-foreground">
                     {perfil?.nome ?? "Usuário"}
@@ -124,8 +127,9 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
                     {papelPrincipal ? ROTULO_PAPEL[papelPrincipal] : "Sem papel"}
                   </p>
                 </div>
+
                 <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-gold-500 text-sm font-bold text-brand-navy-950 shadow-sm ring-2 ring-brand-gold-500/20"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-gold-500 text-xs font-bold text-brand-navy-950 shadow-sm ring-2 ring-brand-gold-500/20 sm:h-10 sm:w-10 sm:text-sm"
                   title={`${perfil?.nome ?? "Usuário"} · ${papelPrincipal ? ROTULO_PAPEL[papelPrincipal] : "Sem papel"}`}
                 >
                   {iniciais(perfil?.nome)}
@@ -134,19 +138,21 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
             </div>
           </header>
 
-          <div className="border-b border-border bg-card/60 px-3 py-2 xl:hidden">
+          <div className="border-b border-border/80 bg-card px-3 py-2 xl:hidden">
             <SeletorSociedade
               sociedades={sociedades}
               sociedadeSelecionadaId={sociedadeSelecionadaId}
               setSociedadeSelecionadaId={setSociedadeSelecionadaId}
+              simples
+              className="h-11 rounded-xl py-0"
             />
           </div>
 
-          <main className="flex-1 p-4 sm:p-6 2xl:p-8">
+          <main className="flex-1 p-3 sm:p-5 lg:p-6 2xl:p-8">
             <div className="mx-auto w-full max-w-[1720px]">
-              <div className="mb-5 sm:hidden">
-                <h1 className="text-xl font-semibold text-foreground">{titulo}</h1>
-                {descricao && <p className="text-sm text-muted-foreground">{descricao}</p>}
+              <div className="mb-4 sm:hidden">
+                <h1 className="text-[1.6rem] font-bold leading-tight tracking-[-0.035em] text-foreground">{titulo}</h1>
+                {descricao && <p className="mt-1 text-sm leading-snug text-muted-foreground">{descricao}</p>}
               </div>
               {children}
             </div>
