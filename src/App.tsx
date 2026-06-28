@@ -11,7 +11,7 @@ import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import AcessoNegado from "./pages/AcessoNegado.tsx";
 import AcessoPendente from "./pages/AcessoPendente.tsx";
-import PainelAdministrador from "./pages/painel/Administrador.tsx";
+import PainelAdministrador from "./pages/painel/AdministradorBancario.tsx";
 import PainelIgreja from "./pages/painel/Igreja.tsx";
 import PainelCentral from "./pages/painel/Central.tsx";
 import PainelSociedade from "./pages/painel/Sociedade.tsx";
