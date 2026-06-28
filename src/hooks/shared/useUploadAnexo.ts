@@ -53,6 +53,8 @@ export function useUploadAnexo() {
   };
 
   const obterUrlAssinada = async (caminho: string, expiraSegundos = 60 * 10) => {
+    if (/^https?:\/\//i.test(caminho)) return caminho;
+
     const { data, error } = await supabase.storage
       .from("anexos")
       .createSignedUrl(caminho, expiraSegundos);
@@ -61,6 +63,21 @@ export function useUploadAnexo() {
       return null;
     }
     return data.signedUrl;
+  };
+
+  const abrirAnexo = async (caminho: string) => {
+    const aba = window.open("about:blank", "_blank", "noopener");
+    const url = await obterUrlAssinada(caminho);
+    if (!url) {
+      aba?.close();
+      return;
+    }
+
+    if (aba) {
+      aba.location.href = url;
+    } else {
+      window.location.href = url;
+    }
   };
 
   const remover = async (caminho: string) => {
@@ -72,5 +89,5 @@ export function useUploadAnexo() {
     return true;
   };
 
-  return { upload, obterUrlAssinada, remover, enviando };
+  return { upload, obterUrlAssinada, abrirAnexo, remover, enviando };
 }
