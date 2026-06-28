@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import type { AppRole } from "@/contexts/AuthContext";
 import { SociedadeOperacionalProvider } from "@/contexts/SociedadeOperacionalContext";
 import { RotaProtegida } from "@/components/RotaProtegida";
+import { AvisoNovaVersao } from "@/components/AvisoNovaVersao";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import AcessoNegado from "./pages/AcessoNegado.tsx";
@@ -46,6 +47,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <AvisoNovaVersao />
           <SociedadeOperacionalProvider>
             <Routes>
               <Route path="/login" element={<Login />} />
