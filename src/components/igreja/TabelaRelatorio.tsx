@@ -45,9 +45,9 @@ export function TabelaRelatorio<T>({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+      <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle className="text-base">{titulo}</CardTitle>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           {acoes}
           <Button size="sm" variant="outline" onClick={handleExport} disabled={dados.length === 0}>
             <Download className="mr-1 h-4 w-4" />
@@ -56,7 +56,49 @@ export function TabelaRelatorio<T>({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        <div className="space-y-3 md:hidden">
+          {loading && (
+            <div className="rounded-md border p-4 text-center text-sm text-muted-foreground">
+              Carregando...
+            </div>
+          )}
+          {!loading && dados.length === 0 && (
+            <div className="rounded-md border p-4 text-center text-sm text-muted-foreground">
+              Nenhum registro encontrado.
+            </div>
+          )}
+          {dados.map((row, i) => {
+            const primeira = colunas[0];
+            const restantes = colunas.slice(1);
+
+            return (
+              <div key={i} className="rounded-md border p-4">
+                {primeira && (
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      {primeira.cabecalho}
+                    </p>
+                    <div className="mt-1 break-words text-base font-semibold text-foreground">
+                      {primeira.render(row)}
+                    </div>
+                  </div>
+                )}
+                {restantes.length > 0 && (
+                  <div className="mt-3 grid gap-3 border-t pt-3">
+                    {restantes.map((c) => (
+                      <div key={c.cabecalho} className="grid grid-cols-[minmax(92px,0.8fr)_minmax(0,1.2fr)] gap-3 text-sm">
+                        <span className="text-muted-foreground">{c.cabecalho}</span>
+                        <span className="min-w-0 break-words text-right font-medium">{c.render(row)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="hidden overflow-x-auto md:block">
           <Table>
             <TableHeader>
               <TableRow>
