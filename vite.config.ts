@@ -16,6 +16,10 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "./pages/sociedade/Contribuicoes.tsx": path.resolve(
+        __dirname,
+        "./src/pages/sociedade/ContribuicoesComLote.tsx",
+      ),
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
