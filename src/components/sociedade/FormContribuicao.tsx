@@ -193,7 +193,7 @@ export function FormContribuicao({ sociedadeId, usuarioId, registro, onConcluido
       </div>
 
       <div className="space-y-2">
-        <Label>Comprovante</Label>
+        <Label>Comprovante (principal)</Label>
         <Controller
           control={form.control}
           name="comprovante_url"
@@ -207,6 +207,43 @@ export function FormContribuicao({ sociedadeId, usuarioId, registro, onConcluido
           )}
         />
       </div>
+
+      <div className="space-y-2">
+        <Label>Comprovantes de pagamento (até 2)</Label>
+        <Controller
+          control={form.control}
+          name="comprovantes_pagamento_urls"
+          render={({ field }) => (
+            <UploadAnexosMultiplos
+              sociedadeId={sociedadeId}
+              pasta="contribuicoes-comprovantes"
+              rotulo="Comprovante"
+              valores={field.value ?? []}
+              onChange={field.onChange}
+              max={2}
+            />
+          )}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Recibos (até 2)</Label>
+        <Controller
+          control={form.control}
+          name="recibos_urls"
+          render={({ field }) => (
+            <UploadAnexosMultiplos
+              sociedadeId={sociedadeId}
+              pasta="contribuicoes-recibos"
+              rotulo="Recibo"
+              valores={field.value ?? []}
+              onChange={field.onChange}
+              max={2}
+            />
+          )}
+        />
+      </div>
+
 
       <div className="space-y-2">
         <Label htmlFor="observacao">Observação</Label>
