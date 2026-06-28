@@ -23,7 +23,7 @@ interface ShellPainelProps {
 }
 
 export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
-  const { perfil, papelPrincipal, signOut, user } = useAuth();
+  const { perfil, papelPrincipal, user } = useAuth();
   const location = useLocation();
 
   const handleAjuda = () => {
