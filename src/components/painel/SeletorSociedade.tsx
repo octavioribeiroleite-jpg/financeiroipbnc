@@ -25,7 +25,7 @@ export function SeletorSociedade({
   simples = false,
 }: SeletorSociedadeProps) {
   const [aberto, setAberto] = useState(false);
-  const selecionada = sociedades.find((s) => s.id === sociedadeSelecionadaId) ?? null;
+  const selecionada = sociedades.find((sociedade) => sociedade.id === sociedadeSelecionadaId) ?? null;
 
   const selecionar = (sociedadeId: string | null) => {
     setSociedadeSelecionadaId(sociedadeId);
@@ -40,21 +40,25 @@ export function SeletorSociedade({
           variant="outline"
           role="combobox"
           aria-expanded={aberto}
-          className={cn("h-auto w-full justify-between gap-3 px-3 py-2 text-left", className)}
+          className={cn(
+            "h-auto min-h-11 w-full justify-between gap-3 rounded-xl border-border/80 bg-card px-3 py-2 text-left shadow-sm hover:bg-muted/60",
+            simples && "min-h-10 py-1.5",
+            className,
+          )}
         >
-          <span className="flex min-w-0 items-center gap-2">
+          <span className="flex min-w-0 items-center gap-2.5">
             {!simples && (
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-                <Building2 className="h-4 w-4" />
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary">
+                {selecionada ? <Building2 className="h-[18px] w-[18px]" /> : <Wallet className="h-[18px] w-[18px]" />}
               </span>
             )}
             <span className="min-w-0">
-              <span className={cn("block truncate font-medium", simples ? "text-base" : "text-sm")}>
+              <span className="block truncate text-sm font-semibold leading-tight text-foreground">
                 {selecionada?.nome ?? "Geral da conta"}
               </span>
               {!simples && (
-                <span className="block truncate text-xs text-muted-foreground">
-                  {selecionada ? `${selecionada.tipo} em detalhes` : "Caixa consolidado"}
+                <span className="mt-0.5 block truncate text-[11px] leading-tight text-muted-foreground">
+                  {selecionada ? selecionada.tipo : "Caixa consolidado"}
                 </span>
               )}
             </span>
@@ -62,12 +66,11 @@ export function SeletorSociedade({
           <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[min(520px,calc(100vw-2rem))] p-3" align="start">
+
+      <PopoverContent className="w-[min(520px,calc(100vw-1.5rem))] rounded-xl p-3" align="start">
         <div className="mb-3">
-          <p className="text-sm font-semibold text-foreground">Escolha a visão</p>
-          <p className="text-xs text-muted-foreground">
-            Clique em um card para alternar entre o caixa geral e os cofrinhos.
-          </p>
+          <p className="text-sm font-semibold text-foreground">Escolha a visualização</p>
+          <p className="text-xs text-muted-foreground">Alterne entre o caixa geral e uma sociedade.</p>
         </div>
 
         <div className="grid gap-2 sm:grid-cols-2">
@@ -76,7 +79,7 @@ export function SeletorSociedade({
               type="button"
               onClick={() => selecionar(null)}
               className={cn(
-                "group flex min-h-[86px] items-start gap-3 rounded-md border p-3 text-left transition-colors",
+                "group flex min-h-[74px] items-start gap-3 rounded-xl border p-3 text-left transition-colors",
                 !sociedadeSelecionadaId
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-card hover:border-primary/50 hover:bg-muted/50",
@@ -84,7 +87,7 @@ export function SeletorSociedade({
             >
               <span
                 className={cn(
-                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-md",
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
                   !sociedadeSelecionadaId
                     ? "bg-primary-foreground/15 text-primary-foreground"
                     : "bg-primary/10 text-primary",
@@ -95,12 +98,7 @@ export function SeletorSociedade({
               <span className="min-w-0 flex-1">
                 <span className="flex items-center justify-between gap-2">
                   <span className="truncate text-sm font-semibold">Geral da conta</span>
-                  <Check
-                    className={cn(
-                      "h-4 w-4 shrink-0",
-                      !sociedadeSelecionadaId ? "opacity-100" : "opacity-0",
-                    )}
-                  />
+                  <Check className={cn("h-4 w-4 shrink-0", !sociedadeSelecionadaId ? "opacity-100" : "opacity-0")} />
                 </span>
                 <span
                   className={cn(
@@ -108,7 +106,7 @@ export function SeletorSociedade({
                     !sociedadeSelecionadaId ? "text-primary-foreground/80" : "text-muted-foreground",
                   )}
                 >
-                  Saldo consolidado
+                  Todas as sociedades
                 </span>
               </span>
             </button>
@@ -123,7 +121,7 @@ export function SeletorSociedade({
                 type="button"
                 onClick={() => selecionar(sociedade.id)}
                 className={cn(
-                  "group flex min-h-[86px] items-start gap-3 rounded-md border p-3 text-left transition-colors",
+                  "group flex min-h-[74px] items-start gap-3 rounded-xl border p-3 text-left transition-colors",
                   ativo
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-card hover:border-primary/50 hover:bg-muted/50",
@@ -131,7 +129,7 @@ export function SeletorSociedade({
               >
                 <span
                   className={cn(
-                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-md",
+                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
                     ativo ? "bg-primary-foreground/15 text-primary-foreground" : "bg-primary/10 text-primary",
                   )}
                 >
@@ -144,7 +142,7 @@ export function SeletorSociedade({
                   </span>
                   <span
                     className={cn(
-                      "mt-1 block text-xs",
+                      "mt-1 block truncate text-xs",
                       ativo ? "text-primary-foreground/80" : "text-muted-foreground",
                     )}
                   >
