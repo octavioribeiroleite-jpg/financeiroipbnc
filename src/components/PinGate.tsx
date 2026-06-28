@@ -2,14 +2,12 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, LogOut } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { Lock } from "lucide-react";
 
 const PIN_CORRETO = "010203";
 const CHAVE = "pin_desbloqueado";
 
 export function PinGate({ children }: { children: ReactNode }) {
-  const { signOut } = useAuth();
   const [desbloqueado, setDesbloqueado] = useState(() => sessionStorage.getItem(CHAVE) === "1");
   const [pin, setPin] = useState("");
   const [erro, setErro] = useState(false);
