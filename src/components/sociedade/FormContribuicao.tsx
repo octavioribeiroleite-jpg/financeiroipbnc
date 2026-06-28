@@ -16,6 +16,8 @@ import {
 import { CurrencyInput } from "@/components/shared/CurrencyInput";
 import { MonthPicker } from "@/components/shared/MonthPicker";
 import { UploadAnexo } from "@/components/shared/UploadAnexo";
+import { UploadAnexosMultiplos } from "@/components/shared/UploadAnexosMultiplos";
+
 import { hojeISO, primeiroDiaMesAtual } from "@/lib/format";
 import {
   Contribuicao,
