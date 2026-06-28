@@ -42,8 +42,11 @@ const schema = z.object({
     .refine((d) => d >= hojeISO(), "Vencimento não pode ser anterior a hoje"),
   observacoes: z.string().max(500).nullable().optional(),
   anexo_nota_url: z.string().nullable().optional(),
+  comprovantes_pagamento_urls: z.array(z.string()).max(2).default([]),
+  recibos_urls: z.array(z.string()).max(2).default([]),
 });
 type FormData = z.infer<typeof schema>;
+
 
 interface Props {
   sociedadeId: string;
