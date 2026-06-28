@@ -67,13 +67,13 @@ export function LogoTesouraria({
   const tamanho = TAMANHOS[size];
   const corTitulo = theme === "dark" ? "text-white" : theme === "light" ? "text-brand-navy-900" : "text-current";
   const corSubtitulo =
-    theme === "dark" ? "text-slate-300" : theme === "light" ? "text-slate-500" : "text-current/70";
+    theme === "dark" ? "text-slate-300" : theme === "light" ? "text-slate-500" : "text-current opacity-70";
 
   if (variant === "icon") {
     return (
       <div
         className={cn(
-          "inline-flex items-center justify-center rounded-2xl bg-gradient-to-br from-brand-gold-400 to-brand-gold-600 p-2 shadow-sm ring-1 ring-white/15",
+          "inline-flex items-center justify-center rounded-2xl bg-gradient-to-br from-brand-gold-400 to-brand-gold-600 p-2 shadow-sm ring-1 ring-white/20",
           tamanho.icon,
           className,
         )}
@@ -96,7 +96,7 @@ export function LogoTesouraria({
     >
       <div
         className={cn(
-          "flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-gold-400 to-brand-gold-600 p-2 shadow-sm ring-1 ring-white/15",
+          "flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-gold-400 to-brand-gold-600 p-2 shadow-sm ring-1 ring-white/20",
           tamanho.icon,
         )}
       >
