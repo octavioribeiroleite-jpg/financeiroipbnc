@@ -2,6 +2,7 @@ import { CSSProperties, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarPainel } from "./SidebarPainel";
+import { MobileAppNav } from "./MobileAppNav";
 import { useAuth, type AppRole } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { HelpCircle, Lock } from "lucide-react";
@@ -151,8 +152,8 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
             />
           </div>
 
-          <main className="flex-1 p-3 sm:p-5 lg:p-6 2xl:p-8">
-            <div className="mx-auto w-full max-w-[1720px]">
+          <main className="flex-1 pb-24 pt-3 sm:p-5 sm:pb-5 lg:p-6 2xl:p-8">
+            <div className="mx-auto w-full max-w-[1720px] px-3 sm:px-0">
               <div className="mb-4 sm:hidden">
                 <h1 className="text-[1.6rem] font-bold leading-tight tracking-[-0.035em] text-foreground">{titulo}</h1>
                 {descricao && <p className="mt-1 text-sm leading-snug text-muted-foreground">{descricao}</p>}
@@ -160,6 +161,8 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
               {children}
             </div>
           </main>
+
+          <MobileAppNav />
         </div>
       </div>
     </SidebarProvider>
