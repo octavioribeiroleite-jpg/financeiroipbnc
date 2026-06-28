@@ -65,6 +65,8 @@ function valoresIniciais(): FormData {
     vencimento: hojeISO(),
     observacoes: "",
     anexo_nota_url: null,
+    comprovantes_pagamento_urls: [],
+    recibos_urls: [],
   };
 }
 
@@ -90,6 +92,10 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
 
   useEffect(() => {
     if (registro) {
+      const r = registro as typeof registro & {
+        comprovantes_pagamento_urls?: string[] | null;
+        recibos_urls?: string[] | null;
+      };
       form.reset({
         fornecedor_id: registro.fornecedor_id,
         categoria_id: registro.categoria_id,
@@ -98,6 +104,8 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
         vencimento: registro.vencimento,
         observacoes: registro.observacoes ?? "",
         anexo_nota_url: registro.anexo_nota_url,
+        comprovantes_pagamento_urls: r.comprovantes_pagamento_urls ?? [],
+        recibos_urls: r.recibos_urls ?? [],
       });
       return;
     }
@@ -114,6 +122,8 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
       vencimento: v.vencimento,
       observacoes: v.observacoes || null,
       anexo_nota_url: v.anexo_nota_url || null,
+      comprovantes_pagamento_urls: v.comprovantes_pagamento_urls ?? [],
+      recibos_urls: v.recibos_urls ?? [],
     };
     if (registro) {
       await atualizar.mutateAsync({ id: registro.id, ...payload, status });
@@ -122,6 +132,8 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
     }
     onConcluido();
   };
+
+
 
   const submetendo = criar.isPending || atualizar.isPending;
   const podeEditar = !registro || registro.status === "rascunho";
