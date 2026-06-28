@@ -62,7 +62,7 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
 
             <div className="flex items-center gap-2">
               <div className="hidden md:block">
-                <SeletorSociedade />
+                <SeletorSociedade sociedades={sociedades} sociedadeSelecionadaId={sociedadeSelecionadaId} setSociedadeSelecionadaId={setSociedadeSelecionadaId} />
               </div>
               <Button
                 variant="ghost"
@@ -92,7 +92,7 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
           </header>
 
           <div className="border-b border-border bg-card/60 px-3 py-2 md:hidden">
-            <SeletorSociedade />
+            <SeletorSociedade sociedades={sociedades} sociedadeSelecionadaId={sociedadeSelecionadaId} setSociedadeSelecionadaId={setSociedadeSelecionadaId} />
           </div>
 
           <main className="flex-1 p-4 sm:p-6 2xl:p-8">
