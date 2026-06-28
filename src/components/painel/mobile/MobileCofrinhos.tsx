@@ -64,7 +64,6 @@ export function MobileCofrinhos({ saldos }: Props) {
           <span className="mobile-cofrinho-name">Geral</span>
           <span className="mobile-cofrinho-circle">
             <span className="mobile-cofrinho-mark"><Wallet className="h-4 w-4" /></span>
-            <span className="mobile-cofrinho-label">Saldo</span>
             <span className="mobile-cofrinho-value">{formatarSaldoCompacto(total)}</span>
           </span>
         </button>
@@ -85,7 +84,6 @@ export function MobileCofrinhos({ saldos }: Props) {
                 <span className="mobile-cofrinho-name" title={item.nome}>{item.nome}</span>
                 <span className="mobile-cofrinho-circle">
                   <span className="mobile-cofrinho-mark">{iniciais(item.nome)}</span>
-                  <span className="mobile-cofrinho-label">Saldo</span>
                   <span className="mobile-cofrinho-value">{formatarSaldoCompacto(item.saldoAtual)}</span>
                 </span>
               </button>
