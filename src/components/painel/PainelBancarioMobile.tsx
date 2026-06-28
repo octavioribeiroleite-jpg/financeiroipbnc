@@ -1,8 +1,9 @@
+import type { SaldoSociedade } from "@/hooks/igreja/useSaldoPorSociedade";
 import { MobileBankHeader } from "./mobile/MobileBankHeader";
 import { MobileBalanceCard } from "./mobile/MobileBalanceCard";
 import { MobileSummaryCards } from "./mobile/MobileSummaryCards";
+import { MobileCofrinhos } from "./mobile/MobileCofrinhos";
 import { MobileRecentMovements } from "./mobile/MobileRecentMovements";
-import { MobileBottomNav } from "./mobile/MobileBottomNav";
 
 interface Props {
   periodo: string;
@@ -12,6 +13,7 @@ interface Props {
   entradas: number;
   saidas: number;
   resultado: number;
+  saldos: SaldoSociedade[];
 }
 
 export function PainelBancarioMobile(props: Props) {
@@ -20,10 +22,10 @@ export function PainelBancarioMobile(props: Props) {
       <MobileBankHeader periodo={props.periodo} setPeriodo={props.setPeriodo} periodos={props.periodos} />
       <section className="-mt-20 px-4">
         <MobileBalanceCard saldo={props.saldo} />
+        <MobileCofrinhos saldos={props.saldos} />
         <MobileSummaryCards entradas={props.entradas} saidas={props.saidas} resultado={props.resultado} />
         <MobileRecentMovements />
       </section>
-      <MobileBottomNav />
     </div>
   );
 }
