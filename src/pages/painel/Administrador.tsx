@@ -237,7 +237,7 @@ export default function PainelAdministrador() {
             </p>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
               <div className="rounded-md border p-3" data-tour="seletor-sociedade-global">
                 <p className="mb-2 text-xs text-muted-foreground">
                   {sociedadeSelecionada ? "Sociedade" : "Visão"}
