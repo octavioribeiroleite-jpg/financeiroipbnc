@@ -65,18 +65,6 @@ export function PinGate({ children }: { children: ReactNode }) {
             <Button type="submit" className="w-full" disabled={pin.length === 0}>
               Entrar
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="w-full text-muted-foreground"
-              onClick={async () => {
-                sessionStorage.removeItem(CHAVE);
-                await signOut();
-              }}
-            >
-              <LogOut className="mr-2 h-4 w-4" /> Sair da conta
-            </Button>
           </form>
         </CardContent>
       </Card>
