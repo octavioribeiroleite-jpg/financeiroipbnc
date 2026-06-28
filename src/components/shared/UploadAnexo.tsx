@@ -36,8 +36,26 @@ export function UploadAnexo({
 
   const abrir = async () => {
     if (!caminho) return;
+    // Abrimos a janela imediatamente (gesto do usuário) para evitar bloqueio
+    // de popup do navegador. Em seguida atualizamos a URL com a assinada.
+    const janela = window.open("about:blank", "_blank", "noopener");
     const url = await obterUrlAssinada(caminho);
-    if (url) window.open(url, "_blank", "noopener");
+    if (!url) {
+      janela?.close();
+      return;
+    }
+    if (janela) {
+      janela.location.href = url;
+    } else {
+      // Popup bloqueado: força download/abertura via link temporário
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
   };
 
   const limpar = async () => {
