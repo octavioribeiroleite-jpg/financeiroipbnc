@@ -66,18 +66,30 @@ export function useUploadAnexo() {
   };
 
   const abrirAnexo = async (caminho: string) => {
-    const aba = window.open("about:blank", "_blank", "noopener");
-    const url = await obterUrlAssinada(caminho);
-    if (!url) {
-      aba?.close();
+    const aba = window.open("", "_blank");
+    if (!aba) {
+      toast.error("O navegador bloqueou a abertura do anexo.");
       return;
     }
 
-    if (aba) {
-      aba.location.href = url;
-    } else {
-      window.location.href = url;
+    aba.document.write(
+      "<title>Abrindo anexo...</title><body style='font-family:system-ui;padding:24px'>Abrindo anexo...</body>",
+    );
+
+    const url = await obterUrlAssinada(caminho);
+    if (!url) {
+      aba.close();
+      return;
     }
+
+    aba.location.replace(url);
+    setTimeout(() => {
+      try {
+        aba.opener = null;
+      } catch {
+        // Ignora navegadores que não permitem alterar opener após o redirecionamento.
+      }
+    }, 0);
   };
 
   const remover = async (caminho: string) => {
