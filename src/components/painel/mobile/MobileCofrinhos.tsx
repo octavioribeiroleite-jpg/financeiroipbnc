@@ -1,4 +1,4 @@
-import { Building2, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
 import type { SaldoSociedade } from "@/hooks/igreja/useSaldoPorSociedade";
 import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
 import { formatarMoeda } from "@/lib/format";
@@ -47,7 +47,7 @@ export function MobileCofrinhos({ saldos }: Props) {
       <div className="mb-3 flex items-end justify-between px-1">
         <div>
           <h3 className="text-lg font-bold tracking-tight text-foreground">Cofrinhos</h3>
-          <p className="text-xs text-muted-foreground">Deslize para ver todas as sociedades.</p>
+          <p className="text-xs text-muted-foreground">Deslize para consultar cada sociedade.</p>
         </div>
         <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
           {saldos.length} sociedades
@@ -63,7 +63,8 @@ export function MobileCofrinhos({ saldos }: Props) {
         >
           <span className="mobile-cofrinho-name">Geral</span>
           <span className="mobile-cofrinho-circle">
-            <Wallet className="mobile-cofrinho-symbol h-5 w-5" />
+            <span className="mobile-cofrinho-mark"><Wallet className="h-4 w-4" /></span>
+            <span className="mobile-cofrinho-label">Saldo</span>
             <span className="mobile-cofrinho-value">{formatarSaldoCompacto(total)}</span>
           </span>
         </button>
@@ -83,9 +84,9 @@ export function MobileCofrinhos({ saldos }: Props) {
               >
                 <span className="mobile-cofrinho-name" title={item.nome}>{item.nome}</span>
                 <span className="mobile-cofrinho-circle">
-                  <span className="mobile-cofrinho-initials">{iniciais(item.nome)}</span>
+                  <span className="mobile-cofrinho-mark">{iniciais(item.nome)}</span>
+                  <span className="mobile-cofrinho-label">Saldo</span>
                   <span className="mobile-cofrinho-value">{formatarSaldoCompacto(item.saldoAtual)}</span>
-                  <Building2 className="mobile-cofrinho-building" />
                 </span>
               </button>
             );
