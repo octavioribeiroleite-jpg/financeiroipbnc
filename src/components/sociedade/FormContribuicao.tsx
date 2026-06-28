@@ -40,9 +40,12 @@ const schema = z.object({
     .refine((d) => d <= hojeISO(), "Data não pode ser futura"),
   forma_pagamento: z.enum(FORMAS),
   comprovante_url: z.string().nullable().optional(),
+  comprovantes_pagamento_urls: z.array(z.string()).max(2).default([]),
+  recibos_urls: z.array(z.string()).max(2).default([]),
   observacao: z.string().max(500).nullable().optional(),
 });
 type FormData = z.infer<typeof schema>;
+
 
 interface Props {
   sociedadeId: string;
