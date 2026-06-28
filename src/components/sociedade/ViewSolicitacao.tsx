@@ -86,6 +86,18 @@ export function ViewSolicitacao({ registro }: Props) {
             />
           </div>
         )}
+        {registro.recibos_urls?.map((url, i) => (
+          <div key={url}>
+            <p className="mb-1 text-xs text-muted-foreground">Recibo {i + 1}</p>
+            <UploadAnexo
+              sociedadeId={registro.sociedade_id}
+              pasta="solicitacoes-recibos"
+              caminho={url}
+              onChange={() => {}}
+              disabled
+            />
+          </div>
+        ))}
         {registro.anexo_comprovante_url && (
           <div>
             <p className="mb-1 text-xs text-muted-foreground">Comprovante de pagamento</p>
@@ -98,7 +110,20 @@ export function ViewSolicitacao({ registro }: Props) {
             />
           </div>
         )}
+        {registro.comprovantes_pagamento_urls?.map((url, i) => (
+          <div key={url}>
+            <p className="mb-1 text-xs text-muted-foreground">Comprovante {i + 1}</p>
+            <UploadAnexo
+              sociedadeId={registro.sociedade_id}
+              pasta="solicitacoes-comprovantes"
+              caminho={url}
+              onChange={() => {}}
+              disabled
+            />
+          </div>
+        ))}
       </div>
+
     </div>
   );
 }
