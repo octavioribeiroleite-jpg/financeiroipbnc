@@ -155,8 +155,8 @@ export function SidebarPainel() {
           isActive={active}
           tooltip={{ children: item.titulo, sideOffset: 10 }}
           className={cn(
-            "relative h-11 overflow-hidden rounded-lg px-3 text-sidebar-foreground/82 transition-colors duration-150",
-            "hover:bg-white/8 hover:text-white",
+            "relative h-11 overflow-hidden rounded-lg px-3 text-sidebar-foreground/[0.82] transition-colors duration-150",
+            "hover:bg-white/[0.08] hover:text-white",
             "group-data-[collapsible=icon]:!size-11 group-data-[collapsible=icon]:!p-0",
             "group-data-[collapsible=icon]:justify-center",
             active && "bg-sidebar-accent text-white shadow-sm",
@@ -171,7 +171,7 @@ export function SidebarPainel() {
             {active && !collapsed && <span className="absolute inset-y-2 left-0 w-1 rounded-r-full bg-brand-gold-500" />}
             <item.icone
               className={cn(
-                "h-[19px] w-[19px] shrink-0 text-sidebar-foreground/72 transition-colors",
+                "h-[19px] w-[19px] shrink-0 text-sidebar-foreground/[0.72] transition-colors",
                 active && "text-white stroke-[2.25]",
               )}
             />
@@ -202,7 +202,7 @@ export function SidebarPainel() {
             {indice > 0 && <SidebarSeparator className={cn("my-3 bg-white/10", collapsed ? "mx-2" : "mx-3")} />}
             <SidebarGroup className={cn("py-1", collapsed ? "px-0" : "px-1")}>
               {!collapsed && (
-                <SidebarGroupLabel className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/46">
+                <SidebarGroupLabel className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/[0.46]">
                   {grupo.rotulo}
                 </SidebarGroupLabel>
               )}
