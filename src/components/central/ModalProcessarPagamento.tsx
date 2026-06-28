@@ -299,23 +299,74 @@ export function ModalProcessarPagamento({ solicitacao, open, onClose }: Props) {
                 )}
               </dl>
 
-              <div>
-                <p className="mb-2 text-xs font-medium text-muted-foreground">Nota fiscal ou documento</p>
-                {solicitacao.anexo_nota_url ? (
-                  <UploadAnexo
-                    sociedadeId={solicitacao.sociedade_id}
-                    pasta="solicitacoes-nota"
-                    caminho={solicitacao.anexo_nota_url}
-                    onChange={() => {}}
-                    disabled
-                  />
-                ) : (
-                  <div className="flex items-center gap-2 rounded-lg border border-warning/40 bg-warning/5 p-3 text-sm text-warning">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    Nenhuma nota fiscal foi anexada.
+              <div className="space-y-4">
+                <div>
+                  <p className="mb-2 text-xs font-medium text-muted-foreground">Nota fiscal ou documento</p>
+                  {solicitacao.anexo_nota_url ? (
+                    <UploadAnexo
+                      sociedadeId={solicitacao.sociedade_id}
+                      pasta="solicitacoes-nota"
+                      caminho={solicitacao.anexo_nota_url}
+                      onChange={() => {}}
+                      disabled
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2 rounded-lg border border-warning/40 bg-warning/5 p-3 text-sm text-warning">
+                      <AlertCircle className="h-4 w-4 shrink-0" />
+                      Nenhuma nota fiscal foi anexada.
+                    </div>
+                  )}
+                </div>
+
+                {solicitacao.recibos_urls && solicitacao.recibos_urls.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-xs font-medium text-muted-foreground">
+                      Recibos ({solicitacao.recibos_urls.length})
+                    </p>
+                    <div className="space-y-2">
+                      {solicitacao.recibos_urls.map((url) => (
+                        <UploadAnexo
+                          key={url}
+                          sociedadeId={solicitacao.sociedade_id}
+                          pasta="solicitacoes-recibos"
+                          caminho={url}
+                          onChange={() => {}}
+                          disabled
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {((solicitacao.comprovantes_pagamento_urls && solicitacao.comprovantes_pagamento_urls.length > 0) ||
+                  solicitacao.anexo_comprovante_url) && (
+                  <div>
+                    <p className="mb-2 text-xs font-medium text-muted-foreground">Comprovantes de pagamento</p>
+                    <div className="space-y-2">
+                      {solicitacao.anexo_comprovante_url && (
+                        <UploadAnexo
+                          sociedadeId={solicitacao.sociedade_id}
+                          pasta="pagamentos"
+                          caminho={solicitacao.anexo_comprovante_url}
+                          onChange={() => {}}
+                          disabled
+                        />
+                      )}
+                      {solicitacao.comprovantes_pagamento_urls?.map((url) => (
+                        <UploadAnexo
+                          key={url}
+                          sociedadeId={solicitacao.sociedade_id}
+                          pasta="solicitacoes-comprovantes"
+                          caminho={url}
+                          onChange={() => {}}
+                          disabled
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
+
 
               <label className="flex cursor-pointer items-start gap-3 rounded-xl border bg-muted/20 p-4">
                 <Checkbox
