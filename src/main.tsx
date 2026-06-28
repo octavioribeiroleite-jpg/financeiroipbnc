@@ -7,5 +7,6 @@ import App from "./App.tsx";
 import "./index.css";
 import "./fechamento-mobile.css";
 import "./painel-admin-mobile.css";
+import "./mobile-app.css";
 
 createRoot(document.getElementById("root")!).render(<App />);
