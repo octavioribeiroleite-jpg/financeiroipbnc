@@ -102,8 +102,11 @@ export function useAtualizarContribuicao(sociedadeId: string | null) {
           data_pagamento: input.data_pagamento,
           forma_pagamento: input.forma_pagamento,
           comprovante_url: input.comprovante_url ?? null,
+          comprovantes_pagamento_urls: input.comprovantes_pagamento_urls ?? [],
+          recibos_urls: input.recibos_urls ?? [],
           observacao: input.observacao ?? null,
         })
+
         .eq("id", id)
         .select("id")
         .single();
