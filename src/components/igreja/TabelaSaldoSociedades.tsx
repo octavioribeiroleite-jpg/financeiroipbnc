@@ -19,7 +19,87 @@ export function TabelaSaldoSociedades({ dados, loading, sociedadeSelecionadaId }
         <CardTitle className="text-base">Cofrinhos por sociedade</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        <div className="space-y-3 md:hidden">
+          {loading && (
+            <div className="rounded-md border p-4 text-center text-sm text-muted-foreground">
+              Carregando...
+            </div>
+          )}
+          {!loading && (dados ?? []).length === 0 && (
+            <div className="rounded-md border p-4 text-center text-sm text-muted-foreground">
+              Nenhuma sociedade cadastrada.
+            </div>
+          )}
+          {(dados ?? []).map((s) => {
+            const participacao = totalSaldoAtual > 0 ? (s.saldoAtual / totalSaldoAtual) * 100 : 0;
+            const selecionada = sociedadeSelecionadaId === s.sociedadeId;
+
+            return (
+              <div key={s.sociedadeId} className={cn("rounded-md border p-4", selecionada && "border-primary bg-primary/5")}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold">{s.nome}</p>
+                      {selecionada && (
+                        <span className="rounded-sm bg-primary/10 px-1.5 py-0.5 text-[11px] font-medium text-primary">
+                          em foco
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{s.tipo}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">Saldo atual</p>
+                    <p className="font-semibold">{formatarMoeda(s.saldoAtual)}</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-3 border-t pt-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Saldo inicial</p>
+                    <p className="font-medium">{formatarMoeda(s.saldoInicial)}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-muted-foreground">Saldo final</p>
+                    <p className={cn("font-medium", s.saldoFinalMes < 0 && "text-destructive")}>
+                      {formatarMoeda(s.saldoFinalMes)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Entradas</p>
+                    <p className="font-medium text-emerald-600">{formatarMoeda(s.entradasMes)}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-muted-foreground">Saídas</p>
+                    <p className="font-medium text-rose-600">{formatarMoeda(s.saidasMes)}</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{ width: `${Math.max(0, Math.min(100, participacao))}%` }}
+                    />
+                  </div>
+                  <span className="w-12 text-right text-xs text-muted-foreground">
+                    {participacao.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+          {!loading && (dados ?? []).length > 0 && (
+            <div className="rounded-md border bg-muted/30 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-semibold">Saldo consolidado</span>
+                <span className="font-semibold">{formatarMoeda(totalSaldoAtual)}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="hidden overflow-x-auto md:block">
           <Table>
             <TableHeader>
               <TableRow>
