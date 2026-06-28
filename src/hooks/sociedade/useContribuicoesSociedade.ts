@@ -11,8 +11,11 @@ export interface ContribuicaoInput {
   data_pagamento: string; // YYYY-MM-DD
   forma_pagamento: string;
   comprovante_url?: string | null;
+  comprovantes_pagamento_urls?: string[];
+  recibos_urls?: string[];
   observacao?: string | null;
 }
+
 
 const KEY = (sociedadeId: string | null) => ["contribuicoes", sociedadeId] as const;
 
