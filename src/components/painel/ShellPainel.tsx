@@ -4,7 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarPainel } from "./SidebarPainel";
 import { useAuth, AppRole } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, LogOut } from "lucide-react";
+import { HelpCircle, Lock } from "lucide-react";
 import { TourLauncher } from "@/components/tour/TourLauncher";
 import { iniciarTour, reexibirTodosTours, temTourPara } from "@/lib/tour/tours";
 import { toast } from "sonner";
@@ -23,7 +23,7 @@ interface ShellPainelProps {
 }
 
 export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
-  const { perfil, papelPrincipal, signOut, user } = useAuth();
+  const { perfil, papelPrincipal, user } = useAuth();
   const location = useLocation();
 
   const handleAjuda = () => {
@@ -70,9 +70,17 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
                 <HelpCircle className="h-4 w-4" />
                 <span className="hidden sm:inline">Ajuda</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={signOut}>
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Sair</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  sessionStorage.removeItem("pin_desbloqueado");
+                  window.location.reload();
+                }}
+                title="Travar com PIN"
+              >
+                <Lock className="h-4 w-4" />
+                <span className="hidden sm:inline">Travar</span>
               </Button>
             </div>
           </header>
