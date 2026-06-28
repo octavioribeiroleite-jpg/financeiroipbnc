@@ -194,7 +194,7 @@ export default function PainelAdministrador() {
         </div>
       </div>
 
-      <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Indicador
           titulo="Saldo consolidado"
           icone={Wallet}
@@ -224,7 +224,7 @@ export default function PainelAdministrador() {
         />
       </div>
 
-      <div className="mb-4 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+      <div className="mb-4 grid gap-4 xl:grid-cols-[minmax(680px,1.15fr)_minmax(440px,0.85fr)]">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">
@@ -237,7 +237,7 @@ export default function PainelAdministrador() {
             </p>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-md border p-3" data-tour="seletor-sociedade-global">
                 <p className="mb-2 text-xs text-muted-foreground">
                   {sociedadeSelecionada ? "Sociedade" : "Visão"}
