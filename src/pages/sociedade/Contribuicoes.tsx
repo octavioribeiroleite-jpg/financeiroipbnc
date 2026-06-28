@@ -7,11 +7,13 @@ import { StatusContribuicaoBadge } from "@/components/sociedade/StatusContribuic
 import { FormContribuicao } from "@/components/sociedade/FormContribuicao";
 import { ModalConferirContribuicao } from "@/components/central/ModalConferirContribuicao";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Paperclip, CheckCheck } from "lucide-react";
+import { CheckCheck, Paperclip, Pencil, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatarData, formatarMesAno, formatarMoeda } from "@/lib/format";
 import { useSociedades } from "@/hooks/cadastros/useSociedades";
+import { useConferirContribuicoesEmLote } from "@/hooks/central/useContribuicoesCentral";
 import {
   Contribuicao,
   useContribuicoesTodas,
@@ -23,75 +25,113 @@ export default function Contribuicoes() {
   const { data, isLoading } = useContribuicoesTodas();
   const { data: sociedades } = useSociedades();
   const excluir = useExcluirContribuicao(null);
+  const conferirEmLote = useConferirContribuicoesEmLote();
 
   const [aberto, setAberto] = useState(false);
   const [editando, setEditando] = useState<Contribuicao | null>(null);
   const [confirmando, setConfirmando] = useState<Contribuicao | null>(null);
   const [conferindo, setConferindo] = useState<Contribuicao | null>(null);
+  const [confirmandoLote, setConfirmandoLote] = useState(false);
+  const [selecionadas, setSelecionadas] = useState<string[]>([]);
   const [sociedadeFiltroId, setSociedadeFiltroId] = useState("todas");
 
-  const sociedadesPorId = useMemo(() => {
-    return new Map((sociedades ?? []).map((sociedade) => [sociedade.id, sociedade]));
-  }, [sociedades]);
+  const sociedadesPorId = useMemo(
+    () => new Map((sociedades ?? []).map((s) => [s.id, s])),
+    [sociedades],
+  );
 
   const entradasFiltradas = useMemo(() => {
     const entradas = data ?? [];
-    if (sociedadeFiltroId === "todas") return entradas;
-    return entradas.filter((entrada) => entrada.sociedade_id === sociedadeFiltroId);
+    return sociedadeFiltroId === "todas"
+      ? entradas
+      : entradas.filter((e) => e.sociedade_id === sociedadeFiltroId);
   }, [data, sociedadeFiltroId]);
 
-  const sociedadeFormularioId = editando?.sociedade_id ?? (sociedadeFiltroId === "todas" ? null : sociedadeFiltroId);
+  const pendentes = entradasFiltradas.filter((e) => e.status_conferencia === "pendente");
+  const todasSelecionadas = pendentes.length > 0 && pendentes.every((e) => selecionadas.includes(e.id));
+  const algumaSelecionada = pendentes.some((e) => selecionadas.includes(e.id));
+  const sociedadeFormularioId =
+    editando?.sociedade_id ?? (sociedadeFiltroId === "todas" ? null : sociedadeFiltroId);
 
-  const abrirNova = () => {
-    setEditando(null);
-    setAberto(true);
+  const alternarEntrada = (id: string, marcada: boolean) => {
+    setSelecionadas((atuais) =>
+      marcada ? Array.from(new Set([...atuais, id])) : atuais.filter((item) => item !== id),
+    );
   };
-  const abrirEditar = (c: Contribuicao) => {
-    setEditando(c);
-    setAberto(true);
+
+  const alternarTodas = () => {
+    const ids = pendentes.map((e) => e.id);
+    setSelecionadas((atuais) =>
+      todasSelecionadas
+        ? atuais.filter((id) => !ids.includes(id))
+        : Array.from(new Set([...atuais, ...ids])),
+    );
   };
 
   const colunas: Coluna<Contribuicao>[] = [
     {
+      chave: "selecao",
+      cabecalho: isAdmin ? (
+        <Checkbox
+          checked={todasSelecionadas ? true : algumaSelecionada ? "indeterminate" : false}
+          onCheckedChange={alternarTodas}
+          disabled={pendentes.length === 0}
+          aria-label="Selecionar todas as entradas pendentes"
+          title="Selecionar todas as pendentes do filtro atual"
+        />
+      ) : null,
+      className: "w-12",
+      render: (entrada) =>
+        isAdmin && entrada.status_conferencia === "pendente" ? (
+          <Checkbox
+            checked={selecionadas.includes(entrada.id)}
+            onCheckedChange={(m) => alternarEntrada(entrada.id, m === true)}
+            aria-label={`Selecionar entrada de ${entrada.membro_nome}`}
+          />
+        ) : null,
+    },
+    {
       chave: "membro",
       cabecalho: "Membro",
-      render: (c) => (
+      render: (entrada) => (
         <div className="flex items-center gap-2">
-          <span className="font-medium">{c.membro_nome}</span>
-          {c.comprovante_url && <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />}
+          <span className="font-medium">{entrada.membro_nome}</span>
+          {entrada.comprovante_url && <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />}
         </div>
       ),
     },
     {
       chave: "sociedade",
       cabecalho: "Sociedade",
-      render: (c) => <span className="font-medium">{sociedadesPorId.get(c.sociedade_id)?.nome ?? "—"}</span>,
+      render: (entrada) => (
+        <span className="font-medium">{sociedadesPorId.get(entrada.sociedade_id)?.nome ?? "—"}</span>
+      ),
     },
-    { chave: "ref", cabecalho: "Referência", render: (c) => formatarMesAno(c.referencia_mes) },
-    { chave: "valor", cabecalho: "Valor", render: (c) => formatarMoeda(Number(c.valor)) },
-    { chave: "data", cabecalho: "Pagamento", render: (c) => formatarData(c.data_pagamento) },
-    { chave: "forma", cabecalho: "Forma", render: (c) => c.forma_pagamento },
+    { chave: "ref", cabecalho: "Referência", render: (e) => formatarMesAno(e.referencia_mes) },
+    {
+      chave: "valor",
+      cabecalho: "Valor",
+      className: "text-right tabular",
+      render: (e) => <span className="tabular">{formatarMoeda(Number(e.valor))}</span>,
+    },
+    { chave: "data", cabecalho: "Pagamento", render: (e) => formatarData(e.data_pagamento) },
+    { chave: "forma", cabecalho: "Forma", render: (e) => e.forma_pagamento },
     {
       chave: "status",
       cabecalho: "Status",
-      render: (c) => <StatusContribuicaoBadge status={c.status_conferencia} />,
+      render: (e) => <StatusContribuicaoBadge status={e.status_conferencia} />,
     },
     {
       chave: "acoes",
       cabecalho: "",
       className: "w-1 text-right",
-      render: (c) => {
-        const editavel = isAdmin || c.status_conferencia === "pendente";
-        const podeConferir = isAdmin && c.status_conferencia === "pendente";
+      render: (entrada) => {
+        const editavel = isAdmin || entrada.status_conferencia === "pendente";
+        const podeConferir = isAdmin && entrada.status_conferencia === "pendente";
         return (
           <div className="flex justify-end gap-1">
             {podeConferir && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setConferindo(c)}
-                title="Conferir entrada"
-              >
+              <Button variant="ghost" size="sm" onClick={() => setConferindo(entrada)} title="Conferir entrada" aria-label="Conferir entrada">
                 <CheckCheck className="h-4 w-4" />
               </Button>
             )}
@@ -99,8 +139,12 @@ export default function Contribuicoes() {
               variant="ghost"
               size="sm"
               disabled={!editavel}
-              onClick={() => abrirEditar(c)}
-              title={editavel ? "Editar" : "Já conferida — bloqueada para este perfil"}
+              onClick={() => {
+                setEditando(entrada);
+                setAberto(true);
+              }}
+              title={editavel ? "Editar" : "Já conferida — bloqueada"}
+              aria-label="Editar entrada"
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -108,8 +152,9 @@ export default function Contribuicoes() {
               variant="ghost"
               size="sm"
               disabled={!editavel}
-              onClick={() => setConfirmando(c)}
-              title={editavel ? "Excluir" : "Já conferida — bloqueada para este perfil"}
+              onClick={() => setConfirmando(entrada)}
+              title={editavel ? "Excluir" : "Já conferida — bloqueada"}
+              aria-label="Excluir entrada"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -122,45 +167,59 @@ export default function Contribuicoes() {
   if (!user) {
     return (
       <ShellPainel titulo="Entradas" descricao="Entre no sistema para visualizar os lançamentos.">
-        <p className="text-sm text-muted-foreground">
-          Assim que entrar, você poderá registrar, editar e revisar as entradas.
-        </p>
+        <p className="text-sm text-muted-foreground">Entre para registrar, editar e revisar as entradas.</p>
       </ShellPainel>
     );
   }
 
   return (
-    <ShellPainel
-      titulo="Entradas"
-      descricao="Registre e acompanhe as entradas gerais ou filtre por sociedade."
-    >
+    <ShellPainel titulo="Entradas" descricao="Registre e acompanhe as entradas gerais ou filtre por sociedade.">
       <DataTable
         dados={entradasFiltradas}
         colunas={colunas}
         carregando={isLoading}
         buscaPlaceholder="Buscar por membro, sociedade ou forma..."
-        filtrarPor={(c, t) =>
-          c.membro_nome.toLowerCase().includes(t) ||
-          c.forma_pagamento.toLowerCase().includes(t) ||
-          (sociedadesPorId.get(c.sociedade_id)?.nome ?? "").toLowerCase().includes(t)
+        filtrarPor={(entrada, termo) =>
+          entrada.membro_nome.toLowerCase().includes(termo) ||
+          entrada.forma_pagamento.toLowerCase().includes(termo) ||
+          (sociedadesPorId.get(entrada.sociedade_id)?.nome ?? "").toLowerCase().includes(termo)
         }
         acoes={
           <>
-            <Select value={sociedadeFiltroId} onValueChange={setSociedadeFiltroId}>
+            <Select
+              value={sociedadeFiltroId}
+              onValueChange={(valor) => {
+                setSociedadeFiltroId(valor);
+                setSelecionadas([]);
+              }}
+            >
               <SelectTrigger className="w-[220px]">
                 <SelectValue placeholder="Filtrar sociedade" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todas">Todas as sociedades</SelectItem>
-                {(sociedades ?? []).map((sociedade) => (
-                  <SelectItem key={sociedade.id} value={sociedade.id}>
-                    {sociedade.nome}
+                {(sociedades ?? []).map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.nome}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {isAdmin && (
+              <Button
+                variant="outline"
+                onClick={() => setConfirmandoLote(true)}
+                disabled={selecionadas.length === 0 || conferirEmLote.isPending}
+              >
+                <CheckCheck className="h-4 w-4" />
+                Conferir selecionadas{selecionadas.length ? ` (${selecionadas.length})` : ""}
+              </Button>
+            )}
             <Button
-              onClick={abrirNova}
+              onClick={() => {
+                setEditando(null);
+                setAberto(true);
+              }}
               disabled={sociedadeFiltroId === "todas"}
               title={sociedadeFiltroId === "todas" ? "Escolha uma sociedade no filtro para lançar." : "Nova entrada"}
             >
@@ -190,16 +249,28 @@ export default function Contribuicoes() {
 
       <ConfirmDialog
         open={!!confirmando}
-        onOpenChange={(o) => !o && setConfirmando(null)}
+        onOpenChange={(abriu) => !abriu && setConfirmando(null)}
         titulo="Excluir entrada?"
         descricao={`Esta ação removerá o registro de "${confirmando?.membro_nome}". Não é possível desfazer.`}
         textoConfirmar="Excluir"
         destrutivo
         onConfirmar={async () => {
-          if (confirmando) {
-            await excluir.mutateAsync(confirmando.id);
-            setConfirmando(null);
-          }
+          if (!confirmando) return;
+          await excluir.mutateAsync(confirmando.id);
+          setConfirmando(null);
+        }}
+      />
+
+      <ConfirmDialog
+        open={confirmandoLote}
+        onOpenChange={setConfirmandoLote}
+        titulo={`Conferir ${selecionadas.length} entrada(s)?`}
+        descricao="Todas as entradas selecionadas serão marcadas como conferidas e passarão a compor o saldo financeiro."
+        textoConfirmar="Conferir todas"
+        onConfirmar={async () => {
+          await conferirEmLote.mutateAsync({ ids: selecionadas, conferidoPor: user.id });
+          setSelecionadas([]);
+          setConfirmandoLote(false);
         }}
       />
 
