@@ -1,75 +1,61 @@
-@media (max-width: 639px) {
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-5.flex {
-    margin-bottom: 0.75rem !important;
-    display: block !important;
-  }
-
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-5.flex > div:first-child {
+@media (max-width: 767px) {
+  body:has([data-mobile-banking]) header.sticky + div.border-b {
     display: none !important;
   }
 
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-5.flex > div:last-child {
-    width: 100% !important;
+  body:has([data-mobile-banking]) main {
+    padding: 0 !important;
   }
 
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-5.flex button[role="combobox"] {
-    height: 2.75rem !important;
-    border-radius: 0.75rem !important;
+  body:has([data-mobile-banking]) main > div {
+    max-width: none !important;
   }
 
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 0.75rem !important;
-  }
-
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 > :first-child,
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 > :last-child {
-    grid-column: 1 / -1 !important;
-  }
-
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 > div > div {
-    min-height: 6.5rem !important;
-    padding: 0.875rem !important;
-  }
-
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 > :nth-child(2) > div,
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 > :nth-child(3) > div {
-    min-height: 6.25rem !important;
-    padding: 0.75rem !important;
-  }
-
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 p.mt-2.text-2xl {
-    margin-top: 0.5rem !important;
-    font-size: 1.55rem !important;
-    line-height: 1.1 !important;
-    white-space: nowrap !important;
-    letter-spacing: -0.035em !important;
-  }
-
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 > :nth-child(2) p.mt-2.text-2xl,
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 > :nth-child(3) p.mt-2.text-2xl {
-    font-size: 1.12rem !important;
-  }
-
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 p.mt-3.text-xs {
+  body:has([data-mobile-banking]) main > div > .mb-4.sm\:hidden {
     display: none !important;
   }
 
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 .h-9.w-9 {
-    width: 2rem !important;
-    height: 2rem !important;
+  body:has([data-mobile-banking]) header.sticky {
+    border-bottom-color: transparent !important;
   }
 
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.gap-4.sm\:grid-cols-2.xl\:grid-cols-4 p.uppercase {
-    font-size: 0.65rem !important;
-    letter-spacing: 0.08em !important;
+  .mobile-bank-nav {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+    border-top: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.96);
+    padding: 0.5rem 0.75rem max(0.5rem, env(safe-area-inset-bottom));
+    backdrop-filter: blur(14px);
   }
 
-  body:has(main a[href="/cadastros/sociedades"]) main > div > .mb-4.grid.xl\:grid-cols-\[minmax\(680px\,1\.15fr\)_minmax\(440px\,0\.85fr\)\] {
-    gap: 0.75rem !important;
+  .mobile-bank-nav > a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.625rem;
+    font-weight: 600;
   }
 
-  body:has(main a[href="/cadastros/sociedades"]) main .rounded-md.border.p-3 {
-    border-radius: 0.75rem !important;
+  .mobile-bank-nav > a:first-child,
+  .mobile-bank-nav-main {
+    color: hsl(var(--primary));
+  }
+
+  .mobile-bank-nav-main svg {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-top: -1.75rem;
+    padding: 0.65rem;
+    border-radius: 9999px;
+    color: hsl(var(--primary-foreground));
+    background: hsl(var(--primary));
+    box-shadow: var(--shadow-elevated);
   }
 }
