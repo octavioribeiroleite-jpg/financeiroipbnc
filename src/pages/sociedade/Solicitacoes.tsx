@@ -19,8 +19,8 @@ import {
   Solicitacao,
   StatusSolicitacao,
   useEnviarSolicitacao,
-  useExcluirSolicitacao,
   useSolicitacoesSociedade,
+  useExcluirSolicitacaoEditavel,
 } from "@/hooks/sociedade/useSolicitacoesSociedade";
 import {
   ROTULO_STATUS,
@@ -45,7 +45,7 @@ export default function Solicitacoes() {
   const { sociedadeSelecionada, sociedadeSelecionadaId } = useSociedadeOperacional();
   const { data, isLoading } = useSolicitacoesSociedade(sociedadeSelecionadaId);
   const { data: fornecedores } = useFornecedores();
-  const excluir = useExcluirSolicitacao(sociedadeSelecionadaId);
+  const excluir = useExcluirSolicitacaoEditavel(sociedadeSelecionadaId);
   const enviar = useEnviarSolicitacao(sociedadeSelecionadaId);
 
   const [filtroStatus, setFiltroStatus] = useState<StatusSolicitacao | "todas">("todas");
@@ -79,7 +79,12 @@ export default function Solicitacoes() {
         </div>
       ),
     },
-    { chave: "valor", cabecalho: "Valor", render: (s) => formatarMoeda(Number(s.valor)) },
+    {
+      chave: "valor",
+      cabecalho: "Valor",
+      className: "text-right tabular",
+      render: (s) => <span className="tabular">{formatarMoeda(Number(s.valor))}</span>,
+    },
     { chave: "venc", cabecalho: "Vencimento", render: (s) => formatarData(s.vencimento) },
     {
       chave: "status",
@@ -91,12 +96,12 @@ export default function Solicitacoes() {
       cabecalho: "",
       className: "w-1 text-right",
       render: (s) => {
-        const podeEditar = s.status === "rascunho";
-        const podeExcluir = s.status === "rascunho";
+        const aindaNaoProcessada = s.status === "rascunho" || s.status === "enviada";
         const podeEnviar = s.status === "rascunho";
+
         return (
           <div className="flex justify-end gap-1">
-            <Button variant="ghost" size="sm" onClick={() => setVisualizando(s)} title="Visualizar">
+            <Button variant="ghost" size="sm" onClick={() => setVisualizando(s)} title="Visualizar" aria-label="Visualizar">
               <Eye className="h-4 w-4" />
             </Button>
             {podeEnviar && (
@@ -105,6 +110,7 @@ export default function Solicitacoes() {
                 size="sm"
                 onClick={() => setConfirmandoEnvio(s)}
                 title="Liberar para processamento"
+                aria-label="Liberar para processamento"
               >
                 <Send className="h-4 w-4" />
               </Button>
@@ -112,21 +118,23 @@ export default function Solicitacoes() {
             <Button
               variant="ghost"
               size="sm"
-              disabled={!podeEditar}
+              disabled={!aindaNaoProcessada}
               onClick={() => {
                 setEditando(s);
                 setAberto(true);
               }}
-              title={podeEditar ? "Editar" : "Bloqueado após o envio para processamento"}
+              title={aindaNaoProcessada ? "Editar pagamento" : "Bloqueado: análise já iniciada"}
+              aria-label="Editar pagamento"
             >
               <Pencil className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              disabled={!podeExcluir}
+              disabled={!aindaNaoProcessada}
               onClick={() => setConfirmandoExclusao(s)}
-              title={podeExcluir ? "Excluir" : "Apenas rascunhos podem ser excluídos"}
+              title={aindaNaoProcessada ? "Excluir pagamento" : "Bloqueado: análise já iniciada"}
+              aria-label="Excluir pagamento"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -211,7 +219,7 @@ export default function Solicitacoes() {
         open={!!confirmandoEnvio}
         onOpenChange={(o) => !o && setConfirmandoEnvio(null)}
         titulo="Liberar pagamento para processamento?"
-        descricao="Depois de liberado, o pagamento ficará bloqueado para edição até ser devolvido para ajuste."
+        descricao="O pagamento ainda poderá ser editado ou excluído até a Central iniciar a análise."
         textoConfirmar="Liberar"
         onConfirmar={async () => {
           if (confirmandoEnvio) {
@@ -224,8 +232,8 @@ export default function Solicitacoes() {
       <ConfirmDialog
         open={!!confirmandoExclusao}
         onOpenChange={(o) => !o && setConfirmandoExclusao(null)}
-        titulo="Excluir solicitação?"
-        descricao={`O rascunho "${confirmandoExclusao?.descricao}" será removido permanentemente.`}
+        titulo="Excluir pagamento?"
+        descricao={`O pagamento "${confirmandoExclusao?.descricao}" será removido permanentemente. A exclusão só será concluída se a Central ainda não tiver iniciado a análise.`}
         textoConfirmar="Excluir"
         destrutivo
         onConfirmar={async () => {

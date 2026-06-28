@@ -16,15 +16,14 @@ import {
 import { CurrencyInput } from "@/components/shared/CurrencyInput";
 import { UploadAnexo } from "@/components/shared/UploadAnexo";
 import { UploadAnexosMultiplos } from "@/components/shared/UploadAnexosMultiplos";
-
 import { hojeISO } from "@/lib/format";
 import { useFornecedores } from "@/hooks/cadastros/useFornecedores";
 import { useCategorias } from "@/hooks/cadastros/useCategorias";
 import {
   Solicitacao,
   SolicitacaoInput,
-  useAtualizarSolicitacao,
   useCriarSolicitacao,
+  useAtualizarSolicitacaoEditavel,
 } from "@/hooks/sociedade/useSolicitacoesSociedade";
 import { useMesConsolidado } from "@/hooks/fechamentos/useMesConsolidado";
 import { AvisoMesConsolidado } from "@/components/fechamentos/AvisoMesConsolidado";
@@ -45,8 +44,8 @@ const schema = z.object({
   comprovantes_pagamento_urls: z.array(z.string()).max(2).default([]),
   recibos_urls: z.array(z.string()).max(2).default([]),
 });
-type FormData = z.infer<typeof schema>;
 
+type FormData = z.infer<typeof schema>;
 
 interface Props {
   sociedadeId: string;
@@ -74,7 +73,7 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
   const { data: fornecedores } = useFornecedores();
   const { data: categorias } = useCategorias();
   const criar = useCriarSolicitacao(sociedadeId, usuarioId);
-  const atualizar = useAtualizarSolicitacao(sociedadeId);
+  const atualizar = useAtualizarSolicitacaoEditavel(sociedadeId);
 
   const fornecedoresAtivos = useMemo(
     () => (fornecedores ?? []).filter((f) => f.ativo),
@@ -109,7 +108,6 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
       });
       return;
     }
-
     form.reset(valoresIniciais());
   }, [registro, form]);
 
@@ -125,18 +123,19 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
       comprovantes_pagamento_urls: v.comprovantes_pagamento_urls ?? [],
       recibos_urls: v.recibos_urls ?? [],
     };
+
     if (registro) {
-      await atualizar.mutateAsync({ id: registro.id, ...payload, status });
+      const statusFinal = registro.status === "enviada" ? "enviada" : status;
+      await atualizar.mutateAsync({ id: registro.id, ...payload, status: statusFinal });
     } else {
       await criar.mutateAsync({ ...payload, status });
     }
     onConcluido();
   };
 
-
-
   const submetendo = criar.isPending || atualizar.isPending;
-  const podeEditar = !registro || registro.status === "rascunho";
+  const podeEditar = !registro || registro.status === "rascunho" || registro.status === "enviada";
+  const registroEnviado = registro?.status === "enviada";
   const vencimento = form.watch("vencimento");
   const { data: travado } = useMesConsolidado(sociedadeId, vencimento);
 
@@ -146,6 +145,13 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
         visivel={!!travado}
         mensagem="O vencimento escolhido cai em um mês já consolidado. Escolha outra data."
       />
+
+      {registroEnviado && (
+        <div className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-sm text-warning-foreground/90">
+          Este pagamento já foi enviado. As alterações serão atualizadas diretamente para a Central enquanto a análise não tiver sido iniciada.
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="fornecedor_id">Fornecedor</Label>
         <Controller
@@ -290,7 +296,6 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
         />
       </div>
 
-
       <div className="space-y-2">
         <Label htmlFor="observacoes">Observações</Label>
         <Textarea id="observacoes" rows={2} {...form.register("observacoes")} disabled={!podeEditar} />
@@ -300,7 +305,16 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
         <Button type="button" variant="outline" onClick={onCancelar}>
           Fechar
         </Button>
-        {podeEditar && (
+        {podeEditar && registroEnviado && (
+          <Button
+            type="button"
+            disabled={submetendo || !!travado}
+            onClick={form.handleSubmit((v) => salvar(v, "enviada"))}
+          >
+            Salvar alterações
+          </Button>
+        )}
+        {podeEditar && !registroEnviado && (
           <>
             <Button type="submit" variant="outline" disabled={submetendo || !!travado}>
               Salvar rascunho
@@ -318,3 +332,5 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
     </form>
   );
 }
+
+export default FormSolicitacao;
