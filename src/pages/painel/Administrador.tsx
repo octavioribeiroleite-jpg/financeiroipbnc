@@ -278,7 +278,7 @@ export default function PainelAdministrador() {
                     </Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link to="/central/solicitacoes">
+                    <Link to="/sociedade/solicitacoes">
                       <FileText className="h-4 w-4" />
                       Registrar saída
                     </Link>
