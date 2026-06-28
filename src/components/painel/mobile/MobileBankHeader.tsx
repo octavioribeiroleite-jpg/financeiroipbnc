@@ -16,7 +16,7 @@ export function MobileBankHeader({ periodo, setPeriodo, periodos }: Props) {
   return (
     <section className="bg-brand-navy-900 px-5 pb-28 pt-5 text-white">
       <p className="text-sm text-white/70">Olá, {nome}</p>
-      <h2 className="mt-1 text-2xl font-bold">Sua tesouraria</h2>
+      <h2 className="mt-1 text-2xl font-bold text-white">Sua tesouraria</h2>
       <div className="mt-4 flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 p-3">
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{sociedadeSelecionada?.nome ?? "Geral da conta"}</p>
