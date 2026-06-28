@@ -84,8 +84,8 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
               </Button>
             </div>
           </header>
-          <main className="flex-1 p-4 sm:p-6">
-            <div className="mx-auto w-full max-w-7xl">
+          <main className="flex-1 p-4 sm:p-6 2xl:p-8">
+            <div className="mx-auto w-full max-w-[1720px]">
               <div className="mb-6 sm:hidden">
                 <h1 className="text-xl font-semibold text-foreground">{titulo}</h1>
                 {descricao && <p className="text-sm text-muted-foreground">{descricao}</p>}
