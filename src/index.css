@@ -3,109 +3,120 @@
 @tailwind utilities;
 
 /* Design system institucional — Tesouraria Igreja Presbiteriana
-   Paleta sóbria: azul institucional, neutros claros, dourado discreto.
+   Paleta sóbria: azul-marinho institucional, dourado discreto, neutros claros.
    Todas as cores em HSL.
 */
 
 @layer base {
   :root {
-    --background: 210 25% 98%;
-    --foreground: 215 30% 18%;
+    /* Superfícies */
+    --background: 214 30% 97%;          /* surface  #f5f7fa */
+    --foreground: 215 32% 16%;          /* text     #182538 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 30% 18%;
+    --card: 0 0% 100%;                  /* card     #ffffff */
+    --card-foreground: 215 32% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 30% 18%;
+    --popover-foreground: 215 32% 16%;
 
-    /* Azul institucional presbiteriano */
-    --primary: 215 60% 28%;
-    --primary-foreground: 210 40% 98%;
-    --primary-glow: 215 55% 42%;
+    /* Azul-marinho institucional (navy-800) */
+    --primary: 214 61% 23%;             /* #16345d */
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 213 60% 28%;        /* navy-700 */
 
-    --secondary: 210 25% 94%;
-    --secondary-foreground: 215 40% 22%;
+    --secondary: 214 25% 93%;
+    --secondary-foreground: 215 32% 16%;
 
-    --muted: 210 20% 95%;
-    --muted-foreground: 215 15% 45%;
+    --muted: 215 22% 95%;
+    --muted-foreground: 215 16% 47%;    /* #64748b */
 
-    /* Dourado discreto para destaques */
-    --accent: 42 55% 52%;
-    --accent-foreground: 215 40% 18%;
+    /* Dourado institucional (gold-500) */
+    --accent: 42 65% 53%;               /* #d2a93b */
+    --accent-foreground: 215 32% 14%;
 
-    --destructive: 0 72% 45%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 354 50% 51%;         /* #c2414b */
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 142 55% 38%;
-    --success-foreground: 210 40% 98%;
+    --success: 145 64% 31%;             /* #198754 */
+    --success-foreground: 0 0% 100%;
 
-    --warning: 35 85% 50%;
-    --warning-foreground: 215 40% 18%;
+    --warning: 30 92% 44%;              /* #d97706 */
+    --warning-foreground: 0 0% 100%;
 
-    --border: 215 20% 88%;
-    --input: 215 20% 88%;
-    --ring: 215 60% 28%;
+    --info: 206 64% 40%;                /* #2563a6 */
+    --info-foreground: 0 0% 100%;
 
-    --radius: 0.5rem;
+    --border: 213 22% 90%;              /* #dfe5ec */
+    --input: 213 22% 90%;
+    --ring: 214 61% 23%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(215 60% 28%), hsl(215 55% 42%));
-    --shadow-elegant: 0 10px 30px -12px hsl(215 60% 28% / 0.25);
-    --shadow-card: 0 2px 8px -2px hsl(215 30% 18% / 0.08);
+    --radius: 0.625rem;                 /* 10px — cards usam rounded-xl=12px */
 
-    --sidebar-background: 215 60% 28%;
-    --sidebar-foreground: 210 40% 96%;
-    --sidebar-primary: 42 55% 52%;
-    --sidebar-primary-foreground: 215 40% 18%;
-    --sidebar-accent: 215 55% 22%;
-    --sidebar-accent-foreground: 210 40% 96%;
+    /* Sombras suaves institucionais */
+    --shadow-card: 0 1px 2px hsl(215 35% 18% / 0.04), 0 4px 14px hsl(215 35% 18% / 0.05);
+    --shadow-elevated: 0 8px 30px hsl(215 35% 18% / 0.10);
+    --shadow-elegant: var(--shadow-elevated);
+
+    --gradient-primary: linear-gradient(135deg, hsl(214 61% 23%), hsl(213 60% 28%));
+
+    /* Sidebar navy-900 */
+    --sidebar-background: 215 62% 16%;  /* #102744 */
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 42 65% 53%;
+    --sidebar-primary-foreground: 215 35% 14%;
+    --sidebar-accent: 214 60% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 215 50% 22%;
-    --sidebar-ring: 42 55% 52%;
+    --sidebar-ring: 42 65% 53%;
   }
 
   .dark {
-    --background: 215 35% 10%;
-    --foreground: 210 40% 96%;
+    --background: 215 40% 9%;
+    --foreground: 0 0% 96%;
 
-    --card: 215 35% 13%;
-    --card-foreground: 210 40% 96%;
+    --card: 215 40% 12%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 215 35% 13%;
-    --popover-foreground: 210 40% 96%;
+    --popover: 215 40% 12%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 215 55% 55%;
-    --primary-foreground: 215 40% 12%;
-    --primary-glow: 215 60% 65%;
+    --primary: 213 60% 55%;
+    --primary-foreground: 215 40% 10%;
+    --primary-glow: 213 65% 65%;
 
     --secondary: 215 30% 18%;
-    --secondary-foreground: 210 40% 96%;
+    --secondary-foreground: 0 0% 96%;
 
     --muted: 215 30% 18%;
     --muted-foreground: 215 15% 65%;
 
-    --accent: 42 55% 55%;
+    --accent: 42 60% 60%;
     --accent-foreground: 215 40% 12%;
 
-    --destructive: 0 65% 50%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 354 60% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 142 50% 45%;
-    --success-foreground: 210 40% 98%;
+    --success: 145 55% 45%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 35 80% 55%;
+    --warning: 30 85% 55%;
     --warning-foreground: 215 40% 12%;
+
+    --info: 206 60% 55%;
+    --info-foreground: 0 0% 100%;
 
     --border: 215 30% 22%;
     --input: 215 30% 22%;
-    --ring: 215 55% 55%;
+    --ring: 213 60% 55%;
 
-    --sidebar-background: 215 40% 8%;
-    --sidebar-foreground: 210 40% 96%;
-    --sidebar-primary: 42 55% 55%;
+    --sidebar-background: 215 45% 6%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 42 60% 60%;
     --sidebar-primary-foreground: 215 40% 12%;
-    --sidebar-accent: 215 35% 14%;
-    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-accent: 215 38% 14%;
+    --sidebar-accent-foreground: 0 0% 96%;
     --sidebar-border: 215 35% 16%;
-    --sidebar-ring: 42 55% 55%;
+    --sidebar-ring: 42 60% 60%;
   }
 }
 
@@ -114,44 +125,42 @@
     @apply border-border;
   }
 
+  html {
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv11", "ss01";
   }
 
   h1, h2, h3, h4 {
-    @apply tracking-tight;
+    @apply tracking-tight text-foreground;
+  }
+
+  /* Números financeiros sempre tabulares */
+  .tabular,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
   }
 }
 
 /* Driver.js — popover de tour usando tokens semânticos */
 @layer components {
   .driver-popover {
-    @apply rounded-lg border bg-card text-card-foreground shadow-lg;
+    @apply rounded-xl border bg-card text-card-foreground;
+    box-shadow: var(--shadow-elevated);
   }
-  .driver-popover-title {
-    @apply text-base font-semibold text-foreground;
-  }
-  .driver-popover-description {
-    @apply text-sm text-muted-foreground;
-  }
-  .driver-popover-progress-text {
-    @apply text-xs text-muted-foreground;
-  }
+  .driver-popover-title { @apply text-base font-semibold text-foreground; }
+  .driver-popover-description { @apply text-sm text-muted-foreground; }
+  .driver-popover-progress-text { @apply text-xs text-muted-foreground; }
   .driver-popover-footer button {
     @apply rounded-md border bg-background px-3 py-1.5 text-sm font-medium text-foreground transition-colors;
     text-shadow: none;
   }
-  .driver-popover-footer button:hover {
-    @apply bg-accent text-accent-foreground;
-  }
-  .driver-popover-next-btn {
-    @apply !bg-primary !text-primary-foreground !border-primary;
-  }
-  .driver-popover-next-btn:hover {
-    @apply !bg-primary/90;
-  }
-  .driver-popover-close-btn {
-    @apply text-muted-foreground hover:text-foreground;
-  }
+  .driver-popover-footer button:hover { @apply bg-accent text-accent-foreground; }
+  .driver-popover-next-btn { @apply !bg-primary !text-primary-foreground !border-primary; }
+  .driver-popover-next-btn:hover { @apply !bg-primary/90; }
+  .driver-popover-close-btn { @apply text-muted-foreground hover:text-foreground; }
 }
