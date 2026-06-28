@@ -1,0 +1,25 @@
+@media (max-width: 639px) {
+  body:has(#mes-fechamento) header.sticky { height: 56px !important; padding: 0 12px !important; }
+  body:has(#mes-fechamento) header.sticky button { min-height: 36px !important; }
+  body:has(#mes-fechamento) header.sticky + div.border-b { padding: 8px 12px !important; }
+  body:has(#mes-fechamento) header.sticky + div.border-b button[role="combobox"] { min-height: 40px !important; padding: 4px 12px !important; }
+  body:has(#mes-fechamento) header.sticky + div.border-b .text-xs { display: none !important; }
+  body:has(#mes-fechamento) main { padding: 12px !important; }
+  body:has(#mes-fechamento) main h2,
+  body:has(#mes-fechamento) main h2 + p { display: none !important; }
+  body:has(#mes-fechamento) main > div > .mb-5.sm\:hidden { margin-bottom: 14px !important; }
+  body:has(#mes-fechamento) main > div > .mb-5.sm\:hidden h1 { font-size: 26px !important; line-height: 1.15 !important; }
+  body:has(#mes-fechamento) div:has(> div > #mes-fechamento):has(> div > #escopo-relatorio) {
+    display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; width: 100% !important;
+  }
+  body:has(#mes-fechamento) div:has(> div > #mes-fechamento):has(> div > #escopo-relatorio) > div { width: auto !important; min-width: 0 !important; }
+  body:has(#mes-fechamento) #mes-fechamento,
+  body:has(#mes-fechamento) #escopo-relatorio { height: 44px !important; min-width: 0 !important; font-size: 14px !important; }
+  body:has(#mes-fechamento) div:has(> div > #mes-fechamento):has(> div > #escopo-relatorio) > button {
+    grid-column: 1 / -1 !important; width: 100% !important; height: 48px !important;
+  }
+  body:has(#mes-fechamento) main .grid.md\:grid-cols-2.xl\:grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px !important; }
+  body:has(#mes-fechamento) main .grid.md\:grid-cols-2.xl\:grid-cols-4 > div > div:first-child { padding: 14px 14px 4px !important; }
+  body:has(#mes-fechamento) main .grid.md\:grid-cols-2.xl\:grid-cols-4 > div > div:nth-child(2) { padding: 4px 14px 14px !important; }
+  body:has(#mes-fechamento) main .grid.md\:grid-cols-2.xl\:grid-cols-4 .text-2xl { font-size: 19px !important; }
+}
