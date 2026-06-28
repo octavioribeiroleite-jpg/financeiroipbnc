@@ -14,7 +14,10 @@ export interface SolicitacaoInput {
   vencimento: string;
   observacoes?: string | null;
   anexo_nota_url?: string | null;
+  comprovantes_pagamento_urls?: string[];
+  recibos_urls?: string[];
 }
+
 
 const KEY = (sociedadeId: string | null) => ["solicitacoes", sociedadeId] as const;
 const ERRO_BLOQUEADO = "Este pagamento já entrou em processamento e não pode mais ser alterado como rascunho.";
