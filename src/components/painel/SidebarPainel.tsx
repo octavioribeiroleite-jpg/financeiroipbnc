@@ -4,6 +4,7 @@ import { useAuth, type AppRole } from "@/contexts/AuthContext";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -15,9 +16,9 @@ import {
   SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { LogoTesouraria } from "@/components/brand/LogoTesouraria";
 import { cn } from "@/lib/utils";
 import {
-  Church,
   LayoutDashboard,
   Building2,
   Tags,
@@ -30,6 +31,7 @@ import {
   Settings,
   Receipt,
   ClipboardCheck,
+  ChevronRight,
 } from "lucide-react";
 
 interface ItemMenu {
@@ -42,6 +44,13 @@ interface GrupoMenu {
   rotulo: string;
   itens: ItemMenu[];
 }
+
+const ROTULO_PAPEL: Record<AppRole, string> = {
+  administrador: "Administrador",
+  tesoureiro_igreja: "Tesoureiro da Igreja",
+  tesoureiro_central: "Tesoureiro Central",
+  tesoureiro_sociedade: "Tesoureiro da Sociedade",
+};
 
 const MENU_ADMIN: GrupoMenu[] = [
   {
@@ -117,10 +126,20 @@ function menuDoPapel(papel: AppRole | null): GrupoMenu[] {
   return [];
 }
 
+function iniciais(nome?: string | null) {
+  if (!nome?.trim()) return "TP";
+  return nome
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((parte) => parte[0]?.toUpperCase())
+    .join("");
+}
+
 export function SidebarPainel() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const { papelPrincipal } = useAuth();
+  const { papelPrincipal, perfil } = useAuth();
   const location = useLocation();
   const grupos = menuDoPapel(papelPrincipal);
 
@@ -134,28 +153,29 @@ export function SidebarPainel() {
         <SidebarMenuButton
           asChild
           isActive={active}
-          tooltip={{ children: item.titulo, sideOffset: 8 }}
+          tooltip={{ children: item.titulo, sideOffset: 10 }}
           className={cn(
-            "h-10 rounded-xl px-3 transition-all duration-200",
-            "hover:translate-x-0.5 hover:bg-sidebar-accent/80",
-            "group-data-[collapsible=icon]:!size-9 group-data-[collapsible=icon]:!p-0",
-            "group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:hover:translate-x-0",
-            active && "shadow-sm ring-1 ring-sidebar-border/70",
+            "relative h-11 overflow-hidden rounded-lg px-3 text-sidebar-foreground/82 transition-colors duration-150",
+            "hover:bg-white/8 hover:text-white",
+            "group-data-[collapsible=icon]:!size-11 group-data-[collapsible=icon]:!p-0",
+            "group-data-[collapsible=icon]:justify-center",
+            active && "bg-sidebar-accent text-white shadow-sm",
           )}
         >
           <NavLink
             to={item.url}
             end
-            className={cn("flex items-center gap-3", collapsed && "justify-center")}
-            activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+            className={cn("flex h-full w-full items-center gap-3", collapsed && "justify-center")}
+            activeClassName="font-semibold"
           >
+            {active && !collapsed && <span className="absolute inset-y-2 left-0 w-1 rounded-r-full bg-brand-gold-500" />}
             <item.icone
               className={cn(
-                "h-[18px] w-[18px] shrink-0 transition-transform duration-200",
-                active && "scale-105 stroke-[2.25]",
+                "h-[19px] w-[19px] shrink-0 text-sidebar-foreground/72 transition-colors",
+                active && "text-white stroke-[2.25]",
               )}
             />
-            {!collapsed && <span className="truncate">{item.titulo}</span>}
+            {!collapsed && <span className="truncate text-sm">{item.titulo}</span>}
           </NavLink>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -163,44 +183,60 @@ export function SidebarPainel() {
   };
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="h-16 border-b border-sidebar-border p-0">
+    <Sidebar collapsible="icon" className="border-r-0">
+      <SidebarHeader className="h-24 border-b border-white/10 p-0">
         <div
           className={cn(
             "flex h-full w-full items-center transition-all duration-200",
-            collapsed ? "justify-center" : "gap-3 px-3",
+            collapsed ? "justify-center" : "px-5",
           )}
           title={collapsed ? "Tesouraria Presbiteriana" : undefined}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-sm ring-1 ring-white/10">
-            <Church className="h-[18px] w-[18px]" />
-          </div>
-          {!collapsed && (
-            <div className="min-w-0 leading-tight">
-              <p className="truncate text-sm font-semibold text-sidebar-foreground">Tesouraria</p>
-              <p className="truncate text-xs text-sidebar-foreground/65">Presbiteriana</p>
-            </div>
-          )}
+          <LogoTesouraria variant={collapsed ? "icon" : "horizontal"} theme="dark" size={collapsed ? "sm" : "md"} />
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="py-2">
+      <SidebarContent className="px-2 py-4">
         {grupos.map((grupo, indice) => (
           <div key={grupo.rotulo}>
-            {indice > 0 && <SidebarSeparator className={cn("my-2", collapsed ? "mx-2" : "mx-4")} />}
-            <SidebarGroup className={cn("py-1", collapsed ? "px-1.5" : "px-2")}>
+            {indice > 0 && <SidebarSeparator className={cn("my-3 bg-white/10", collapsed ? "mx-2" : "mx-3")} />}
+            <SidebarGroup className={cn("py-1", collapsed ? "px-0" : "px-1")}>
               {!collapsed && (
-                <SidebarGroupLabel className="px-3 text-[10px] font-semibold uppercase tracking-[0.14em]">
+                <SidebarGroupLabel className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/46">
                   {grupo.rotulo}
                 </SidebarGroupLabel>
               )}
               <SidebarGroupContent>
-                <SidebarMenu className="gap-1.5">{grupo.itens.map(renderItem)}</SidebarMenu>
+                <SidebarMenu className="gap-1">{grupo.itens.map(renderItem)}</SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
           </div>
         ))}
       </SidebarContent>
+
+      <SidebarFooter className={cn("border-t border-white/10", collapsed ? "p-2" : "p-3")}>
+        {collapsed ? (
+          <div
+            className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-brand-gold-500 text-sm font-semibold text-brand-navy-950 shadow-sm"
+            title={`${perfil?.nome ?? "Usuário"} · ${papelPrincipal ? ROTULO_PAPEL[papelPrincipal] : "Sem papel"}`}
+          >
+            {iniciais(perfil?.nome)}
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.045] p-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-gold-500 text-sm font-semibold text-brand-navy-950 shadow-sm">
+              {iniciais(perfil?.nome)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-white">{perfil?.nome ?? "Usuário"}</p>
+              <p className="truncate text-xs text-brand-gold-400">
+                {papelPrincipal ? ROTULO_PAPEL[papelPrincipal] : "Sem papel"}
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 shrink-0 text-sidebar-foreground/50" />
+          </div>
+        )}
+      </SidebarFooter>
 
       <SidebarRail />
     </Sidebar>
