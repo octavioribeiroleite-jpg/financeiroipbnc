@@ -1,0 +1,167 @@
+@media (max-width: 767px) {
+  .mobile-app-nav {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 50;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+    border-top: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.96);
+    padding: 0.5rem 0.5rem max(0.5rem, env(safe-area-inset-bottom));
+    box-shadow: 0 -8px 24px hsl(215 35% 18% / 0.08);
+    backdrop-filter: blur(16px);
+  }
+
+  .mobile-app-nav-item {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .mobile-app-nav-item.is-active {
+    color: hsl(var(--primary));
+  }
+
+  .mobile-app-nav-icon {
+    display: flex;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+  }
+
+  .mobile-app-nav-item.is-primary .mobile-app-nav-icon {
+    width: 3.25rem;
+    height: 3.25rem;
+    margin-top: -1.65rem;
+    color: hsl(var(--primary-foreground));
+    background: hsl(var(--primary));
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .mobile-app-nav-item.is-primary span:last-child {
+    color: hsl(var(--primary));
+  }
+
+  .mobile-cofrinhos-scroll {
+    display: flex;
+    gap: 0.9rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding: 0.15rem 0.15rem 0.45rem;
+    overscroll-behavior-inline: contain;
+  }
+
+  .mobile-cofrinhos-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-cofrinho-item {
+    width: 5.75rem;
+    min-width: 5.75rem;
+    scroll-snap-align: start;
+    text-align: center;
+    color: hsl(var(--foreground));
+  }
+
+  .mobile-cofrinho-circle {
+    position: relative;
+    display: flex;
+    width: 4.25rem;
+    height: 4.25rem;
+    margin-inline: auto;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid hsl(var(--border));
+    border-radius: 9999px;
+    color: hsl(var(--primary));
+    background: hsl(var(--card));
+    box-shadow: var(--shadow-card);
+    transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+  }
+
+  .mobile-cofrinho-item.is-active .mobile-cofrinho-circle {
+    border-color: hsl(var(--accent));
+    color: hsl(var(--primary-foreground));
+    background: hsl(var(--primary));
+    transform: translateY(-2px);
+  }
+
+  .mobile-cofrinho-name {
+    display: block;
+    overflow: hidden;
+    margin-top: 0.45rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-cofrinho-value {
+    display: block;
+    overflow: hidden;
+    margin-top: 0.2rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.66rem;
+    font-variant-numeric: tabular-nums;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  main > div > .mb-4.sm\:hidden h1 {
+    font-size: 1.55rem !important;
+    line-height: 1.12 !important;
+  }
+
+  main > div > .mb-4.sm\:hidden p {
+    font-size: 0.875rem !important;
+    line-height: 1.35 !important;
+  }
+
+  main form,
+  main [role="tabpanel"] {
+    max-width: 100%;
+  }
+
+  main input,
+  main button[role="combobox"],
+  main textarea {
+    border-radius: 0.75rem !important;
+  }
+
+  main textarea {
+    min-height: 6rem;
+  }
+
+  main .space-y-6 {
+    gap: 1rem !important;
+  }
+
+  main .space-y-5 {
+    gap: 0.875rem !important;
+  }
+
+  main .rounded-lg.border,
+  main .rounded-xl.border {
+    border-color: hsl(var(--border) / 0.8);
+  }
+
+  main table {
+    font-size: 0.8125rem;
+  }
+
+  main [data-radix-scroll-area-viewport] {
+    border-radius: 0.75rem;
+  }
+}
