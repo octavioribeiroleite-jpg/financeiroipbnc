@@ -68,12 +68,18 @@ export function FormContribuicao({ sociedadeId, usuarioId, registro, onConcluido
       data_pagamento: hojeISO(),
       forma_pagamento: "PIX",
       comprovante_url: null,
+      comprovantes_pagamento_urls: [],
+      recibos_urls: [],
       observacao: "",
     },
   });
 
   useEffect(() => {
     if (registro) {
+      const r = registro as typeof registro & {
+        comprovantes_pagamento_urls?: string[] | null;
+        recibos_urls?: string[] | null;
+      };
       form.reset({
         membro_nome: registro.membro_nome,
         referencia_mes: registro.referencia_mes,
@@ -83,6 +89,8 @@ export function FormContribuicao({ sociedadeId, usuarioId, registro, onConcluido
           ? (registro.forma_pagamento as FormData["forma_pagamento"])
           : "Outro",
         comprovante_url: registro.comprovante_url,
+        comprovantes_pagamento_urls: r.comprovantes_pagamento_urls ?? [],
+        recibos_urls: r.recibos_urls ?? [],
         observacao: registro.observacao ?? "",
       });
     }
@@ -96,12 +104,16 @@ export function FormContribuicao({ sociedadeId, usuarioId, registro, onConcluido
       data_pagamento: v.data_pagamento,
       forma_pagamento: v.forma_pagamento,
       comprovante_url: v.comprovante_url ?? null,
+      comprovantes_pagamento_urls: v.comprovantes_pagamento_urls ?? [],
+      recibos_urls: v.recibos_urls ?? [],
       observacao: v.observacao || null,
     };
     if (registro) await atualizar.mutateAsync({ id: registro.id, ...payload });
     else await criar.mutateAsync(payload);
     onConcluido();
   };
+
+
 
   const submetendo = criar.isPending || atualizar.isPending;
   const dataPagamento = form.watch("data_pagamento");
