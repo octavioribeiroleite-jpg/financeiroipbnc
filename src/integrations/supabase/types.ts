@@ -79,6 +79,7 @@ export type Database = {
       contribuicoes: {
         Row: {
           comprovante_url: string | null
+          comprovantes_pagamento_urls: string[]
           conferido_por: string | null
           criado_por: string
           data_conferencia: string | null
@@ -88,6 +89,7 @@ export type Database = {
           id: string
           membro_nome: string
           observacao: string | null
+          recibos_urls: string[]
           referencia_mes: string
           sociedade_id: string
           status_conferencia: Database["public"]["Enums"]["status_conferencia"]
@@ -95,6 +97,7 @@ export type Database = {
         }
         Insert: {
           comprovante_url?: string | null
+          comprovantes_pagamento_urls?: string[]
           conferido_por?: string | null
           criado_por: string
           data_conferencia?: string | null
@@ -104,6 +107,7 @@ export type Database = {
           id?: string
           membro_nome: string
           observacao?: string | null
+          recibos_urls?: string[]
           referencia_mes: string
           sociedade_id: string
           status_conferencia?: Database["public"]["Enums"]["status_conferencia"]
@@ -111,6 +115,7 @@ export type Database = {
         }
         Update: {
           comprovante_url?: string | null
+          comprovantes_pagamento_urls?: string[]
           conferido_por?: string | null
           criado_por?: string
           data_conferencia?: string | null
@@ -120,6 +125,7 @@ export type Database = {
           id?: string
           membro_nome?: string
           observacao?: string | null
+          recibos_urls?: string[]
           referencia_mes?: string
           sociedade_id?: string
           status_conferencia?: Database["public"]["Enums"]["status_conferencia"]
@@ -387,6 +393,7 @@ export type Database = {
           anexo_comprovante_url: string | null
           anexo_nota_url: string | null
           categoria_id: string | null
+          comprovantes_pagamento_urls: string[]
           conferido_por: string | null
           criado_por: string
           data_atualizacao: string
@@ -398,6 +405,7 @@ export type Database = {
           motivo_recusa: string | null
           observacoes: string | null
           pago_por: string | null
+          recibos_urls: string[]
           sociedade_id: string
           status: Database["public"]["Enums"]["status_solicitacao"]
           valor: number
@@ -407,6 +415,7 @@ export type Database = {
           anexo_comprovante_url?: string | null
           anexo_nota_url?: string | null
           categoria_id?: string | null
+          comprovantes_pagamento_urls?: string[]
           conferido_por?: string | null
           criado_por: string
           data_atualizacao?: string
@@ -418,6 +427,7 @@ export type Database = {
           motivo_recusa?: string | null
           observacoes?: string | null
           pago_por?: string | null
+          recibos_urls?: string[]
           sociedade_id: string
           status?: Database["public"]["Enums"]["status_solicitacao"]
           valor: number
@@ -427,6 +437,7 @@ export type Database = {
           anexo_comprovante_url?: string | null
           anexo_nota_url?: string | null
           categoria_id?: string | null
+          comprovantes_pagamento_urls?: string[]
           conferido_por?: string | null
           criado_por?: string
           data_atualizacao?: string
@@ -438,6 +449,7 @@ export type Database = {
           motivo_recusa?: string | null
           observacoes?: string | null
           pago_por?: string | null
+          recibos_urls?: string[]
           sociedade_id?: string
           status?: Database["public"]["Enums"]["status_solicitacao"]
           valor?: number
