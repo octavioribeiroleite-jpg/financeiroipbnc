@@ -5,5 +5,6 @@ import "@fontsource/inter/600.css";
 import "@fontsource/inter/700.css";
 import App from "./App.tsx";
 import "./index.css";
+import "./fechamento-mobile.css";
 
 createRoot(document.getElementById("root")!).render(<App />);
