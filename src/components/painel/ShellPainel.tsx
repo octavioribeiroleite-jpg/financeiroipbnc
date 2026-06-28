@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { LogoTesouraria } from "@/components/brand/LogoTesouraria";
 import { SeletorSociedade } from "@/components/painel/SeletorSociedade";
 import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
+import { BotaoAtualizar } from "@/components/BotaoAtualizar";
 
 const ROTULO_PAPEL: Record<AppRole, string> = {
   administrador: "Operador principal",
@@ -104,6 +105,8 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
                 <HelpCircle className="h-[18px] w-[18px]" />
               </Button>
 
+              <BotaoAtualizar />
+
               <Button
                 variant="ghost"
                 size="icon"
@@ -113,7 +116,7 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
                 }}
                 title="Travar com PIN"
                 aria-label="Travar com PIN"
-                className="h-9 w-9 rounded-xl sm:h-10 sm:w-10"
+                className="hidden h-10 w-10 rounded-xl sm:inline-flex"
               >
                 <Lock className="h-[18px] w-[18px]" />
               </Button>
