@@ -62,10 +62,13 @@ export function useCriarSolicitacao(sociedadeId: string | null, criadoPor: strin
         vencimento: input.vencimento,
         observacoes: input.observacoes || null,
         anexo_nota_url: input.anexo_nota_url || null,
+        comprovantes_pagamento_urls: input.comprovantes_pagamento_urls ?? [],
+        recibos_urls: input.recibos_urls ?? [],
         status: input.status,
       });
       if (error) throw error;
     },
+
     onSuccess: (_, input) => {
       invalidarFluxo(qc, sociedadeId);
       toast.success(input.status === "enviada" ? "Pagamento liberado" : "Rascunho salvo", {
