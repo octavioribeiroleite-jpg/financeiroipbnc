@@ -74,14 +74,74 @@ export function DataTable<T>({
         )}
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border/80 bg-card shadow-card">
+      <div className="space-y-3 md:hidden">
+        {carregando ? (
+          <div className="rounded-xl border border-border/80 bg-card p-8 text-center shadow-card">
+            <Loader2 className="mx-auto h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : exibidos.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground shadow-card">
+            {vazioMensagem}
+          </div>
+        ) : (
+          exibidos.map((item, idx) => {
+            const temCabecalho = (coluna: Coluna<T>) =>
+              typeof coluna.cabecalho !== "string" || coluna.cabecalho.trim().length > 0;
+            const acoesColuna = colunas.find((coluna) => !temCabecalho(coluna));
+            const dadosColunas = colunas.filter(temCabecalho);
+            const primeira = dadosColunas[0];
+            const restantes = dadosColunas.slice(1);
+
+            return (
+              <article
+                key={(item as { id?: string }).id ?? idx}
+                className="rounded-xl border border-border/80 bg-card p-4 shadow-card"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    {primeira && (
+                      <>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                          {primeira.cabecalho}
+                        </p>
+                        <div className="mt-1.5 break-words text-base font-semibold text-foreground">
+                          {primeira.render(item)}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  {acoesColuna && <div className="shrink-0">{acoesColuna.render(item)}</div>}
+                </div>
+
+                {restantes.length > 0 && (
+                  <div className="mt-4 grid gap-3 border-t border-border/70 pt-4">
+                    {restantes.map((coluna) => (
+                      <div
+                        key={coluna.chave}
+                        className="grid grid-cols-[minmax(96px,0.8fr)_minmax(0,1.2fr)] items-start gap-3 text-sm"
+                      >
+                        <span className="text-muted-foreground">{coluna.cabecalho}</span>
+                        <span className="min-w-0 break-words text-right font-medium text-foreground">
+                          {coluna.render(item)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </article>
+            );
+          })
+        )}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-xl border border-border/80 bg-card shadow-card md:block">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="bg-muted/55">
               <TableRow className="hover:bg-transparent">
-                {colunas.map((c) => (
-                  <TableHead key={c.chave} className={c.className}>
-                    <span className="text-xs font-semibold text-muted-foreground">{c.cabecalho}</span>
+                {colunas.map((coluna) => (
+                  <TableHead key={coluna.chave} className={coluna.className}>
+                    <span className="text-xs font-semibold text-muted-foreground">{coluna.cabecalho}</span>
                   </TableHead>
                 ))}
               </TableRow>
@@ -101,10 +161,13 @@ export function DataTable<T>({
                 </TableRow>
               ) : (
                 exibidos.map((item, idx) => (
-                  <TableRow key={(item as { id?: string }).id ?? idx} className="h-16 transition-colors hover:bg-muted/35">
-                    {colunas.map((c) => (
-                      <TableCell key={c.chave} className={c.className}>
-                        {c.render(item)}
+                  <TableRow
+                    key={(item as { id?: string }).id ?? idx}
+                    className="h-16 transition-colors hover:bg-muted/35"
+                  >
+                    {colunas.map((coluna) => (
+                      <TableCell key={coluna.chave} className={coluna.className}>
+                        {coluna.render(item)}
                       </TableCell>
                     ))}
                   </TableRow>
