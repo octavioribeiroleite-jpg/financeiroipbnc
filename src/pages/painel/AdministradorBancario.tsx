@@ -49,6 +49,7 @@ export default function AdministradorBancario() {
             entradas={resumo.entradas}
             saidas={resumo.saidas}
             resultado={resumo.resultado}
+            saldos={saldos}
           />
         </ShellPainel>
       </div>
