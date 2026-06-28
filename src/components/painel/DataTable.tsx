@@ -67,10 +67,63 @@ export function DataTable<T>({
             className="pl-8"
           />
         </div>
-        {acoes && <div data-tour="acoes-pagina" className="flex flex-wrap gap-2">{acoes}</div>}
+        {acoes && <div data-tour="acoes-pagina" className="flex w-full flex-wrap gap-2 sm:w-auto">{acoes}</div>}
       </div>
 
-      <div className="rounded-md border bg-card">
+      <div className="space-y-3 md:hidden">
+        {carregando ? (
+          <div className="rounded-md border bg-card p-6 text-center">
+            <Loader2 className="mx-auto h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : exibidos.length === 0 ? (
+          <div className="rounded-md border bg-card p-6 text-center text-sm text-muted-foreground">
+            {vazioMensagem}
+          </div>
+        ) : (
+          exibidos.map((item, idx) => {
+            const temCabecalho = (c: Coluna<T>) => typeof c.cabecalho !== "string" || c.cabecalho.trim().length > 0;
+            const acoesColuna = colunas.find((c) => !temCabecalho(c));
+            const dadosColunas = colunas.filter(temCabecalho);
+            const primeira = dadosColunas[0];
+            const restantes = dadosColunas.slice(1);
+
+            return (
+              <div key={(item as { id?: string }).id ?? idx} className="rounded-md border bg-card p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    {primeira && (
+                      <>
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          {primeira.cabecalho}
+                        </p>
+                        <div className="mt-1 break-words text-base font-semibold text-foreground">
+                          {primeira.render(item)}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  {acoesColuna && <div className="shrink-0">{acoesColuna.render(item)}</div>}
+                </div>
+
+                {restantes.length > 0 && (
+                  <div className="mt-3 grid gap-3 border-t pt-3">
+                    {restantes.map((c) => (
+                      <div key={c.chave} className="grid grid-cols-[minmax(92px,0.8fr)_minmax(0,1.2fr)] gap-3 text-sm">
+                        <span className="text-muted-foreground">{c.cabecalho}</span>
+                        <span className="min-w-0 break-words text-right font-medium text-foreground">
+                          {c.render(item)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <div className="hidden rounded-md border bg-card md:block">
         <Table>
           <TableHeader>
             <TableRow>
