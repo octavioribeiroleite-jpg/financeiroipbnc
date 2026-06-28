@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { LogoTesouraria } from "@/components/brand/LogoTesouraria";
+import { BotaoAtualizar } from "@/components/BotaoAtualizar";
 
 const emailSchema = z.string().trim().email("E-mail inválido").max(255);
 const senhaSchema = z.string().min(8, "Senha deve ter ao menos 8 caracteres").max(72);
@@ -50,6 +51,9 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="fixed right-3 top-[max(12px,env(safe-area-inset-top))] z-50">
+        <BotaoAtualizar className="border border-border/70 bg-card/95 shadow-card backdrop-blur" />
+      </div>
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
           <LogoTesouraria variant="vertical" theme="light" size="lg" />

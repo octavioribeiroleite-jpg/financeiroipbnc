@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LogoTesouraria } from "@/components/brand/LogoTesouraria";
+import { BotaoAtualizar } from "@/components/BotaoAtualizar";
 
 const PIN_CORRETO = "010203";
 const CHAVE = "pin_desbloqueado";
@@ -34,6 +35,9 @@ export function PinGate({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="fixed right-3 top-[max(12px,env(safe-area-inset-top))] z-50">
+        <BotaoAtualizar className="border border-border/70 bg-card/95 shadow-card backdrop-blur" />
+      </div>
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center">
           <LogoTesouraria variant="vertical" theme="light" size="md" />
