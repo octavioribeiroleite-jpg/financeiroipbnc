@@ -20,6 +20,10 @@ export default defineConfig(({ mode }) => ({
         __dirname,
         "./src/pages/sociedade/ContribuicoesComLote.tsx",
       ),
+      "./pages/sociedade/Solicitacoes.tsx": path.resolve(
+        __dirname,
+        "./src/pages/sociedade/SolicitacoesEditaveis.tsx",
+      ),
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
