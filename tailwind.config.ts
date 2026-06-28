@@ -13,6 +13,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -65,6 +68,23 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        brand: {
+          navy: {
+            950: "#0B1D33",
+            900: "#102744",
+            800: "#16345D",
+            700: "#1D4072",
+          },
+          gold: {
+            600: "#C89624",
+            500: "#D2A93B",
+            400: "#E1BD5A",
+          },
+        },
+      },
+      boxShadow: {
+        card: "0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.05)",
+        elevated: "0 8px 30px rgba(15, 23, 42, 0.10)",
       },
       borderRadius: {
         lg: "var(--radius)",
