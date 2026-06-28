@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select";
 import { CurrencyInput } from "@/components/shared/CurrencyInput";
 import { UploadAnexo } from "@/components/shared/UploadAnexo";
+import { UploadAnexosMultiplos } from "@/components/shared/UploadAnexosMultiplos";
+
 import { hojeISO } from "@/lib/format";
 import { useFornecedores } from "@/hooks/cadastros/useFornecedores";
 import { useCategorias } from "@/hooks/cadastros/useCategorias";
