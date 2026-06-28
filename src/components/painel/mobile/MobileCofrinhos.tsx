@@ -17,18 +17,41 @@ function iniciais(nome: string) {
     .join("");
 }
 
+function formatarSaldoCompacto(valor: number) {
+  const absoluto = Math.abs(valor);
+  const sinal = valor < 0 ? "-" : "";
+
+  if (absoluto >= 1_000_000) {
+    return `${sinal}R$ ${(absoluto / 1_000_000).toLocaleString("pt-BR", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    })} mi`;
+  }
+
+  if (absoluto >= 10_000) {
+    return `${sinal}R$ ${(absoluto / 1_000).toLocaleString("pt-BR", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    })} mil`;
+  }
+
+  return formatarMoeda(valor);
+}
+
 export function MobileCofrinhos({ saldos }: Props) {
   const { sociedadeSelecionadaId, setSociedadeSelecionadaId } = useSociedadeOperacional();
   const total = saldos.reduce((soma, item) => soma + item.saldoAtual, 0);
 
   return (
-    <section className="mt-4">
-      <div className="mb-3 flex items-center justify-between px-1">
+    <section className="mt-5">
+      <div className="mb-3 flex items-end justify-between px-1">
         <div>
-          <h3 className="text-base font-bold text-foreground">Cofrinhos</h3>
+          <h3 className="text-lg font-bold tracking-tight text-foreground">Cofrinhos</h3>
           <p className="text-xs text-muted-foreground">Deslize para ver todas as sociedades.</p>
         </div>
-        <span className="text-xs font-semibold text-muted-foreground">{saldos.length} sociedades</span>
+        <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+          {saldos.length} sociedades
+        </span>
       </div>
 
       <div className="mobile-cofrinhos-scroll">
@@ -36,12 +59,13 @@ export function MobileCofrinhos({ saldos }: Props) {
           type="button"
           onClick={() => setSociedadeSelecionadaId(null)}
           className={cn("mobile-cofrinho-item", !sociedadeSelecionadaId && "is-active")}
+          aria-label={`Ver saldo geral: ${formatarMoeda(total)}`}
         >
-          <span className="mobile-cofrinho-circle">
-            <Wallet className="h-6 w-6" />
-          </span>
           <span className="mobile-cofrinho-name">Geral</span>
-          <span className="mobile-cofrinho-value">{formatarMoeda(total)}</span>
+          <span className="mobile-cofrinho-circle">
+            <Wallet className="mobile-cofrinho-symbol h-5 w-5" />
+            <span className="mobile-cofrinho-value">{formatarSaldoCompacto(total)}</span>
+          </span>
         </button>
 
         {saldos
@@ -55,13 +79,14 @@ export function MobileCofrinhos({ saldos }: Props) {
                 type="button"
                 onClick={() => setSociedadeSelecionadaId(item.sociedadeId)}
                 className={cn("mobile-cofrinho-item", ativo && "is-active")}
+                aria-label={`Ver ${item.nome}: ${formatarMoeda(item.saldoAtual)}`}
               >
+                <span className="mobile-cofrinho-name" title={item.nome}>{item.nome}</span>
                 <span className="mobile-cofrinho-circle">
-                  <span className="text-sm font-bold">{iniciais(item.nome)}</span>
-                  <Building2 className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-card p-0.5 text-primary" />
+                  <span className="mobile-cofrinho-initials">{iniciais(item.nome)}</span>
+                  <span className="mobile-cofrinho-value">{formatarSaldoCompacto(item.saldoAtual)}</span>
+                  <Building2 className="mobile-cofrinho-building" />
                 </span>
-                <span className="mobile-cofrinho-name">{item.nome}</span>
-                <span className="mobile-cofrinho-value">{formatarMoeda(item.saldoAtual)}</span>
               </button>
             );
           })}
