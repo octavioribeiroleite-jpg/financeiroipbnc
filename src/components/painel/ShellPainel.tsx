@@ -4,7 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarPainel } from "./SidebarPainel";
 import { useAuth, AppRole } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, LogOut } from "lucide-react";
+import { HelpCircle, Lock } from "lucide-react";
 import { TourLauncher } from "@/components/tour/TourLauncher";
 import { iniciarTour, reexibirTodosTours, temTourPara } from "@/lib/tour/tours";
 import { toast } from "sonner";
