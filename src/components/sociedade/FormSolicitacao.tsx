@@ -253,6 +253,45 @@ export function FormSolicitacao({ sociedadeId, usuarioId, registro, onConcluido,
       </div>
 
       <div className="space-y-2">
+        <Label>Comprovantes de pagamento (até 2)</Label>
+        <Controller
+          control={form.control}
+          name="comprovantes_pagamento_urls"
+          render={({ field }) => (
+            <UploadAnexosMultiplos
+              sociedadeId={sociedadeId}
+              pasta="solicitacoes-comprovantes"
+              rotulo="Comprovante"
+              valores={field.value ?? []}
+              onChange={field.onChange}
+              max={2}
+              disabled={!podeEditar}
+            />
+          )}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Recibos (até 2)</Label>
+        <Controller
+          control={form.control}
+          name="recibos_urls"
+          render={({ field }) => (
+            <UploadAnexosMultiplos
+              sociedadeId={sociedadeId}
+              pasta="solicitacoes-recibos"
+              rotulo="Recibo"
+              valores={field.value ?? []}
+              onChange={field.onChange}
+              max={2}
+              disabled={!podeEditar}
+            />
+          )}
+        />
+      </div>
+
+
+      <div className="space-y-2">
         <Label htmlFor="observacoes">Observações</Label>
         <Textarea id="observacoes" rows={2} {...form.register("observacoes")} disabled={!podeEditar} />
       </div>
