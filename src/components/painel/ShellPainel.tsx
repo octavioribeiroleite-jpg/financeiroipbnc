@@ -10,6 +10,8 @@ import { iniciarTour, reexibirTodosTours, temTourPara } from "@/lib/tour/tours";
 import { toast } from "sonner";
 import { LogoTesouraria } from "@/components/brand/LogoTesouraria";
 import { SeletorSociedade } from "@/components/painel/SeletorSociedade";
+import { useSociedadeOperacional } from "@/contexts/SociedadeOperacionalContext";
+
 
 interface ShellPainelProps {
   children: ReactNode;
