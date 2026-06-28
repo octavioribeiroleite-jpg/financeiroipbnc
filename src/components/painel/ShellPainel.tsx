@@ -60,7 +60,7 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
       <div className="flex min-h-screen w-full bg-background">
         <SidebarPainel />
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between border-b border-border/80 bg-card/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-card/85 sm:px-5 lg:px-6">
+          <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between border-b border-border/80 bg-card/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-card/90 sm:px-5 lg:px-6">
             <div className="flex min-w-0 items-center gap-3">
               <span data-tour="sidebar-trigger">
                 <SidebarTrigger className="h-10 w-10 rounded-xl border border-border/80 bg-card text-foreground shadow-sm hover:bg-muted" />
@@ -108,7 +108,7 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
                   </p>
                 </div>
                 <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-gold-500 text-sm font-bold text-brand-navy-950 shadow-sm ring-2 ring-brand-gold-500/15"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-gold-500 text-sm font-bold text-brand-navy-950 shadow-sm ring-2 ring-brand-gold-500/20"
                   title={`${perfil?.nome ?? "Usuário"} · ${papelPrincipal ? ROTULO_PAPEL[papelPrincipal] : "Sem papel"}`}
                 >
                   {iniciais(perfil?.nome)}
