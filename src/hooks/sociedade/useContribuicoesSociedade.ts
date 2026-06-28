@@ -74,10 +74,13 @@ export function useCriarContribuicao(sociedadeId: string | null, criadoPor: stri
         data_pagamento: input.data_pagamento,
         forma_pagamento: input.forma_pagamento,
         comprovante_url: input.comprovante_url ?? null,
+        comprovantes_pagamento_urls: input.comprovantes_pagamento_urls ?? [],
+        recibos_urls: input.recibos_urls ?? [],
         observacao: input.observacao ?? null,
       });
       if (error) throw error;
     },
+
     onSuccess: () => {
       invalidarDadosFinanceiros(qc, sociedadeId);
       toast.success("Contribuição registrada");
