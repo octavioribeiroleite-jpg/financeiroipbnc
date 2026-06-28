@@ -70,9 +70,17 @@ export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
                 <HelpCircle className="h-4 w-4" />
                 <span className="hidden sm:inline">Ajuda</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={signOut}>
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Sair</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  sessionStorage.removeItem("pin_desbloqueado");
+                  window.location.reload();
+                }}
+                title="Travar com PIN"
+              >
+                <Lock className="h-4 w-4" />
+                <span className="hidden sm:inline">Travar</span>
               </Button>
             </div>
           </header>
