@@ -53,10 +53,10 @@ export function DataTable<T>({
   const exibidos = filtrados.slice(inicio, inicio + paginacao);
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="relative w-full lg:max-w-md">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted-foreground" />
           <Input
             value={termo}
             onChange={(e) => {
@@ -64,60 +64,69 @@ export function DataTable<T>({
               setPagina(1);
             }}
             placeholder={buscaPlaceholder}
-            className="pl-8"
+            className="h-11 rounded-xl bg-card pl-10 shadow-sm"
           />
         </div>
-        {acoes && <div data-tour="acoes-pagina" className="flex flex-wrap gap-2">{acoes}</div>}
+        {acoes && (
+          <div data-tour="acoes-pagina" className="flex w-full flex-wrap gap-2 lg:w-auto lg:justify-end">
+            {acoes}
+          </div>
+        )}
       </div>
 
-      <div className="rounded-md border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {colunas.map((c) => (
-                <TableHead key={c.chave} className={c.className}>
-                  {c.cabecalho}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {carregando ? (
-              <TableRow>
-                <TableCell colSpan={colunas.length} className="h-24 text-center">
-                  <Loader2 className="mx-auto h-5 w-5 animate-spin text-muted-foreground" />
-                </TableCell>
+      <div className="overflow-hidden rounded-xl border border-border/80 bg-card shadow-card">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-muted/55">
+              <TableRow className="hover:bg-transparent">
+                {colunas.map((c) => (
+                  <TableHead key={c.chave} className={c.className}>
+                    <span className="text-xs font-semibold text-muted-foreground">{c.cabecalho}</span>
+                  </TableHead>
+                ))}
               </TableRow>
-            ) : exibidos.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={colunas.length} className="h-24 text-center text-sm text-muted-foreground">
-                  {vazioMensagem}
-                </TableCell>
-              </TableRow>
-            ) : (
-              exibidos.map((item, idx) => (
-                <TableRow key={(item as { id?: string }).id ?? idx}>
-                  {colunas.map((c) => (
-                    <TableCell key={c.chave} className={c.className}>
-                      {c.render(item)}
-                    </TableCell>
-                  ))}
+            </TableHeader>
+            <TableBody>
+              {carregando ? (
+                <TableRow>
+                  <TableCell colSpan={colunas.length} className="h-28 text-center">
+                    <Loader2 className="mx-auto h-5 w-5 animate-spin text-muted-foreground" />
+                  </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : exibidos.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={colunas.length} className="h-32 text-center text-sm text-muted-foreground">
+                    {vazioMensagem}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                exibidos.map((item, idx) => (
+                  <TableRow key={(item as { id?: string }).id ?? idx} className="h-16 transition-colors hover:bg-muted/35">
+                    {colunas.map((c) => (
+                      <TableCell key={c.chave} className={c.className}>
+                        {c.render(item)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
-      {totalPaginas > 1 && (
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>
-            Página {paginaAtual} de {totalPaginas} · {filtrados.length} registros
-          </span>
+      <div className="flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <span>
+          {filtrados.length} registro{filtrados.length === 1 ? "" : "s"}
+          {totalPaginas > 1 ? ` · Página ${paginaAtual} de ${totalPaginas}` : ""}
+        </span>
+
+        {totalPaginas > 1 && (
           <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
+              className="rounded-lg"
               disabled={paginaAtual === 1}
               onClick={() => setPagina((p) => Math.max(1, p - 1))}
             >
@@ -126,14 +135,15 @@ export function DataTable<T>({
             <Button
               variant="outline"
               size="sm"
+              className="rounded-lg"
               disabled={paginaAtual === totalPaginas}
               onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
             >
               Próxima
             </Button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
