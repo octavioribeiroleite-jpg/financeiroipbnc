@@ -1,111 +1,107 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Design system institucional — Tesouraria Igreja Presbiteriana
-   Paleta sóbria: azul institucional, neutros claros, dourado discreto.
-   Todas as cores em HSL.
-*/
-
 @layer base {
   :root {
-    --background: 210 25% 98%;
-    --foreground: 215 30% 18%;
+    --background: 216 27% 97%;
+    --foreground: 215 39% 16%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 30% 18%;
+    --card-foreground: 215 39% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 30% 18%;
+    --popover-foreground: 215 39% 16%;
 
-    /* Azul institucional presbiteriano */
-    --primary: 215 60% 28%;
+    --primary: 215 61% 28%;
     --primary-foreground: 210 40% 98%;
-    --primary-glow: 215 55% 42%;
+    --primary-glow: 214 52% 40%;
 
-    --secondary: 210 25% 94%;
-    --secondary-foreground: 215 40% 22%;
+    --secondary: 214 27% 94%;
+    --secondary-foreground: 215 43% 23%;
 
-    --muted: 210 20% 95%;
-    --muted-foreground: 215 15% 45%;
+    --muted: 214 25% 95%;
+    --muted-foreground: 215 16% 45%;
 
-    /* Dourado discreto para destaques */
-    --accent: 42 55% 52%;
-    --accent-foreground: 215 40% 18%;
+    --accent: 43 63% 53%;
+    --accent-foreground: 215 44% 17%;
 
-    --destructive: 0 72% 45%;
+    --destructive: 356 52% 51%;
     --destructive-foreground: 210 40% 98%;
 
-    --success: 142 55% 38%;
+    --success: 148 68% 31%;
     --success-foreground: 210 40% 98%;
 
-    --warning: 35 85% 50%;
-    --warning-foreground: 215 40% 18%;
+    --warning: 34 89% 46%;
+    --warning-foreground: 215 44% 17%;
 
-    --border: 215 20% 88%;
-    --input: 215 20% 88%;
-    --ring: 215 60% 28%;
+    --border: 214 24% 89%;
+    --input: 214 24% 86%;
+    --ring: 215 61% 28%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --gradient-primary: linear-gradient(135deg, hsl(215 60% 28%), hsl(215 55% 42%));
-    --shadow-elegant: 0 10px 30px -12px hsl(215 60% 28% / 0.25);
-    --shadow-card: 0 2px 8px -2px hsl(215 30% 18% / 0.08);
+    --gradient-primary: linear-gradient(135deg, hsl(215 61% 28%), hsl(214 52% 40%));
+    --gradient-gold: linear-gradient(135deg, #e1bd5a, #c89624);
+    --shadow-elegant: 0 8px 30px rgba(15, 23, 42, 0.1);
+    --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.05);
 
-    --sidebar-background: 215 60% 28%;
-    --sidebar-foreground: 210 40% 96%;
-    --sidebar-primary: 42 55% 52%;
-    --sidebar-primary-foreground: 215 40% 18%;
-    --sidebar-accent: 215 55% 22%;
-    --sidebar-accent-foreground: 210 40% 96%;
-    --sidebar-border: 215 50% 22%;
-    --sidebar-ring: 42 55% 52%;
+    --sidebar-background: 214 72% 17%;
+    --sidebar-foreground: 210 40% 97%;
+    --sidebar-primary: 43 63% 53%;
+    --sidebar-primary-foreground: 215 44% 17%;
+    --sidebar-accent: 214 55% 25%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 214 43% 29%;
+    --sidebar-ring: 43 63% 53%;
   }
 
   .dark {
-    --background: 215 35% 10%;
+    --background: 215 39% 9%;
     --foreground: 210 40% 96%;
 
-    --card: 215 35% 13%;
+    --card: 215 36% 12%;
     --card-foreground: 210 40% 96%;
 
-    --popover: 215 35% 13%;
+    --popover: 215 36% 12%;
     --popover-foreground: 210 40% 96%;
 
-    --primary: 215 55% 55%;
-    --primary-foreground: 215 40% 12%;
-    --primary-glow: 215 60% 65%;
+    --primary: 214 62% 58%;
+    --primary-foreground: 215 44% 12%;
+    --primary-glow: 214 65% 67%;
 
     --secondary: 215 30% 18%;
     --secondary-foreground: 210 40% 96%;
 
     --muted: 215 30% 18%;
-    --muted-foreground: 215 15% 65%;
+    --muted-foreground: 215 16% 66%;
 
-    --accent: 42 55% 55%;
-    --accent-foreground: 215 40% 12%;
+    --accent: 43 66% 57%;
+    --accent-foreground: 215 44% 12%;
 
-    --destructive: 0 65% 50%;
+    --destructive: 356 57% 56%;
     --destructive-foreground: 210 40% 98%;
 
-    --success: 142 50% 45%;
+    --success: 148 52% 47%;
     --success-foreground: 210 40% 98%;
 
-    --warning: 35 80% 55%;
-    --warning-foreground: 215 40% 12%;
+    --warning: 34 86% 55%;
+    --warning-foreground: 215 44% 12%;
 
-    --border: 215 30% 22%;
-    --input: 215 30% 22%;
-    --ring: 215 55% 55%;
+    --border: 215 29% 22%;
+    --input: 215 29% 22%;
+    --ring: 214 62% 58%;
 
-    --sidebar-background: 215 40% 8%;
+    --sidebar-background: 215 45% 8%;
     --sidebar-foreground: 210 40% 96%;
-    --sidebar-primary: 42 55% 55%;
-    --sidebar-primary-foreground: 215 40% 12%;
-    --sidebar-accent: 215 35% 14%;
+    --sidebar-primary: 43 66% 57%;
+    --sidebar-primary-foreground: 215 44% 12%;
+    --sidebar-accent: 215 35% 15%;
     --sidebar-accent-foreground: 210 40% 96%;
-    --sidebar-border: 215 35% 16%;
-    --sidebar-ring: 42 55% 55%;
+    --sidebar-border: 215 35% 17%;
+    --sidebar-ring: 43 66% 57%;
   }
 }
 
@@ -114,43 +110,86 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "cv11", "ss01";
+  html {
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
   }
 
-  h1, h2, h3, h4 {
+  body {
+    @apply bg-background text-foreground antialiased;
+    min-width: 320px;
+    font-feature-settings: "cv11", "ss01", "tnum";
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
     @apply tracking-tight;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  ::selection {
+    background: rgba(210, 169, 59, 0.24);
   }
 }
 
-/* Driver.js — popover de tour usando tokens semânticos */
 @layer components {
-  .driver-popover {
-    @apply rounded-lg border bg-card text-card-foreground shadow-lg;
+  .financial-number {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.025em;
   }
+
+  .surface-card {
+    @apply rounded-xl border bg-card shadow-card;
+  }
+
+  .page-section-title {
+    @apply text-lg font-semibold text-foreground;
+  }
+
+  .page-section-description {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .driver-popover {
+    @apply rounded-xl border bg-card text-card-foreground shadow-elevated;
+  }
+
   .driver-popover-title {
     @apply text-base font-semibold text-foreground;
   }
+
   .driver-popover-description {
     @apply text-sm text-muted-foreground;
   }
+
   .driver-popover-progress-text {
     @apply text-xs text-muted-foreground;
   }
+
   .driver-popover-footer button {
-    @apply rounded-md border bg-background px-3 py-1.5 text-sm font-medium text-foreground transition-colors;
+    @apply rounded-lg border bg-background px-3 py-1.5 text-sm font-medium text-foreground transition-colors;
     text-shadow: none;
   }
+
   .driver-popover-footer button:hover {
     @apply bg-accent text-accent-foreground;
   }
+
   .driver-popover-next-btn {
-    @apply !bg-primary !text-primary-foreground !border-primary;
+    @apply !border-primary !bg-primary !text-primary-foreground;
   }
+
   .driver-popover-next-btn:hover {
     @apply !bg-primary/90;
   }
+
   .driver-popover-close-btn {
     @apply text-muted-foreground hover:text-foreground;
   }
