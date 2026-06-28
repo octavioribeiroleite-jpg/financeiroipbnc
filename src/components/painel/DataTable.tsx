@@ -13,7 +13,7 @@ import { Loader2, Search } from "lucide-react";
 
 export interface Coluna<T> {
   chave: string;
-  cabecalho: string;
+  cabecalho: ReactNode;
   render: (item: T) => ReactNode;
   className?: string;
 }
