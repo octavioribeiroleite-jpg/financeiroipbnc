@@ -22,7 +22,7 @@ export function UploadAnexo({
   disabled,
 }: UploadAnexoProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { upload, obterUrlAssinada, remover, enviando } = useUploadAnexo();
+  const { upload, abrirAnexo, remover, enviando } = useUploadAnexo();
   const [dragOver, setDragOver] = useState(false);
 
   const enviar = async (arquivo: File) => {
@@ -36,31 +36,7 @@ export function UploadAnexo({
 
   const abrir = async () => {
     if (!caminho) return;
-    // Abrimos a janela imediatamente (gesto do usuário) para evitar bloqueio
-    // de popup do navegador. Em seguida atualizamos a URL com a assinada.
-    const janela = window.open("", "_blank");
-    if (janela) {
-      janela.opener = null;
-      janela.document.write("<p style='font-family: system-ui; padding: 24px'>Abrindo anexo...</p>");
-      janela.document.close();
-    }
-    const url = await obterUrlAssinada(caminho);
-    if (!url) {
-      janela?.close();
-      return;
-    }
-    if (janela) {
-      janela.location.href = url;
-    } else {
-      // Popup bloqueado: força download/abertura via link temporário
-      const a = document.createElement("a");
-      a.href = url;
-      a.target = "_blank";
-      a.rel = "noopener";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    }
+    await abrirAnexo(caminho);
   };
 
   const limpar = async () => {
