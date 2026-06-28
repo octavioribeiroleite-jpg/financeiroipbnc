@@ -99,8 +99,11 @@ export function useAtualizarSolicitacao(sociedadeId: string | null) {
           vencimento: input.vencimento,
           observacoes: input.observacoes || null,
           anexo_nota_url: input.anexo_nota_url || null,
+          comprovantes_pagamento_urls: input.comprovantes_pagamento_urls ?? [],
+          recibos_urls: input.recibos_urls ?? [],
           ...(input.status ? { status: input.status } : {}),
         })
+
         .eq("id", id)
         .eq("status", "rascunho")
         .select("id")
