@@ -22,6 +22,8 @@ interface ShellPainelProps {
 export function ShellPainel({ children, titulo, descricao }: ShellPainelProps) {
   const { user } = useAuth();
   const location = useLocation();
+  const { sociedades, sociedadeSelecionadaId, setSociedadeSelecionadaId } = useSociedadeOperacional();
+
 
   const handleAjuda = () => {
     if (temTourPara(location.pathname)) {
